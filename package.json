@@ -1,9 +1,10 @@
 {
-  "name": "react-flow",
-  "version": "0.0.0",
+  "name": "flow-node-form",
+  "version": "0.0.1",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
+    "build:gh-page": "tsc && vite build --base /flow-node-form/",
     "serve": "vite preview"
   },
   "dependencies": {

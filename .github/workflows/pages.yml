@@ -43,8 +43,8 @@ jobs:
             ${{ runner.OS }}-npm-cache
       - name: Install Dependencies
         run: yarn
-      - name: Build
-        run: yarn build
+      - name: Build Page
+        run: yarn build:gh-page
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         with:

@@ -1,0 +1,18 @@
+.container {
+  height: 100vh;
+  min-height: 550px;
+  padding: 16px;
+  display: grid;
+  gap: 16px;
+  grid-template-columns: 150px minmax(0, 1fr) 150px;
+  grid-template-rows: 1fr 20vh;
+}
+
+.main {
+  height: 80vh;
+}
+
+.console {
+  grid-column-start: 1;
+  grid-column-end: -1;
+}

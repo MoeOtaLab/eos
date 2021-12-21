@@ -1,0 +1,23 @@
+.react-flow__edge-path,
+.react-flow__connection-path {
+  stroke-dasharray: 10, 2;
+  fill: none;
+  pointer-events: auto;
+  stroke-width: 3px;
+}
+
+.react-flow__edge.selected .react-flow__edge-path,
+.react-flow__connection-path {
+  stroke: rgb(0, 192, 255);
+  animation: 1s linear 0s infinite normal none running flow-path;
+}
+
+@keyframes flow-path {
+  0% {
+    stroke-dashoffset: 24;
+  }
+
+  100% {
+    stroke-dashoffset: 0;
+  }
+}

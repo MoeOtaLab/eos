@@ -1,9 +1,10 @@
 import React, { useState, useMemo, useEffect, useContext, useRef } from 'react';
 import { LogicStateStore } from './flowGraph';
-import * as _Rx from 'rxjs';
-import * as _operations from '../Operators/operations';
-import * as _link from '../../Link/link';
+import * as Rx from 'rxjs';
+import * as operations from '../Operators/operations';
+import * as link from '../../Link/link';
 import { useObservable } from 'rxjs-hooks';
+import { LogicStateStoreSymbol } from './flowGraph'
 
 export type LinkRuntimeContextState = {
   store: LogicStateStore;
@@ -18,12 +19,10 @@ export function useLinkRuntimeContext() {
 }
 
 export function runCode(code: string) {
-  const Rx = _Rx;
-  const operations = _operations;
-  const link = _link;
-  // eslint-disable-next-line no-eval
-  const store: LogicStateStore | undefined = eval(code);
-  return store;
+  const logicStateStore:LogicStateStore = new Map();
+  const runLinkLogic = new Function('Rx', 'operations', 'link', LogicStateStoreSymbol, code)
+  runLinkLogic(Rx, operations, link, logicStateStore)
+  return logicStateStore;
 }
 
 type LinkRuntimeContextProviderProps = {
@@ -66,7 +65,7 @@ export const LinkRuntimeContextProvider: React.FC<
 
 export function useValue<T = any>(id: string) {
   const { store } = useLinkRuntimeContext();
-  const targetSubject = useRef(new _Rx.Subject());
+  const targetSubject = useRef(new Rx.Subject());
 
   useEffect(() => {
     const subscription = store.get(id)?.subscribe((...args) => {

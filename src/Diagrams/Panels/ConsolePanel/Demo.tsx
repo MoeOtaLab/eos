@@ -8,7 +8,14 @@ export const Demo: React.FC = () => {
   const output = useValue<string>('$flow_slgum');
 
   return (
-    <div style={{ display: 'grid', gap: 16 }}>
+    <div
+      style={{
+        display: 'grid',
+        gap: 16,
+        gridAutoFlow: 'column',
+        justifyContent: 'start',
+      }}
+    >
       <Wrap name="value" value={value} onChange={setValue}>
         <input type="number" />
       </Wrap>

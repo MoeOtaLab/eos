@@ -55,8 +55,6 @@ export function convertToGraph(elements: Elements) {
 export function generateLogicState(elements: Elements) {
   const graph = convertToGraph(elements);
   const initial = `
-    const ${LogicStateStoreSymbol} = new Map();
-    // initial
     ${graph
       .map(
         (item) => `

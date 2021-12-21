@@ -12,18 +12,24 @@ export const ConsolePanel: React.FC = () => {
     <div>
       <div>Console Panel</div>
       <br />
-      <div style={{ display: 'grid', gap: 16 }}>
+      <div
+        style={{
+          display: 'grid',
+          gap: 16,
+          gridAutoFlow: 'column',
+          justifyContent: 'start',
+        }}
+      >
         <button
           onClick={() => {
             console.log(convertToGraph(elements));
           }}
         >
-          graph
+          console graph
         </button>
 
         <button onClick={() => setOutput(compile(elements))}>
-          {' '}
-          Compile And Run{' '}
+          Compile And Run
         </button>
       </div>
 

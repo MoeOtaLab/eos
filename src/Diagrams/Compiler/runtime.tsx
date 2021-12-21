@@ -1,10 +1,9 @@
 import React, { useState, useMemo, useEffect, useContext, useRef } from 'react';
-import { LogicStateStore } from './flowGraph';
+import { LogicStateStore, LogicStateStoreSymbol } from './flowGraph';
 import * as Rx from 'rxjs';
 import * as operations from '../Operators/operations';
 import * as link from '../../Link/link';
 import { useObservable } from 'rxjs-hooks';
-import { LogicStateStoreSymbol } from './flowGraph'
 
 export type LinkRuntimeContextState = {
   store: LogicStateStore;
@@ -19,9 +18,16 @@ export function useLinkRuntimeContext() {
 }
 
 export function runCode(code: string) {
-  const logicStateStore:LogicStateStore = new Map();
-  const runLinkLogic = new Function('Rx', 'operations', 'link', LogicStateStoreSymbol, code)
-  runLinkLogic(Rx, operations, link, logicStateStore)
+  const logicStateStore: LogicStateStore = new Map();
+  // eslint-disable-next-line no-new-func
+  const runLinkLogic = new Function(
+    'Rx',
+    'operations',
+    'link',
+    LogicStateStoreSymbol,
+    code
+  );
+  runLinkLogic(Rx, operations, link, logicStateStore);
   return logicStateStore;
 }
 

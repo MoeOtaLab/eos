@@ -6,9 +6,9 @@ name: Page Deploy
 on:
   # Triggers the workflow on push or pull request events but only for the main branch
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -27,27 +27,28 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: "16.x"
-      - name: Yarn Setup
-        # You may pin to the exact commit or the version.
-        # uses: DerYeger/yarn-setup-action@f55be5383ea94f5eb25b20aee609af4603a68dde
-        uses: DerYeger/yarn-setup-action@v1.0.1
-        with:
-          # The version of Node.js that will be used
-          node-version: "16.x"
-      - name: Cache NPM dependencies
+      - name: Cache pnpm modules
         uses: actions/cache@v2
         with:
-          path: node_modules
-          key: ${{ runner.OS }}-npm-cache
+          path: ~/.pnpm-store
+          key: ${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
-            ${{ runner.OS }}-npm-cache
-      - name: Install Dependencies
-        run: yarn
+            ${{ runner.os }}-pnp
+      - name: Setup PNPM
+        # You may pin to the exact commit or the version.
+        # uses: pnpm/action-setup@646cdf48217256a3d0b80361c5a50727664284f2
+        uses: pnpm/action-setup@v2.0.1
+        with:
+          # Version of PNPM to install
+          version: 6.24.2
+          # Where to store PNPM files
+          # If specified, run `pnpm install`
+          run_install: true # optional, default is null
       - name: Build Page
-        run: yarn build:gh-page
+        run: pnpm build:gh-page
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dist
+          publish_dir: ./packages/low-code/dist
           publish_branch: gh-pages # deploying branch

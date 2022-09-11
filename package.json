@@ -1,6 +1,7 @@
 {
-  "name": "flow-node-form",
+  "name": "@mflow/root",
   "version": "0.0.1",
+  "private": true,
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",

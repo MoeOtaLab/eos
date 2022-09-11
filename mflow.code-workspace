@@ -1,0 +1,20 @@
+{
+  "folders": [
+    {
+      "name": "Root",
+      "path": "."
+    },
+    {
+      "name": "Core",
+      "path": "packages/core"
+    },
+    {
+      "name": "LC",
+      "path": "packages/low-code"
+    },
+    {
+      "name": "Shared",
+      "path": "packages/shared"
+    },
+  ]
+}

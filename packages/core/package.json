@@ -1,0 +1,16 @@
+{
+  "name": "@mflow/core",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "build:gh-page": "tsc && vite build --base /flow-node-form/",
+    "serve": "vite preview"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "typescript": "^4.3.2",
+    "vite": "^2.6.0"
+  }
+}

@@ -1,28 +1,18 @@
 {
-  "name": "flow-node-form",
+  "name": "@mflow/root",
   "version": "0.0.1",
+  "private": true,
   "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
-    "build:gh-page": "tsc && vite build --base /flow-node-form/",
-    "serve": "vite preview"
+    "build:gh-page": "pnpm build:gh-page --filter @mflow/low-code"
   },
   "dependencies": {
-    "classnames": "^2.3.1",
-    "less": "^4.1.2",
-    "react": "^17.0.0",
-    "react-dom": "^17.0.0",
-    "react-flow-renderer": "^9.6.7",
-    "rxjs": "^7.3.1",
-    "rxjs-hooks": "^0.7.0",
-    "use-context-selector": "^1.3.9"
+    "@mflow/core": "workspace:*",
+    "@mflow/shared": "workspace:*"
   },
   "devDependencies": {
-    "@types/react": "^17.0.0",
-    "@types/react-dom": "^17.0.0",
+    "@types/node": "^18.7.16",
     "@typescript-eslint/eslint-plugin": "^4.33.0",
     "@typescript-eslint/parser": "^4.33.0",
-    "@vitejs/plugin-react": "^1.0.0",
     "eslint": "^7.32.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-config-standard": "^16.0.3",
@@ -32,7 +22,6 @@
     "eslint-plugin-promise": "^5.1.0",
     "eslint-plugin-react": "^7.26.1",
     "prettier": "^2.5.1",
-    "typescript": "^4.3.2",
-    "vite": "^2.6.0"
+    "typescript": "^4.3.2"
   }
 }

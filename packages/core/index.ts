@@ -1,5 +1,6 @@
 import { Model } from './src/types';
 import { ModelNode, LifecycleIndicator } from './src/ModelNode';
+import { runInContext, currentModelNode } from './src/runInContext';
 
 export function setupModel<
   T extends Model,
@@ -9,9 +10,24 @@ export function setupModel<
     model,
     props,
     lifecycleIndicator,
+    parent: currentModelNode,
+  });
+
+  runInContext(modelNode, () => {
+    modelNode.initialize();
   });
 
   return modelNode;
+}
+
+export function mount(fn?: () => void) {
+  fn?.();
+}
+
+export function unmount(fn?: () => void) {
+  if (currentModelNode) {
+    currentModelNode.addUnmountCallback(fn);
+  }
 }
 
 export function provideContext(...args: any[]): any {}

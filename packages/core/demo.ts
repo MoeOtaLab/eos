@@ -23,7 +23,7 @@ function Model1() {
 function UserModel() {}
 
 function DynamicModel() {
-  const list = [];
+  const list: any[] = [];
 
   const computedList = setupDyanamicModel(() =>
     list.map((item) => setupModel(Model1))

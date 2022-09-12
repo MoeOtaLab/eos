@@ -1,9 +1,25 @@
 import { Ref, ref } from '@vue/reactivity';
-import { setupModel } from '@mflow/core';
+import { setupModel, unmount } from '@mflow/core';
 
-export function BasicInfoModel(props: { count?: Ref<number> }) {
-  const { count: countProp } = props;
-  const count = countProp ?? ref(0);
+function CountModel(props: { count?: Ref<number> }) {
+  const count2 = props?.count ?? ref(0);
+
+  unmount(() => {
+    count2.value = 666;
+  });
+
+  return {
+    count2,
+  };
+}
+
+function BasicInfoModel(props: { count?: Ref<number> }) {
+  const { count: coutProp } = props;
+
+  const countModel = setupModel(CountModel, { count: coutProp });
+  const {
+    value: { count2: count },
+  } = countModel;
 
   function addOne() {
     count.value += 1;
@@ -17,7 +33,11 @@ export function BasicInfoModel(props: { count?: Ref<number> }) {
     count.value -= 1;
   }
 
+  // 初始化逻辑
+  count.value = 233;
+
   return {
+    countModel,
     count,
 
     // methods
@@ -29,9 +49,18 @@ export function BasicInfoModel(props: { count?: Ref<number> }) {
 
 export function AppModel() {
   const switchOn = ref(false);
-  const basicInfoModel = setupModel(BasicInfoModel, {}, switchOn);
+  const count = ref(0);
+
+  const basicInfoModel = setupModel(
+    BasicInfoModel,
+    {
+      count,
+    },
+    switchOn
+  );
 
   return {
+    count,
     switchOn,
     basicInfoModel,
   };

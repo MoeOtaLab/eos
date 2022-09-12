@@ -149,9 +149,10 @@ export function AppModel() {
 const appModel = setupModel(AppModel);
 appModel.value.personListModel.value.addPerson(new Person({ name: 'first' }));
 
-appModel.value.personListModel.value.PersonModelList.value[1].value.updatePerson(
-  'change==',
-  'phone'
-);
-
-console.log(appModel);
+setTimeout(() => {
+  appModel.value.personListModel.value.PersonModelList.value[1].value.updatePerson(
+    'change==',
+    'phone'
+  );
+  console.log(appModel);
+});

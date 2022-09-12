@@ -1,7 +1,9 @@
 import { Model } from './src/types';
 import { ModelNode, LifecycleIndicator } from './src/ModelNode';
 import { runInContext, currentModelNode } from './src/runInContext';
-import { computed, Ref } from '@vue/reactivity';
+import { ref, Ref, effect, computed } from '@vue/reactivity';
+
+type RefValue<T> = T extends Ref<infer P> ? P : unknown;
 
 export function setupModel<
   T extends Model,
@@ -29,31 +31,76 @@ export function setupDyanamicModel<
   model: DModel,
   options: {
     /** recognize different instance */
-    key?: string;
+    key?: keyof ListData;
     list: Ref<ListData[]>;
     props?: (item: ListData, index: number) => Parameters<DModel>['0'];
     lifecycleIndicator?: (item: ListData, index: number) => P;
   }
 ) {
-  const { list, props, lifecycleIndicator } = options;
+  const { list, props, lifecycleIndicator, key } = options;
   const context = currentModelNode;
 
-  const dModelList = computed(() =>
-    list.value?.map((item, index) => {
-      const modelWillUpdate = runInContext(context, () =>
-        setupModel(
-          model,
-          props?.(item, index),
-          lifecycleIndicator?.(item, index)
-        )
-      );
+  const dModelList = ref<
+    {
+      model: ModelNode<DModel, ReturnType<DModel>, Parameters<DModel>['0'], P>;
+      uuid: string | number;
+    }[]
+  >([]);
 
-      // TODO: need to reuse model generated last time.
-      return modelWillUpdate;
-    })
-  );
+  function updateList() {
+    // TODO: need a scheduler
+    Promise.resolve().then(() => {
+      // can do something.
+      const lastList = dModelList.value;
+      const usedSet = new WeakSet<
+        RefValue<typeof dModelList>[number]['model']
+      >();
 
-  return dModelList;
+      const listWillUpdate = list.value?.map((item, index) => {
+        let modelWillUpdate = lastList?.find((lastItem) =>
+          lastItem.uuid === key ? item[key || ''] : index
+        )?.model;
+
+        if (!modelWillUpdate) {
+          // @ts-expect-error
+          modelWillUpdate = runInContext(context, () =>
+            setupModel(
+              model,
+              props?.(item, index),
+              lifecycleIndicator?.(item, index)
+            )
+          );
+        } else {
+          usedSet.add(modelWillUpdate);
+          // TODO: soft update
+        }
+
+        return {
+          uuid: key ? item[key || ''] : index,
+          model: modelWillUpdate,
+        };
+      });
+
+      lastList
+        .map((item) => item.model)
+        .filter((item) => !usedSet.has(item))
+        .forEach((model) => {
+          // TODO: unmount.
+        });
+
+      // @ts-expect-error
+      dModelList.value = listWillUpdate;
+    });
+  }
+
+  effect(() => {
+    // watch effect
+    const listItem = list.value;
+    updateList();
+    return listItem;
+  });
+
+  return computed(() => dModelList.value.map((item) => item.model));
 }
 
 export function mount(fn?: () => void) {
@@ -71,4 +118,3 @@ export function injectContext(...args: any[]): any {}
 export function createContext(...args: any[]): any {}
 
 export function useModel(...args: any[]): any {}
-export function linkModel(...args: any[]): any {}

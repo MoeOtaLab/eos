@@ -33,6 +33,7 @@ export function unmount(fn?: () => void) {
 export function provideContext(...args: any[]): any {}
 export function injectContext(...args: any[]): any {}
 export function createContext(...args: any[]): any {}
+
 export function useModel(...args: any[]): any {}
 export function linkModel(...args: any[]): any {}
 export function setupDyanamicModel(...args: any[]): any {}

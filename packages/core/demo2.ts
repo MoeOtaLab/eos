@@ -1,5 +1,6 @@
-import { Ref, ref } from '@vue/reactivity';
-import { setupModel, unmount } from '@mflow/core';
+import { computed, Ref, ref } from '@vue/reactivity';
+import { mount, setupModel, unmount } from '@mflow/core';
+import { runInContext, currentModelNode } from './src/runInContext';
 
 function CountModel(props: { count?: Ref<number> }) {
   const count2 = props?.count ?? ref(0);
@@ -47,6 +48,87 @@ function BasicInfoModel(props: { count?: Ref<number> }) {
   };
 }
 
+class Person {
+  name: string = '';
+  phone?: string;
+  uuid: string;
+  constructor(person: Partial<Person>) {
+    Object.assign(this, person);
+    this.uuid = person?.uuid || Math.random().toString(36).substr(2, 5);
+  }
+}
+
+function PersonModel(props: {
+  name?: Ref<string>;
+  phone?: Ref<string | undefined>;
+}) {
+  const { name, phone } = props;
+  const nameRef = name ?? ref('');
+  const phoneRef = phone ?? ref('');
+
+  function updatePerson(name: string, phone: string = '') {
+    nameRef.value = name;
+    phoneRef.value = phone;
+  }
+
+  return {
+    updatePerson,
+
+    nameRef,
+    phoneRef,
+  };
+}
+
+function PersonListModel(props: {}) {
+  const personList = ref<Person[]>([]);
+
+  function addPerson(person: Person) {
+    personList.value.push(person);
+  }
+
+  function deletePerson(index: number) {
+    personList.value.splice(index, 1);
+  }
+
+  const context = currentModelNode;
+  const PersonModelList = computed(() =>
+    personList.value?.map((item, index) => {
+      return runInContext(context, () =>
+        setupModel(PersonModel, {
+          name: computed({
+            get() {
+              return personList.value[index].name;
+            },
+            set(value) {
+              personList.value[index].name = value;
+            },
+          }),
+
+          phone: computed({
+            get() {
+              return personList.value[index].phone;
+            },
+            set(value) {
+              personList.value[index].phone = value;
+            },
+          }),
+        })
+      );
+    })
+  );
+
+  mount(() => {
+    addPerson(new Person({ name: 'auto', phone: '233333' }));
+  });
+
+  return {
+    personList,
+    PersonModelList,
+    addPerson,
+    deletePerson,
+  };
+}
+
 export function AppModel() {
   const switchOn = ref(false);
   const count = ref(0);
@@ -59,7 +141,10 @@ export function AppModel() {
     switchOn
   );
 
+  const personListModel = setupModel(PersonListModel);
+
   return {
+    personListModel,
     count,
     switchOn,
     basicInfoModel,
@@ -67,18 +152,11 @@ export function AppModel() {
 }
 
 const appModel = setupModel(AppModel);
-appModel.value.switchOn.value = true;
+appModel.value.personListModel.value.addPerson(new Person({ name: 'first' }));
+
+appModel.value.personListModel.value.PersonModelList.value[1].value.updatePerson(
+  'change==',
+  'phone'
+);
+
 console.log(appModel);
-appModel.value.basicInfoModel.value?.addOne();
-console.log(appModel);
-appModel.value.switchOn.value = false;
-appModel.value.basicInfoModel.value?.addOne();
-console.log(appModel);
-appModel.value.switchOn.value = true;
-appModel.value.basicInfoModel.value?.deleteOne();
-console.log(appModel);
-appModel.value.basicInfoModel.value?.clear();
-console.log(appModel);
-setTimeout(() => {
-  console.log(appModel);
-});

@@ -1,5 +1,10 @@
 import { computed, Ref, ref } from '@vue/reactivity';
-import { mount, setupModel, unmount, setupDyanamicModel } from '@mflow/core';
+import {
+  mount,
+  setupModel,
+  unmount,
+  setupDyanamicModel,
+} from '@mflow/core/index';
 
 function CountModel(props: { count?: Ref<number> }) {
   const count2 = props?.count ?? ref(0);
@@ -149,10 +154,8 @@ export function AppModel() {
 const appModel = setupModel(AppModel);
 appModel.value.personListModel.value.addPerson(new Person({ name: 'first' }));
 
-setTimeout(() => {
-  appModel.value.personListModel.value.PersonModelList.value[1].value.updatePerson(
-    'change==',
-    'phone'
-  );
-  console.log(appModel);
-});
+appModel.value.personListModel.value.PersonModelList.value[1].value.updatePerson(
+  'change==',
+  'phone'
+);
+console.log(appModel);

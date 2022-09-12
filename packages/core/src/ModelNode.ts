@@ -88,7 +88,7 @@ export class ModelNode<
     }
   }
 
-  protected unmount() {
+  public unmount() {
     if (this.mounted) {
       this.runUnmountCallbacks();
       this.unmountCallbackSet.clear();

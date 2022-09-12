@@ -2,7 +2,6 @@
   "name": "@mflow/core",
   "version": "0.0.1",
   "private": true,
-  "main": "output/index.js",
   "scripts": {},
   "dependencies": {
     "@vue/reactivity": "^3.2.39",

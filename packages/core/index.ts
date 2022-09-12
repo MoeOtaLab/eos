@@ -1,7 +1,7 @@
 import { Model } from './src/types';
 import { ModelNode, LifecycleIndicator } from './src/ModelNode';
 import { runInContext, currentModelNode } from './src/runInContext';
-import { ref, Ref, effect, computed } from '@vue/reactivity';
+import { ref, Ref, computed, ReactiveEffect } from '@vue/reactivity';
 
 type RefValue<T> = T extends Ref<infer P> ? P : unknown;
 
@@ -49,56 +49,64 @@ export function setupDyanamicModel<
 
   function updateList() {
     // TODO: need a scheduler
-    Promise.resolve().then(() => {
-      // can do something.
-      const lastList = dModelList.value;
-      const usedSet = new WeakSet<
-        RefValue<typeof dModelList>[number]['model']
-      >();
+    const lastList = dModelList.value;
+    const usedSet = new WeakSet<RefValue<typeof dModelList>[number]['model']>();
 
-      const listWillUpdate = list.value?.map((item, index) => {
-        let modelWillUpdate = lastList?.find((lastItem) =>
-          lastItem.uuid === key ? item[key || ''] : index
-        )?.model;
+    const listWillUpdate = list.value?.map((item, index) => {
+      let modelWillUpdate = lastList?.find((lastItem) =>
+        lastItem.uuid === key ? item[key || ''] : index
+      )?.model;
 
-        if (!modelWillUpdate) {
-          // @ts-expect-error
-          modelWillUpdate = runInContext(context, () =>
-            setupModel(
-              model,
-              props?.(item, index),
-              lifecycleIndicator?.(item, index)
-            )
-          );
-        } else {
-          usedSet.add(modelWillUpdate);
-          // TODO: soft update
-        }
+      if (!modelWillUpdate) {
+        // @ts-expect-error
+        modelWillUpdate = runInContext(context, () =>
+          setupModel(
+            model,
+            props?.(item, index),
+            lifecycleIndicator?.(item, index)
+          )
+        );
+      } else {
+        usedSet.add(modelWillUpdate);
+        // TODO: soft update
+      }
 
-        return {
-          uuid: key ? item[key || ''] : index,
-          model: modelWillUpdate,
-        };
+      return {
+        uuid: key ? item[key || ''] : index,
+        model: modelWillUpdate,
+      };
+    });
+
+    lastList
+      .map((item) => item.model)
+      .filter((item) => !usedSet.has(item))
+      .forEach((model) => {
+        model?.unmount();
       });
 
-      lastList
-        .map((item) => item.model)
-        .filter((item) => !usedSet.has(item))
-        .forEach((model) => {
-          // TODO: unmount.
-        });
-
-      // @ts-expect-error
-      dModelList.value = listWillUpdate;
-    });
+    // @ts-expect-error
+    dModelList.value = listWillUpdate;
   }
 
-  effect(() => {
-    // watch effect
-    const listItem = list.value;
-    updateList();
-    return listItem;
-  });
+  const effect = new ReactiveEffect(
+    () => {
+      function seen(value: any) {
+        return value;
+      }
+      if (Array.isArray(list.value)) {
+        for (const key of Object.keys(list.value)) {
+          const value = list.value[key as unknown as number];
+          seen(value);
+        }
+      }
+    },
+    () => {
+      console.log('23333');
+      updateList();
+    }
+  );
+
+  effect.run();
 
   return computed(() => dModelList.value.map((item) => item.model));
 }

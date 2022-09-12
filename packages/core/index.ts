@@ -28,6 +28,8 @@ export function setupDyanamicModel<
 >(
   model: DModel,
   options: {
+    /** recognize different instance */
+    key?: string;
     list: Ref<ListData[]>;
     props?: (item: ListData, index: number) => Parameters<DModel>['0'];
     lifecycleIndicator?: (item: ListData, index: number) => P;
@@ -35,17 +37,22 @@ export function setupDyanamicModel<
 ) {
   const { list, props, lifecycleIndicator } = options;
   const context = currentModelNode;
+
   const dModelList = computed(() =>
     list.value?.map((item, index) => {
-      return runInContext(context, () =>
+      const modelWillUpdate = runInContext(context, () =>
         setupModel(
           model,
           props?.(item, index),
           lifecycleIndicator?.(item, index)
         )
       );
+
+      // TODO: need to reuse model generated last time.
+      return modelWillUpdate;
     })
   );
+
   return dModelList;
 }
 

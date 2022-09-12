@@ -1,6 +1,5 @@
 import { computed, Ref, ref } from '@vue/reactivity';
-import { mount, setupModel, unmount } from '@mflow/core';
-import { runInContext, currentModelNode } from './src/runInContext';
+import { mount, setupModel, unmount, setupDyanamicModel } from '@mflow/core';
 
 function CountModel(props: { count?: Ref<number> }) {
   const count2 = props?.count ?? ref(0);
@@ -90,32 +89,28 @@ function PersonListModel(props: {}) {
     personList.value.splice(index, 1);
   }
 
-  const context = currentModelNode;
-  const PersonModelList = computed(() =>
-    personList.value?.map((item, index) => {
-      return runInContext(context, () =>
-        setupModel(PersonModel, {
-          name: computed({
-            get() {
-              return personList.value[index].name;
-            },
-            set(value) {
-              personList.value[index].name = value;
-            },
-          }),
+  const PersonModelList = setupDyanamicModel(PersonModel, {
+    list: personList,
+    props: (item, index) => ({
+      name: computed({
+        get() {
+          return personList.value[index].name;
+        },
+        set(value) {
+          personList.value[index].name = value;
+        },
+      }),
 
-          phone: computed({
-            get() {
-              return personList.value[index].phone;
-            },
-            set(value) {
-              personList.value[index].phone = value;
-            },
-          }),
-        })
-      );
-    })
-  );
+      phone: computed({
+        get() {
+          return personList.value[index].phone;
+        },
+        set(value) {
+          personList.value[index].phone = value;
+        },
+      }),
+    }),
+  });
 
   mount(() => {
     addPerson(new Person({ name: 'auto', phone: '233333' }));

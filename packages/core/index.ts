@@ -101,6 +101,7 @@ export function setupDyanamicModel<
       }
     },
     () => {
+      effect.run();
       console.log('23333');
       updateList();
     }

@@ -158,4 +158,8 @@ appModel.value.personListModel.value.PersonModelList.value[1].value.updatePerson
   'change==',
   'phone'
 );
+appModel.value.personListModel.value.PersonModelList.value[1].value.updatePerson(
+  'change1',
+  'phone1'
+);
 console.log(appModel);

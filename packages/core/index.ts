@@ -1,4 +1,4 @@
-import { Model } from './src/types';
+import { Model, Context } from './src/types';
 import { ModelNode, LifecycleIndicator } from './src/ModelNode';
 import { runInContext, currentModelNode } from './src/runInContext';
 import { ref, Ref, computed, ReactiveEffect } from '@vue/reactivity';
@@ -102,7 +102,7 @@ export function setupDyanamicModel<
     },
     () => {
       effect.run();
-      console.log('23333');
+      console.log('trigger change');
       updateList();
     }
   );
@@ -122,8 +122,38 @@ export function unmount(fn?: () => void) {
   }
 }
 
-export function provideContext(...args: any[]): any {}
-export function injectContext(...args: any[]): any {}
-export function createContext(...args: any[]): any {}
+export function createContext<T extends Record<string, any>>(
+  defaultValue: T
+): Context<T> {
+  return {
+    value: defaultValue,
+  };
+}
+
+export function provideContext<T>(context: Context<T>, value: T) {
+  if (currentModelNode) {
+    currentModelNode.setContext(context, { value });
+  }
+}
+
+export function injectContext<T>(context: Context<T>) {
+  let limit = 100;
+  let currentNode = currentModelNode;
+
+  while (currentNode) {
+    const value = currentNode.getContext(context);
+    if (value) {
+      return value;
+    }
+
+    currentNode = currentNode?.parent;
+    limit -= 1;
+    if (limit <= 0) {
+      throw new Error('[injectContext]: exceed 100 distance.');
+    }
+  }
+
+  return context;
+}
 
 export function useModel(...args: any[]): any {}

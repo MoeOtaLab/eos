@@ -4,6 +4,9 @@ import {
   setupModel,
   unmount,
   setupDyanamicModel,
+  provideContext,
+  injectContext,
+  createContext,
 } from '@mflow/core/index';
 
 function CountModel(props: { count?: Ref<number> }) {
@@ -17,6 +20,10 @@ function CountModel(props: { count?: Ref<number> }) {
     count2,
   };
 }
+
+const CountContext = createContext({
+  countModel: setupModel(CountModel),
+});
 
 function BasicInfoModel(props: { count?: Ref<number> }) {
   const { count: coutProp } = props;
@@ -74,6 +81,10 @@ function PersonModel(props: {
     nameRef.value = name;
     phoneRef.value = phone;
   }
+
+  const context = injectContext(CountContext);
+
+  context.value.countModel.value.count2.value += 1;
 
   return {
     updatePerson,
@@ -133,6 +144,12 @@ export function AppModel() {
   const switchOn = ref(false);
   const count = ref(0);
 
+  const countModel = setupModel(CountModel);
+
+  provideContext(CountContext, {
+    countModel,
+  });
+
   const basicInfoModel = setupModel(
     BasicInfoModel,
     {
@@ -144,6 +161,7 @@ export function AppModel() {
   const personListModel = setupModel(PersonListModel);
 
   return {
+    countModel,
     personListModel,
     count,
     switchOn,
@@ -152,7 +170,10 @@ export function AppModel() {
 }
 
 const appModel = setupModel(AppModel);
+
 appModel.value.personListModel.value.addPerson(new Person({ name: 'first' }));
+
+appModel.value.personListModel.value.addPerson(new Person({ name: 'second' }));
 
 appModel.value.personListModel.value.PersonModelList.value[1].value.updatePerson(
   'change==',

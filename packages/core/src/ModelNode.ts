@@ -1,4 +1,4 @@
-import { Model } from './types';
+import { Model, Context } from './types';
 import { Ref, effect } from '@vue/reactivity';
 import { runInContext } from './runInContext';
 
@@ -20,6 +20,8 @@ export class ModelNode<
 
   protected unmountCallbackSet: Set<() => void> = new Set();
 
+  protected contextMap: WeakMap<Context, Context> = new WeakMap();
+
   value!: P extends undefined ? ValueType : ValueType | undefined;
 
   constructor(options: {
@@ -37,6 +39,15 @@ export class ModelNode<
     this._parent?.addUnmountCallback(() => {
       this.unmount();
     });
+  }
+
+  getContext<T>(context: Context<T>) {
+    return this.contextMap.get(context) as Context<T> | undefined;
+  }
+
+  setContext<T>(context: Context<T>, value: Context<T>) {
+    this.contextMap.set(context, value);
+    return value;
   }
 
   public get parent() {

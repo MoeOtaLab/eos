@@ -17,7 +17,7 @@
         "ts-node/register/transpile-only"
       ],
       "args": [
-        "${workspaceFolder}/demo2.ts",
+        "${workspaceFolder}/packages/core/index.ts",
       ],
       // "program": "${workspaceFolder}/demo2.ts",
       // "preLaunchTask": "tsc: build - tsconfig.json",

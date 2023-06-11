@@ -39,14 +39,9 @@ importers:
 
   packages/core:
     specifiers:
-      '@vue/reactivity': ^3.2.39
-      rxjs: ^7.3.1
       ts-node: ^10.9.1
       typescript: ^4.3.2
       vite: ^2.6.0
-    dependencies:
-      '@vue/reactivity': 3.2.39
-      rxjs: 7.4.0
     devDependencies:
       ts-node: 10.9.1_b9703f956e436552157c786305d2fec4
       typescript: 4.5.4
@@ -906,16 +901,6 @@ packages:
     transitivePeerDependencies:
       - supports-color
     dev: true
-
-  /@vue/reactivity/3.2.39:
-    resolution: {integrity: sha512-vlaYX2a3qMhIZfrw3Mtfd+BuU+TZmvDrPMa+6lpfzS9k/LnGxkSuf0fhkP0rMGfiOHPtyKoU9OJJJFGm92beVQ==}
-    dependencies:
-      '@vue/shared': 3.2.39
-    dev: false
-
-  /@vue/shared/3.2.39:
-    resolution: {integrity: sha512-D3dl2ZB9qE6mTuWPk9RlhDeP1dgNRUKC3NJxji74A4yL8M2MwlhLKUC/49WHjrNzSPug58fWx/yFbaTzGAQSBw==}
-    dev: false
 
   /acorn-jsx/5.3.2_acorn@7.4.1:
     resolution: {integrity: sha512-rq9s+JNhf0IChjtDXxllJ7g41oZk5SlXtp0LHwyA5cejwn7vKmKp4pPri6YEePv2PU65sAsegbXtIinmDFDXgQ==}

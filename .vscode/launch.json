@@ -8,22 +8,11 @@
       "type": "node",
       "request": "launch",
       "name": "Launch Program",
-      "skipFiles": [
-        "<node_internals>/**"
-      ],
-      "runtimeArgs": [
-        "--nolazy",
-        "-r",
-        "ts-node/register/transpile-only"
-      ],
-      "args": [
-        "${workspaceFolder}/packages/core/index.ts",
-      ],
-      // "program": "${workspaceFolder}/demo2.ts",
-      // "preLaunchTask": "tsc: build - tsconfig.json",
-      // "outFiles": [
-      //   "${workspaceFolder}/output/**/*.js"
-      // ]
+      "program": "${workspaceFolder}/packages/core/index.ts",
+      "preLaunchTask": "tsc: build - tsconfig.json",
+      "outFiles": [
+        "${workspaceFolder}/out/**/*.js"
+      ]
     }
   ]
 }

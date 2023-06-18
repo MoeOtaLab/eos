@@ -1,33 +1,39 @@
-import { ModelBlock } from './ModelBlock';
+import { ModelBlock } from './ModelBlock/ModelBlock';
 
 const result = new ModelBlock(
-  'root',
-  () => {
-    console.log('root-init');
-    return {
-      postInitFn() {
-        console.log('root-postInitFN');
-      },
-    };
+  {
+    name: 'root',
+    setup() {
+      console.log('root setup');
+      return {};
+    },
   },
   [
     new ModelBlock(
-      'child-1',
-      () => {
-        return {};
+      {
+        name: 'child-1',
+        setup() {
+          console.log('child-1 setup');
+        },
       },
       []
     ),
     new ModelBlock(
-      'child-2',
-      () => {
-        return {};
+      {
+        name: 'child-2',
+        setup() {
+          console.log('child-2 setup');
+          return {};
+        },
       },
       [
         new ModelBlock(
-          'child-2-1',
-          () => {
-            return {};
+          {
+            name: 'child-2-1',
+            setup() {
+              console.log('child-2-1 setup');
+              return {};
+            },
           },
           []
         ),

@@ -1,9 +1,8 @@
 import { ModelBlockChildrenMap } from './ModelBlockChildrenMap';
 
-export enum InputTypeEnum {
-  STATE = 'STATE',
-  EVENT = 'EVENT',
-}
+export enum InputTypeEnum {}
+// STATE = 'STATE',
+// EVENT = 'EVENT',
 
 type InputInterface = Record<string, any>;
 
@@ -28,6 +27,8 @@ export class ModelBlock<
   OutputStrct extends Partial<Record<InputTypeEnum, InputInterface>> = {}
 > {
   name: string;
+
+  state: any;
 
   protected input: InputStruct;
   protected output: OutputStrct;
@@ -64,7 +65,7 @@ export class ModelBlock<
     this.output = {} as OutputStrct;
 
     this.preInitFn = async () => {
-      await setupFn(this.input, this.childrenMap);
+      this.state = await setupFn(this.input, this.childrenMap);
     };
   }
 

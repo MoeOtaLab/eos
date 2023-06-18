@@ -2,7 +2,7 @@
   "compilerOptions": {
     "target": "ESNext",
     "module": "commonjs",
-    "outDir": "output",
+    "outDir": "out",
     "sourceMap": true,
     "useDefineForClassFields": true,
     "lib": [
@@ -19,7 +19,6 @@
     "moduleResolution": "Node",
     "resolveJsonModule": true,
     "isolatedModules": false,
-    "noEmit": true,
     "jsx": "react-jsx"
   },
 }

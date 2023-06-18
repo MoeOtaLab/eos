@@ -30,8 +30,21 @@ const result = new ModelBlock(
         new ModelBlock(
           {
             name: 'child-2-1',
-            setup() {
+            setup(_, modelMap) {
               console.log('child-2-1 setup');
+              setTimeout(() => {
+                modelMap.add(
+                  new ModelBlock(
+                    {
+                      name: 'child-2-1-1(auto)',
+                      setup() {
+                        console.log('child-2-1-1(auto) setup');
+                      },
+                    },
+                    []
+                  )
+                );
+              }, 1000);
               return {};
             },
           },

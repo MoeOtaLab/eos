@@ -23,15 +23,17 @@ type SetupFn<
 > = (options: InputStruct, modelChildrenMap: ModelBlockChildrenMap) => void;
 
 export class ModelBlock<
-  InputStruct extends Partial<Record<InputTypeEnum, InputInterface>> = {},
-  OutputStrct extends Partial<Record<InputTypeEnum, InputInterface>> = {}
+  InputStruct extends Partial<Record<InputTypeEnum, InputInterface>> = {}
 > {
   name: string;
 
-  state: any;
+  /** output after handled */
+  data: any;
+
+  /** raw data */
+  protected output: any;
 
   protected input: InputStruct;
-  protected output: OutputStrct;
 
   /** setup fn */
   protected preInitFn: () => void | Promise<void>;
@@ -62,10 +64,10 @@ export class ModelBlock<
     });
 
     this.input = {} as InputStruct;
-    this.output = {} as OutputStrct;
 
     this.preInitFn = async () => {
-      this.state = await setupFn(this.input, this.childrenMap);
+      this.output = await setupFn(this.input, this.childrenMap);
+      this.setupOutputToData();
     };
   }
 
@@ -138,7 +140,7 @@ export class ModelBlock<
 
   // =============== Inner Lifecycle Start =================== //
   // TBD: should be async or not?
-  protected async preInit(parent: ModelBlock<any, any> | null) {
+  protected async preInit(parent: ModelBlock<any> | null) {
     this.parent = parent;
     await this.preInitSelf();
     await this.triggerChildrenLifecycle('preInit');
@@ -193,4 +195,12 @@ export class ModelBlock<
   }
 
   // =============== Outer Lifecycle End =================== //
+
+  // =============== Output Start =================== //
+
+  protected setupOutputToData() {
+    this.data = this.output;
+  }
+
+  // =============== Output End =================== //
 }

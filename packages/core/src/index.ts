@@ -28,18 +28,15 @@ const result = new ModelBlock(
         clearInterval(timer);
       });
 
-      const container = new ModelContainerAtom(childModel?.data);
-
       const event = new ModelEventAtom(undefined);
-      const initcycle = new ModelLifecycleAction(() => {
-        // ...
+      const initcycle = new ModelLifecycleAction('preUnmount', () => {
+        console.log('~lalalalala~', 'preUnmount');
       });
 
       return {
         count,
         updateCount,
         disposeTimer,
-        container,
         event,
         initcycle,
       };
@@ -52,7 +49,29 @@ const result = new ModelBlock(
         setup() {
           console.log('child-1 setup');
           const count2 = new ModelStateAtom(0);
+          const initcycle = new ModelLifecycleAction('preUnmount', () => {
+            console.log('~lalalalala~', 'child-1 -> preUnmount');
+          });
+
+          const containerAtom = new ModelContainerAtom(() => {
+            const initcycle = new ModelLifecycleAction('preUnmount', () => {
+              console.log('~lalalalala~', 'child-1 -> preUnmount in container');
+            });
+            const containerIncontainerAtom = new ModelContainerAtom(() => {
+              const initcycle = new ModelLifecycleAction('preUnmount', () => {
+                console.log(
+                  '~lalalalala~',
+                  'child-1 -> preUnmount in container in container'
+                );
+              });
+              return { initcycle };
+            });
+            return { initcycle, containerIncontainerAtom };
+          });
+
           return {
+            initcycle,
+            containerAtom,
             count2,
           };
         },

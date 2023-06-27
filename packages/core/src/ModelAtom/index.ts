@@ -1,6 +1,7 @@
-export { Action as ModelActionAtom } from './Action';
-export { Container as ModelContainerAtom } from './Container';
-export { Dispose as ModelDisposeAtom } from './Dispose';
-export { ModelEvent as ModelEventAtom } from './Event';
-export { State as ModelStateAtom } from './State';
-export { LifecycleAction as ModelLifecycleAction } from './LifecycleAction';
+export { Atom } from './Atom';
+export { ModelActionAtom } from './ModelActionAtom';
+export { ModelDisposeAtom } from './ModelDisposeAtom';
+export { ModelLifecycleAction } from './ModelLifecycleAction';
+export { ModelContainerAtom } from './ModelContainerAtom';
+export { ModelEventAtom } from './ModelEventAtom';
+export { ModelStateAtom } from './ModelStateAtom';

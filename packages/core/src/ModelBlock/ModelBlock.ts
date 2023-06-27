@@ -1,4 +1,4 @@
-import { Atom } from '../ModelAtom/Atom';
+import { Atom, ModelContainerAtom } from '../ModelAtom';
 import { ModelBlockChildrenMap } from './ModelBlockChildrenMap';
 
 export enum InputTypeEnum {}
@@ -18,6 +18,11 @@ type LifecycleEventType =
   | 'postMount'
   | 'preUnmount'
   | 'postUnmount';
+
+export type AtomLifecycleEventType = Exclude<
+  LifecycleEventType,
+  'start' | 'init' | 'mount' | 'unmount' | 'preInit'
+>;
 
 type SetupFn<
   InputStruct extends Partial<Record<InputTypeEnum, InputInterface>>
@@ -106,14 +111,40 @@ export class ModelBlock<
     );
   }
 
-  protected async triggerAtomLifecycle(
-    eventType: Exclude<
-      LifecycleEventType,
-      'start' | 'init' | 'mount' | 'unmount' | 'preInit'
-    >
+  protected triggerAtomLifecycleByAtoms(
+    atoms: Atom<any>[],
+    eventType: AtomLifecycleEventType,
+    depth = 0,
+    parentAtom?: Atom<any>
   ) {
-    for (const atom of Object.values(this.output || {})) {
-      await atom?.[eventType]?.();
+    if (depth > 25) {
+      throw new Error(
+        `${
+          parentAtom?.type || 'Atom'
+        } Depth max than 25, please check if there is a circle dependence`
+      );
+    }
+
+    for (const atom of atoms) {
+      atom?.[eventType]?.();
+      if (ModelContainerAtom.isContainer(atom)) {
+        const atomList = Object.values(atom.value);
+        if (Array.isArray(atomList) && atomList?.length) {
+          this.triggerAtomLifecycleByAtoms(
+            atomList,
+            eventType,
+            depth + 1,
+            atom
+          );
+        }
+      }
+    }
+  }
+
+  protected async triggerAtomLifecycle(eventType: AtomLifecycleEventType) {
+    const atomList = Object.values(this.output || {});
+    if (Array.isArray(atomList)) {
+      this.triggerAtomLifecycleByAtoms(atomList, eventType);
     }
   }
 
@@ -128,28 +159,28 @@ export class ModelBlock<
   }
 
   protected async postInitSelf() {
-    await this.triggerAtomLifecycle('postInit');
     this.log('postInitSelf');
+    await this.triggerAtomLifecycle('postInit');
   }
 
   protected async preMountSelf() {
-    await this.triggerAtomLifecycle('preMount');
     this.log('preMountSelf');
+    await this.triggerAtomLifecycle('preMount');
   }
 
   protected async postMountSelf() {
-    await this.triggerAtomLifecycle('postMount');
     this.log('postMountSelf');
+    await this.triggerAtomLifecycle('postMount');
   }
 
   protected async preUnmountSelf() {
-    await this.triggerAtomLifecycle('preUnmount');
     this.log('preUnmountSelf');
+    await this.triggerAtomLifecycle('preUnmount');
   }
 
   protected async postUnmountSelf() {
-    await this.triggerAtomLifecycle('postUnmount');
     this.log('postUnmountSelf');
+    await this.triggerAtomLifecycle('postUnmount');
   }
 
   // =============== Self End =================== //

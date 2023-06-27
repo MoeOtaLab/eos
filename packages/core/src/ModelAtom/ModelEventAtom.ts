@@ -3,7 +3,7 @@ import { Atom } from './Atom';
 const TYPE_LABEL = 'EVENT';
 
 // TODO;
-export class ModelEvent<T extends any = any> extends Atom<T> {
+export class ModelEventAtom<T extends any = any> extends Atom<T> {
   static isEvent(atom: Atom<any>) {
     return atom.type === TYPE_LABEL;
   }

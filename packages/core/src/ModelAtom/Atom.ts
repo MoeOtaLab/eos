@@ -7,4 +7,25 @@ export class Atom<T> {
     this.type = type;
     this.value = value;
   }
+
+  // hooks into model block
+  postInit() {
+    // ..
+  }
+
+  preMount() {
+    // ..
+  }
+
+  postMount() {
+    // ..
+  }
+
+  preUnmount() {
+    // ..
+  }
+
+  postUnmount() {
+    // ..
+  }
 }

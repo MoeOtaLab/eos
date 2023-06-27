@@ -1,3 +1,4 @@
+import { Atom } from '../ModelAtom/Atom';
 import { ModelBlockChildrenMap } from './ModelBlockChildrenMap';
 
 export enum InputTypeEnum {}
@@ -20,10 +21,13 @@ type LifecycleEventType =
 
 type SetupFn<
   InputStruct extends Partial<Record<InputTypeEnum, InputInterface>>
-> = (options: InputStruct, modelChildrenMap: ModelBlockChildrenMap) => void;
+> = (
+  options: InputStruct,
+  modelChildrenMap: ModelBlockChildrenMap
+) => Record<string, Atom<any>>;
 
 export class ModelBlock<
-  InputStruct extends Partial<Record<InputTypeEnum, InputInterface>> = {}
+  InputStruct extends Partial<Record<InputTypeEnum, InputInterface>> = any
 > {
   name: string;
 
@@ -31,13 +35,12 @@ export class ModelBlock<
   data: any;
 
   /** raw data */
-  protected output: any;
+  protected output?: Record<string, Atom<any>>;
 
   protected input: InputStruct;
 
   /** setup fn */
-  protected preInitFn: () => void | Promise<void>;
-  protected postInitFn?: () => void | Promise<void>;
+  protected setupFn: SetupFn<InputStruct>;
 
   protected childrenMap: ModelBlockChildrenMap;
 
@@ -50,7 +53,7 @@ export class ModelBlock<
     },
     children: ModelBlock[]
   ) {
-    const { name, setup: setupFn } = options;
+    const { name, setup } = options;
 
     this.name = name;
 
@@ -65,10 +68,7 @@ export class ModelBlock<
 
     this.input = {} as InputStruct;
 
-    this.preInitFn = async () => {
-      this.output = await setupFn(this.input, this.childrenMap);
-      this.setupOutputToData();
-    };
+    this.setupFn = setup;
   }
 
   // =============== Utils Start =================== //
@@ -106,33 +106,49 @@ export class ModelBlock<
     );
   }
 
+  protected async triggerAtomLifecycle(
+    eventType: Exclude<
+      LifecycleEventType,
+      'start' | 'init' | 'mount' | 'unmount' | 'preInit'
+    >
+  ) {
+    for (const atom of Object.values(this.output || {})) {
+      await atom?.[eventType]?.();
+    }
+  }
+
   // =============== Utils End =================== //
 
   // =============== Self Start =================== //
 
   protected async preInitSelf() {
     this.log('preInitSelf');
-    await this.preInitFn();
+    this.output = await this.setupFn(this.input, this.childrenMap);
+    this.setupOutputToData();
   }
 
   protected async postInitSelf() {
+    await this.triggerAtomLifecycle('postInit');
     this.log('postInitSelf');
-    await this.postInitFn?.();
   }
 
   protected async preMountSelf() {
+    await this.triggerAtomLifecycle('preMount');
     this.log('preMountSelf');
   }
 
   protected async postMountSelf() {
+    await this.triggerAtomLifecycle('postMount');
     this.log('postMountSelf');
   }
 
   protected async preUnmountSelf() {
+    await this.triggerAtomLifecycle('preUnmount');
     this.log('preUnmountSelf');
   }
 
   protected async postUnmountSelf() {
+    await this.triggerAtomLifecycle('postUnmount');
     this.log('postUnmountSelf');
   }
 
@@ -201,6 +217,5 @@ export class ModelBlock<
   protected setupOutputToData() {
     this.data = this.output;
   }
-
   // =============== Output End =================== //
 }

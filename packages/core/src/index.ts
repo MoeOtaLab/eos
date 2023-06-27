@@ -21,7 +21,8 @@ const result = new ModelBlock(
 
       const timer = setInterval(() => {
         updateCount.value();
-      }, 5000);
+        console.log('after update -> ', count.value);
+      }, 1000);
 
       const disposeTimer = new ModelDisposeAtom(() => {
         clearInterval(timer);
@@ -53,7 +54,6 @@ const result = new ModelBlock(
           const count2 = new ModelStateAtom(0);
           return {
             count2,
-            name: 'child-1',
           };
         },
       },
@@ -80,6 +80,7 @@ const result = new ModelBlock(
                       name: 'child-2-1-1(auto)',
                       setup() {
                         console.log('child-2-1-1(auto) setup');
+                        return {};
                       },
                     },
                     []
@@ -105,4 +106,4 @@ main();
 
 setTimeout(() => {
   result.unmount();
-}, 5000);
+}, 10000);

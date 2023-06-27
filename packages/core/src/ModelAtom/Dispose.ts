@@ -10,4 +10,8 @@ export class Dispose<T extends (...args: any[]) => any = any> extends Atom<T> {
   constructor(dispose: T) {
     super(TYPE_LABEL, dispose);
   }
+
+  postUnmount() {
+    this.value?.();
+  }
 }

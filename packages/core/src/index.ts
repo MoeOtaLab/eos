@@ -7,6 +7,7 @@ import {
   ModelEventAtom,
   ModelLifecycleAction,
 } from './ModelAtom';
+import { ModelState } from './ModelState';
 
 const result = new ModelBlock(
   {
@@ -118,6 +119,13 @@ const result = new ModelBlock(
 
 async function main() {
   await result.start();
+
+  const state = new ModelState(1);
+  state.subscribe((nextValue) => {
+    console.log('count: update', nextValue);
+  });
+
+  state.update((count) => (count += 1));
   console.log(result);
 }
 

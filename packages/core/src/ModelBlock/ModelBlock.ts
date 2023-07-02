@@ -126,6 +126,10 @@ export class ModelBlock<
     }
 
     for (const atom of atoms) {
+      if (!atom) {
+        continue;
+      }
+
       atom?.[eventType]?.();
       if (ModelContainerAtom.isContainer(atom)) {
         const atomList = Object.values(atom.value);
@@ -246,7 +250,14 @@ export class ModelBlock<
   // =============== Output Start =================== //
 
   protected setupOutputToData() {
-    this.data = this.output;
+    this.data = {};
+    for (const [key, value] of Object.entries(this.output || {})) {
+      Object.defineProperty(this.data, key, {
+        get() {
+          return value?.value;
+        },
+      });
+    }
   }
   // =============== Output End =================== //
 }

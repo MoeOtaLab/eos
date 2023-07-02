@@ -117,6 +117,46 @@ const result = new ModelBlock(
   ]
 );
 
+const result2 = new ModelBlock(
+  {
+    name: 'root',
+    setup(_input, modelMap) {
+      const child2 = modelMap.get('child-2');
+      // ..default value.
+
+      const consoleCount = new ModelLifecycleAction('postMount', () => {
+        console.log('consoleCount', child2?.data.state.current);
+      });
+
+      const plusOne = new ModelActionAtom(() => {
+        child2?.data.state.update((c: string) => (c += 1));
+        console.log('consoleCount', child2?.data.state.current);
+      });
+
+      return {
+        child2: child2?.data,
+        consoleCount,
+        plusOne,
+      };
+    },
+  },
+  [
+    new ModelBlock<{ defaultValue: string }>(
+      {
+        name: 'child-2',
+        setup(input, modelMap) {
+          const state = new ModelStateAtom(new ModelState(0));
+
+          return {
+            state,
+          };
+        },
+      },
+      []
+    ),
+  ]
+);
+
 async function main() {
   await result.start();
 
@@ -127,10 +167,21 @@ async function main() {
 
   state.update((count) => (count += 1));
   console.log(result);
+
+  setTimeout(() => {
+    result.unmount();
+  }, 10000);
 }
 
-main();
+async function main2() {
+  await result2.start();
+  result2.data.plusOne();
 
-setTimeout(() => {
-  result.unmount();
-}, 10000);
+  setTimeout(() => {
+    result2.unmount();
+  }, 10000);
+}
+
+// main();
+
+main2();

@@ -6,6 +6,7 @@ import {
   ModelContainerAtom,
   ModelEventAtom,
   ModelLifecycleAction,
+  ModelComputedStateAtom,
 } from './ModelAtom';
 import { ModelState } from './ModelState';
 
@@ -128,6 +129,17 @@ const result2 = new ModelBlock(
         console.log('consoleCount', child2?.data.state.current);
       });
 
+      const countWithUnit = new ModelComputedStateAtom(
+        () => child2?.data.state,
+        (value) => `${value} Kg`
+      );
+
+      const x = new ModelLifecycleAction('postMount', () => {
+        countWithUnit.value.subscribe((value) => {
+          console.log('change=>', value);
+        });
+      });
+
       const plusOne = new ModelActionAtom(() => {
         child2?.data.state.update((c: string) => (c += 1));
         console.log('consoleCount', child2?.data.state.current);
@@ -137,6 +149,8 @@ const result2 = new ModelBlock(
         child2: child2?.data,
         consoleCount,
         plusOne,
+        countWithUnit,
+        x,
       };
     },
   },
@@ -175,6 +189,7 @@ async function main() {
 
 async function main2() {
   await result2.start();
+  result2.data.plusOne();
   result2.data.plusOne();
 
   setTimeout(() => {

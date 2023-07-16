@@ -3,9 +3,9 @@ import { produceWithPatches, enablePatches, enableMapSet, Patch } from 'immer';
 enablePatches();
 enableMapSet();
 
-type SuccessCallback<T extends any> = (
+export type SuccessCallback<T extends any> = (
   currentValue: T,
-  options: {
+  extraDeta: {
     patches: Patch[];
     inversePatches: Patch[];
   }
@@ -13,9 +13,9 @@ type SuccessCallback<T extends any> = (
 
 // type ErrorCallback<T extends any> = (error: Error) => void;
 
-type Callback<T extends any> = SuccessCallback<T>;
+export type Callback<T extends any> = SuccessCallback<T>;
 
-type Subscription = {
+export type Subscription = {
   unsubscribe: () => void;
 };
 

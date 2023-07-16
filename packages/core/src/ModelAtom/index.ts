@@ -4,4 +4,4 @@ export { ModelDisposeAtom } from './ModelDisposeAtom';
 export { ModelLifecycleAction } from './ModelLifecycleAction';
 export { ModelContainerAtom } from './ModelContainerAtom';
 export { ModelEventAtom } from './ModelEventAtom';
-export { ModelStateAtom } from './ModelStateAtom';
+export { ModelStateAtom, ModelComputedStateAtom } from './ModelStateAtom';

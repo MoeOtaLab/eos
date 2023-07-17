@@ -123,6 +123,7 @@ const result2 = new ModelBlock(
     name: 'root',
     setup(_input, modelMap) {
       const child2 = modelMap.get('child-2');
+
       // ..default value.
 
       const consoleCount = new ModelLifecycleAction('postMount', () => {
@@ -145,28 +146,87 @@ const result2 = new ModelBlock(
         console.log('consoleCount', child2?.data.state.current);
       });
 
+      const parentValue = new ModelStateAtom(new ModelState(100));
+
+      child2?.setupInput({
+        parentValue,
+      });
+
+      setTimeout(() => {
+        parentValue.value.update((v) => v + 2);
+      }, 6000);
+
       return {
         child2: child2?.data,
         consoleCount,
         plusOne,
         countWithUnit,
         x,
+        parentValue,
       };
     },
   },
   [
-    new ModelBlock<{ defaultValue: string }>(
+    new ModelBlock(
       {
         name: 'child-2',
-        setup(input, modelMap) {
+        setup(
+          input: { parentValue: ModelStateAtom<ModelState<number>> },
+          modelMap
+        ) {
+          const { parentValue } = input;
+          const child2 = modelMap.get('child-2-1');
           const state = new ModelStateAtom(new ModelState(0));
 
+          const parentComputedValue = new ModelComputedStateAtom(
+            () => parentValue.value,
+            (value) => value
+          );
+
+          const childComputedValue = new ModelComputedStateAtom(
+            () => child2?.data.childValue,
+            (value) => value
+          );
+
+          const x = new ModelLifecycleAction('postMount', () => {
+            console.log(23333);
+            parentComputedValue.value.subscribe((value) => {
+              console.log('parentComputedValue=>', value);
+            });
+
+            childComputedValue.value.subscribe((value) => {
+              console.log('childComputedValue=>', value);
+            });
+          });
+
           return {
+            parentComputedValue,
+            childComputedValue,
             state,
+            x,
           };
         },
       },
-      []
+      [
+        new ModelBlock(
+          {
+            name: 'child-2-1',
+            setup(input, modelChildrenMap) {
+              const childValue = new ModelStateAtom(new ModelState(200));
+
+              setTimeout(() => {
+                console.log(6666);
+                childValue.value.update((v) => v + 1);
+              }, 5000);
+
+              return {
+                childValue,
+              };
+            },
+          },
+          []
+        ),
+      ]
     ),
   ]
 );

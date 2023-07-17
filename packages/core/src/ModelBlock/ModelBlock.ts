@@ -1,7 +1,7 @@
 import { Atom, ModelContainerAtom } from '../ModelAtom';
 import { ModelBlockChildrenMap } from './ModelBlockChildrenMap';
 
-export enum InputTypeEnum {}
+// export enum InputTypeEnum {}
 // STATE = 'STATE',
 // EVENT = 'EVENT',
 
@@ -24,15 +24,13 @@ export type AtomLifecycleEventType = Exclude<
   'start' | 'init' | 'mount' | 'unmount' | 'preInit'
 >;
 
-type SetupFn<
-  InputStruct extends Partial<Record<InputTypeEnum, InputInterface>>
-> = (
-  options: InputStruct,
+type SetupFn<InputStruct extends Partial<Record<string, InputInterface>>> = (
+  input: InputStruct,
   modelChildrenMap: ModelBlockChildrenMap
 ) => Record<string, Atom<any>>;
 
 export class ModelBlock<
-  InputStruct extends Partial<Record<InputTypeEnum, InputInterface>> = any
+  InputStruct extends Partial<Record<string, InputInterface>> = any
 > {
   name: string;
 
@@ -260,4 +258,10 @@ export class ModelBlock<
     }
   }
   // =============== Output End =================== //
+
+  // =============== Input Start =================== //
+  async setupInput(input: InputStruct) {
+    this.input = input || ({} as InputStruct);
+  }
+  // =============== Input End =================== //
 }

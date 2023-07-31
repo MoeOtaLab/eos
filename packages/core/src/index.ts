@@ -243,7 +243,7 @@ async function main() {
   console.log(result);
 
   setTimeout(() => {
-    result.unmount();
+    result.stop();
   }, 10000);
 }
 
@@ -253,7 +253,7 @@ async function main2() {
   result2.data.plusOne();
 
   setTimeout(() => {
-    result2.unmount();
+    result2.stop();
   }, 10000);
 }
 

@@ -21,6 +21,22 @@ export class Atom<T> {
     // ..
   }
 
+  beforeMount() {
+    // ..
+  }
+
+  mount() {
+    // ..
+  }
+
+  beforeUnmount() {
+    // ..
+  }
+
+  unmount() {
+    // ..
+  }
+
   preUnmount() {
     // ..
   }

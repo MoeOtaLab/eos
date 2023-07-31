@@ -1,16 +1,14 @@
 import { Atom, ModelContainerAtom } from '../ModelAtom';
 import { ModelBlockChildrenMap } from './ModelBlockChildrenMap';
 
-// export enum InputTypeEnum {}
-// STATE = 'STATE',
-// EVENT = 'EVENT',
-
 type InputInterface = Record<string, any>;
 
 type LifecycleEventType =
   | 'start'
-  | 'init'
+  | 'stop'
+  | 'beforeMount'
   | 'mount'
+  | 'beforeUnmount'
   | 'unmount'
   | 'preInit'
   | 'postInit'
@@ -21,7 +19,7 @@ type LifecycleEventType =
 
 export type AtomLifecycleEventType = Exclude<
   LifecycleEventType,
-  'start' | 'init' | 'mount' | 'unmount' | 'preInit'
+  'start' | 'init' | 'preInit' | 'stop'
 >;
 
 type SetupFn<InputStruct extends Partial<Record<string, InputInterface>>> = (
@@ -170,9 +168,19 @@ export class ModelBlock<
     await this.triggerAtomLifecycle('preMount');
   }
 
+  protected async beforeMountSelf() {
+    this.log('beforeMountSelf');
+    await this.triggerAtomLifecycle('beforeMount');
+  }
+
   protected async postMountSelf() {
     this.log('postMountSelf');
     await this.triggerAtomLifecycle('postMount');
+  }
+
+  protected async mountSelf() {
+    this.log('mountSelf');
+    await this.triggerAtomLifecycle('mount');
   }
 
   protected async preUnmountSelf() {
@@ -180,9 +188,19 @@ export class ModelBlock<
     await this.triggerAtomLifecycle('preUnmount');
   }
 
+  protected async beforeUnmountSelf() {
+    this.log('beforeUnmountSelf');
+    await this.triggerAtomLifecycle('beforeUnmount');
+  }
+
   protected async postUnmountSelf() {
     this.log('postUnmountSelf');
     await this.triggerAtomLifecycle('postUnmount');
+  }
+
+  protected async unmountSelf() {
+    this.log('unmountSelf');
+    await this.triggerAtomLifecycle('unmount');
   }
 
   // =============== Self End =================== //
@@ -210,6 +228,26 @@ export class ModelBlock<
     await this.postMountSelf();
   }
 
+  protected async beforeMount() {
+    await this.beforeMountSelf();
+    await this.triggerChildrenLifecycle('beforeMount');
+  }
+
+  protected async mount() {
+    await this.triggerChildrenLifecycle('mount');
+    await this.mountSelf();
+  }
+
+  protected async beforeUnmount() {
+    await this.beforeUnmountSelf();
+    await this.triggerChildrenLifecycle('beforeUnmount');
+  }
+
+  protected async unmount() {
+    await this.triggerChildrenLifecycle('unmount');
+    await this.unmountSelf();
+  }
+
   protected async preUnmount() {
     await this.preUnmountSelf();
     await this.triggerChildrenLifecycle('preUnmount');
@@ -228,17 +266,21 @@ export class ModelBlock<
     await this.postInit();
   }
 
-  protected async mount() {
+  protected async doMount() {
     await this.preMount();
     await this.postMount();
-  }
-
-  async start(parent: ModelBlock | null = null) {
-    await this.init(parent);
+    await this.beforeMount();
     await this.mount();
   }
 
-  async unmount() {
+  async start() {
+    await this.init(null);
+    await this.doMount();
+  }
+
+  async stop() {
+    await this.beforeUnmount();
+    await this.unmount();
     await this.preUnmount();
     await this.postUnmount();
   }

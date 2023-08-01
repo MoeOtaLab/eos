@@ -21,31 +21,6 @@ export type AtomLifecycleEventType = Exclude<
   'start' | 'stop' | 'preInit'
 >;
 
-const LifecycleEventMeta: Record<LifecycleEventType, { reverse?: boolean }> = {
-  start: {},
-  stop: {},
-  preInit: {},
-  postInit: {
-    reverse: true,
-  },
-  preMount: {},
-  postMount: {
-    reverse: true,
-  },
-  preUnmount: {},
-  postUnmount: {
-    reverse: true,
-  },
-  beforeMount: {},
-  mount: {
-    reverse: true,
-  },
-  beforeUnmount: {},
-  unmount: {
-    reverse: true,
-  },
-};
-
 type ModelBlockContext = {
   onLifecycle: (
     lifecycleType: AtomLifecycleEventType,
@@ -92,6 +67,8 @@ export class ModelBlock<
   InputInterface extends InputOutputInterface = any,
   OutputInterface extends InputOutputInterface = any
 > {
+  protected id = Math.random().toString(36).slice(2, 7);
+
   protected template: ModelBlockTemplate<InputInterface, OutputInterface>;
 
   /** output after handled */
@@ -152,6 +129,18 @@ export class ModelBlock<
     I extends InputOutputInterface,
     O extends InputOutputInterface
   >(template: ModelBlockTemplate<I, O>, input: I) {
+    /** @ts-ignore */
+    if (template === this.template) {
+      throw new Error('can not mount yourself');
+    }
+
+    let self = this.parent;
+    while (self) {
+      if (template === self.template) {
+        throw new Error('loop');
+      }
+      self = self.parent;
+    }
     const block = new ModelBlock({ template, input });
 
     if (this.status === ModelBlockStatus.Done) {
@@ -167,19 +156,14 @@ export class ModelBlock<
   }
 
   protected log(message: string) {
-    console.log(`[ModelBlock]: ${message}`, this.name);
+    console.log(`[ModelBlock ${this.name} - ${this.id}]: ${message}`);
   }
 
   protected async doWithChildren(
     children: ModelBlock[],
-    fn: (modelBlock: ModelBlock) => void,
-    reverse = false
+    fn: (modelBlock: ModelBlock) => void
   ) {
     const childList = [...children];
-
-    if (reverse) {
-      childList.reverse();
-    }
 
     for (const modelBlock of childList) {
       await fn(modelBlock);
@@ -190,13 +174,9 @@ export class ModelBlock<
     eventType: LifecycleEventType,
     children: ModelBlock[] = this.childrenMap.children
   ) {
-    await this.doWithChildren(
-      children,
-      (modelBlock) => {
-        modelBlock[eventType](this);
-      },
-      LifecycleEventMeta[eventType]?.reverse
-    );
+    await this.doWithChildren(children, async (modelBlock) => {
+      await modelBlock[eventType](this);
+    });
   }
 
   // protected triggerAtomLifecycleByAtoms(
@@ -269,6 +249,7 @@ export class ModelBlock<
     // handle pending children
     this.status = ModelBlockStatus.Done;
     if (this.pendingChildren?.length) {
+      this.log('pendingChildren');
       await this.triggerChildrenLifecycle('start', this.pendingChildren);
       this.pendingChildren = [];
     }

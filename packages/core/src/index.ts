@@ -11,10 +11,18 @@ import {
 } from './ModelAtom';
 import { ModelState } from './ModelState';
 
+const other = new ModelBlockTemplate({
+  name: 'others',
+  setup(input, context) {
+    return {};
+  },
+});
+
 const innerTemplate = new ModelBlockTemplate<{ defaultNum: Atom<Number> }>({
   name: 'inner',
   setup(input, context) {
-    const { onLifecycle } = context;
+    const { onLifecycle, mount } = context;
+    mount(other, {});
 
     onLifecycle('beforeMount', () => {
       console.log('inner ===> beforeMount', input.defaultNum.current);
@@ -45,6 +53,7 @@ const outerTemplate = new ModelBlockTemplate({
     });
 
     const inner = mount(innerTemplate, { defaultNum: count });
+    const inner2 = mount(innerTemplate, { defaultNum: count });
 
     onLifecycle('mount', () => {
       console.log('outer ===> mount2');

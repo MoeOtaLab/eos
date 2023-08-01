@@ -1,11 +1,11 @@
 export class Atom<T> {
   type: string;
 
-  value: T;
+  current: T;
 
   constructor(type: string, value: T) {
     this.type = type;
-    this.value = value;
+    this.current = value;
   }
 
   // hooks into model block

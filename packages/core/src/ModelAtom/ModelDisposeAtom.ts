@@ -14,6 +14,6 @@ export class ModelDisposeAtom<
   }
 
   postUnmount() {
-    this.value?.();
+    this.current?.();
   }
 }

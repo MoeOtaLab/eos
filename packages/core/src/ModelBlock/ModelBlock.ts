@@ -1,7 +1,6 @@
 import { Atom, ModelContainerAtom } from '../ModelAtom';
 import { ModelBlockChildrenMap } from './ModelBlockChildrenMap';
-
-type InputInterface = Record<string, any>;
+import { EventEmitter } from '../EventEmitter';
 
 type LifecycleEventType =
   | 'start'
@@ -19,60 +18,153 @@ type LifecycleEventType =
 
 export type AtomLifecycleEventType = Exclude<
   LifecycleEventType,
-  'start' | 'init' | 'preInit' | 'stop'
+  'start' | 'stop' | 'preInit'
 >;
 
-type SetupFn<InputStruct extends Partial<Record<string, InputInterface>>> = (
-  input: InputStruct,
-  modelChildrenMap: ModelBlockChildrenMap
-) => Record<string, Atom<any>>;
+const LifecycleEventMeta: Record<LifecycleEventType, { reverse?: boolean }> = {
+  start: {},
+  stop: {},
+  preInit: {},
+  postInit: {
+    reverse: true,
+  },
+  preMount: {},
+  postMount: {
+    reverse: true,
+  },
+  preUnmount: {},
+  postUnmount: {
+    reverse: true,
+  },
+  beforeMount: {},
+  mount: {
+    reverse: true,
+  },
+  beforeUnmount: {},
+  unmount: {
+    reverse: true,
+  },
+};
 
-export class ModelBlock<
-  InputStruct extends Partial<Record<string, InputInterface>> = any
+type ModelBlockContext = {
+  onLifecycle: (
+    lifecycleType: AtomLifecycleEventType,
+    callback: () => void
+  ) => void;
+  mount: <I extends InputOutputInterface, O extends InputOutputInterface>(
+    template: ModelBlockTemplate<I, O>,
+    input: I
+  ) => ModelBlock<I, O>;
+};
+
+type InputOutputInterface = Record<string, Atom<any> | ModelBlock>;
+
+type SetupFn<
+  InputInterface extends InputOutputInterface,
+  OutputInterface extends InputOutputInterface
+> = (input: InputInterface, context: ModelBlockContext) => OutputInterface;
+
+export class ModelBlockTemplate<
+  InputInterface extends InputOutputInterface = any,
+  OutputInterface extends InputOutputInterface = any
 > {
   name: string;
 
+  setup: SetupFn<InputInterface, OutputInterface>;
+
+  constructor(options: {
+    name: string;
+    setup: SetupFn<InputInterface, OutputInterface>;
+  }) {
+    const { name, setup } = options;
+    this.name = name;
+    this.setup = setup;
+  }
+}
+
+enum ModelBlockStatus {
+  BeforeInited,
+  Initing,
+  Done,
+}
+
+export class ModelBlock<
+  InputInterface extends InputOutputInterface = any,
+  OutputInterface extends InputOutputInterface = any
+> {
+  protected template: ModelBlockTemplate<InputInterface, OutputInterface>;
+
   /** output after handled */
-  data: any;
+  current: any;
+
+  protected eventEmitter: EventEmitter = new EventEmitter();
 
   /** raw data */
-  protected output?: Record<string, Atom<any>>;
+  protected output?: OutputInterface;
 
-  protected input: InputStruct;
-
-  /** setup fn */
-  protected setupFn: SetupFn<InputStruct>;
+  protected input: InputInterface;
 
   protected childrenMap: ModelBlockChildrenMap;
 
   protected parent: ModelBlock | null = null;
 
-  constructor(
-    options: {
-      name: string;
-      setup: SetupFn<InputStruct>;
-    },
-    children: ModelBlock[]
-  ) {
-    const { name, setup } = options;
+  protected status: ModelBlockStatus = ModelBlockStatus.BeforeInited;
 
-    this.name = name;
+  protected pendingChildren: ModelBlock[] = [];
 
-    this.childrenMap = new ModelBlockChildrenMap(children, {
-      onChildrenCreate: async (children) => {
-        await this.triggerChildrenLifecycle('start', children);
-      },
-      onChildrenRemove: async (children) => {
-        await this.triggerChildrenLifecycle('unmount', children);
-      },
-    });
+  constructor(options: {
+    template: ModelBlockTemplate<InputInterface, OutputInterface>;
+    input?: InputInterface;
+  }) {
+    const { template, input } = options;
+    this.template = template;
+    this.input = input || ({} as InputInterface);
 
-    this.input = {} as InputStruct;
+    this.childrenMap = new ModelBlockChildrenMap([]);
+  }
 
-    this.setupFn = setup;
+  protected get context(): ModelBlockContext {
+    return {
+      onLifecycle: this.onLifecycle.bind(this),
+      mount: this.mountChild.bind(this),
+    };
+  }
+
+  get name() {
+    return this.template?.name;
   }
 
   // =============== Utils Start =================== //
+
+  protected onLifecycle(
+    lifecycleType: AtomLifecycleEventType,
+    callback: () => void
+  ) {
+    this.eventEmitter.on(lifecycleType, callback);
+    return {
+      unsubscribe: () => {
+        this.eventEmitter.off(lifecycleType, callback);
+      },
+    };
+  }
+
+  protected mountChild<
+    I extends InputOutputInterface,
+    O extends InputOutputInterface
+  >(template: ModelBlockTemplate<I, O>, input: I) {
+    const block = new ModelBlock({ template, input });
+
+    if (this.status === ModelBlockStatus.Done) {
+      this.triggerChildrenLifecycle('start', [block]);
+      this.childrenMap.add(block);
+    } else if (this.status === ModelBlockStatus.Initing) {
+      this.pendingChildren.push(block);
+    } else if (this.status === ModelBlockStatus.BeforeInited) {
+      this.childrenMap.add(block);
+    }
+
+    return block;
+  }
 
   protected log(message: string) {
     console.log(`[ModelBlock]: ${message}`, this.name);
@@ -103,49 +195,50 @@ export class ModelBlock<
       (modelBlock) => {
         modelBlock[eventType](this);
       },
-      eventType.startsWith('post')
+      LifecycleEventMeta[eventType]?.reverse
     );
   }
 
-  protected triggerAtomLifecycleByAtoms(
-    atoms: Atom<any>[],
-    eventType: AtomLifecycleEventType,
-    depth = 0,
-    parentAtom?: Atom<any>
-  ) {
-    if (depth > 25) {
-      throw new Error(
-        `${
-          parentAtom?.type || 'Atom'
-        } Depth max than 25, please check if there is a circle dependence`
-      );
-    }
+  // protected triggerAtomLifecycleByAtoms(
+  //   atoms: Atom<any>[],
+  //   eventType: AtomLifecycleEventType,
+  //   depth = 0,
+  //   parentAtom?: Atom<any>
+  // ) {
+  //   if (depth > 25) {
+  //     throw new Error(
+  //       `${
+  //         parentAtom?.type || 'Atom'
+  //       } Depth max than 25, please check if there is a circle dependence`
+  //     );
+  //   }
 
-    for (const atom of atoms) {
-      if (!atom) {
-        continue;
-      }
+  //   for (const atom of atoms) {
+  //     if (!atom) {
+  //       continue;
+  //     }
 
-      atom?.[eventType]?.();
-      if (ModelContainerAtom.isContainer(atom)) {
-        const atomList = Object.values(atom.value);
-        if (Array.isArray(atomList) && atomList?.length) {
-          this.triggerAtomLifecycleByAtoms(
-            atomList,
-            eventType,
-            depth + 1,
-            atom
-          );
-        }
-      }
-    }
-  }
+  //     atom?.[eventType]?.();
+  //     if (ModelContainerAtom.isContainer(atom)) {
+  //       const atomList = Object.values(atom.value);
+  //       if (Array.isArray(atomList) && atomList?.length) {
+  //         this.triggerAtomLifecycleByAtoms(
+  //           atomList,
+  //           eventType,
+  //           depth + 1,
+  //           atom
+  //         );
+  //       }
+  //     }
+  //   }
+  // }
 
   protected async triggerAtomLifecycle(eventType: AtomLifecycleEventType) {
-    const atomList = Object.values(this.output || {});
-    if (Array.isArray(atomList)) {
-      this.triggerAtomLifecycleByAtoms(atomList, eventType);
-    }
+    this.eventEmitter.emit(eventType);
+    // const atomList = Object.values(this.output || {});
+    // if (Array.isArray(atomList)) {
+    //   this.triggerAtomLifecycleByAtoms(atomList, eventType);
+    // }
   }
 
   // =============== Utils End =================== //
@@ -154,8 +247,9 @@ export class ModelBlock<
 
   protected async preInitSelf() {
     this.log('preInitSelf');
-    this.output = await this.setupFn(this.input, this.childrenMap);
+    this.output = await this.template.setup(this.input, this.context);
     this.setupOutputToData();
+    this.status = ModelBlockStatus.Initing;
   }
 
   protected async postInitSelf() {
@@ -168,14 +262,21 @@ export class ModelBlock<
     await this.triggerAtomLifecycle('preMount');
   }
 
-  protected async beforeMountSelf() {
-    this.log('beforeMountSelf');
-    await this.triggerAtomLifecycle('beforeMount');
-  }
-
   protected async postMountSelf() {
     this.log('postMountSelf');
     await this.triggerAtomLifecycle('postMount');
+
+    // handle pending children
+    this.status = ModelBlockStatus.Done;
+    if (this.pendingChildren?.length) {
+      await this.triggerChildrenLifecycle('start', this.pendingChildren);
+      this.pendingChildren = [];
+    }
+  }
+
+  protected async beforeMountSelf() {
+    this.log('beforeMountSelf');
+    await this.triggerAtomLifecycle('beforeMount');
   }
 
   protected async mountSelf() {
@@ -188,14 +289,14 @@ export class ModelBlock<
     await this.triggerAtomLifecycle('preUnmount');
   }
 
-  protected async beforeUnmountSelf() {
-    this.log('beforeUnmountSelf');
-    await this.triggerAtomLifecycle('beforeUnmount');
-  }
-
   protected async postUnmountSelf() {
     this.log('postUnmountSelf');
     await this.triggerAtomLifecycle('postUnmount');
+  }
+
+  protected async beforeUnmountSelf() {
+    this.log('beforeUnmountSelf');
+    await this.triggerAtomLifecycle('beforeUnmount');
   }
 
   protected async unmountSelf() {
@@ -273,8 +374,8 @@ export class ModelBlock<
     await this.mount();
   }
 
-  async start() {
-    await this.init(null);
+  async start(parent?: ModelBlock | null) {
+    await this.init(parent || null);
     await this.doMount();
   }
 
@@ -290,20 +391,22 @@ export class ModelBlock<
   // =============== Output Start =================== //
 
   protected setupOutputToData() {
-    this.data = {};
+    this.current = {};
     for (const [key, value] of Object.entries(this.output || {})) {
-      Object.defineProperty(this.data, key, {
+      Object.defineProperty(this.current, key, {
         get() {
-          return value?.value;
+          return value?.current;
         },
       });
     }
   }
   // =============== Output End =================== //
-
-  // =============== Input Start =================== //
-  async setupInput(input: InputStruct) {
-    this.input = input || ({} as InputStruct);
-  }
-  // =============== Input End =================== //
+}
+export async function start<
+  I extends InputOutputInterface,
+  O extends InputOutputInterface
+>(template: ModelBlockTemplate<I, O>, input?: I) {
+  const block = new ModelBlock({ template, input });
+  await block.start();
+  return block;
 }

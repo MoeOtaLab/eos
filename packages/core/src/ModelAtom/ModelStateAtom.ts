@@ -25,6 +25,6 @@ export class ModelComputedStateAtom<
   }
 
   preMount() {
-    this.value.setOriginState(this._modelState());
+    this.current.setOriginState(this._modelState());
   }
 }

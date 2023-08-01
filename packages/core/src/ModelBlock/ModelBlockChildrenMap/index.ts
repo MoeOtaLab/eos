@@ -1,21 +1,13 @@
 import type { ModelBlock } from '../ModelBlock';
 
-type ModelBlockChildrenMapHandler = {
-  onChildrenRemove: (children: ModelBlock[]) => Promise<void> | void;
-  onChildrenCreate: (children: ModelBlock[]) => Promise<void> | void;
-};
-
 export class ModelBlockChildrenMap {
   children: ModelBlock[];
 
   protected childrenMap: Map<string, ModelBlock> = new Map();
 
-  protected handler: ModelBlockChildrenMapHandler;
-
-  constructor(children: ModelBlock[], options: ModelBlockChildrenMapHandler) {
+  constructor(children: ModelBlock[]) {
     this.children = children || [];
     this.updateChildrenMap();
-    this.handler = options;
   }
 
   protected updateChildrenMap() {
@@ -33,13 +25,10 @@ export class ModelBlockChildrenMap {
 
   async remove(...block: ModelBlock[]) {
     // first delete
-    this.removeByInstance(...block);
-    await this.handler.onChildrenRemove(block);
+    this.remove(...block);
   }
 
   async add(...block: ModelBlock[]) {
-    // first add
-    await this.handler.onChildrenCreate(block);
     this.children.push(...block);
     this.updateChildrenMap();
   }

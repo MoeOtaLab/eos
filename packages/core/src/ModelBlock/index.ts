@@ -1,1 +1,1 @@
-export { ModelBlock } from './ModelBlock';
+export { ModelBlock, ModelBlockTemplate, start } from './ModelBlock';

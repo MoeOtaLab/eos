@@ -1,6 +1,5 @@
-import { Atom, ModelContainerAtom } from '../ModelAtom';
-import { ModelBlockChildrenMap } from './ModelBlockChildrenMap';
 import { EventEmitter } from '../EventEmitter';
+import { RelationHelper } from './RelationHelper';
 
 type LifecycleEventType =
   | 'start'
@@ -15,6 +14,18 @@ type LifecycleEventType =
   | 'postMount'
   | 'preUnmount'
   | 'postUnmount';
+
+type SelfLifeCycleType =
+  | 'preInitSelf'
+  | 'postInitSelf'
+  | 'preMountSelf'
+  | 'postMountSelf'
+  | 'beforeMountSelf'
+  | 'mountSelf'
+  | 'preUnmountSelf'
+  | 'postUnmountSelf'
+  | 'beforeUnmountSelf'
+  | 'unmountSelf';
 
 export type AtomLifecycleEventType = Exclude<
   LifecycleEventType,
@@ -32,7 +43,7 @@ type ModelBlockContext = {
   ) => ModelBlock<I, O>;
 };
 
-type InputOutputInterface = Record<string, Atom<any> | ModelBlock>;
+type InputOutputInterface = Record<string, any>;
 
 type SetupFn<
   InputInterface extends InputOutputInterface,
@@ -57,7 +68,7 @@ export class ModelBlockTemplate<
   }
 }
 
-enum ModelBlockStatus {
+export enum ModelBlockStatus {
   BeforeInited,
   Initing,
   Done,
@@ -71,6 +82,15 @@ export class ModelBlock<
 
   protected template: ModelBlockTemplate<InputInterface, OutputInterface>;
 
+  /** 下一个 */
+  next?: ModelBlock<any, any> | null = null;
+
+  /** 下一个兄弟节点 */
+  nextSibling?: ModelBlock<any, any> | null = null;
+
+  /** 父节点 */
+  return: ModelBlock | null = null;
+
   /** output after handled */
   current: any;
 
@@ -81,13 +101,11 @@ export class ModelBlock<
 
   protected input: InputInterface;
 
-  protected childrenMap: ModelBlockChildrenMap;
-
-  protected parent: ModelBlock | null = null;
-
   protected status: ModelBlockStatus = ModelBlockStatus.BeforeInited;
 
   protected pendingChildren: ModelBlock[] = [];
+
+  protected relationHelper: RelationHelper;
 
   constructor(options: {
     template: ModelBlockTemplate<InputInterface, OutputInterface>;
@@ -96,8 +114,7 @@ export class ModelBlock<
     const { template, input } = options;
     this.template = template;
     this.input = input || ({} as InputInterface);
-
-    this.childrenMap = new ModelBlockChildrenMap([]);
+    this.relationHelper = new RelationHelper(this);
   }
 
   protected get context(): ModelBlockContext {
@@ -134,22 +151,24 @@ export class ModelBlock<
       throw new Error('can not mount yourself');
     }
 
-    let self = this.parent;
+    let self = this.return;
     while (self) {
       if (template === self.template) {
-        throw new Error('loop');
+        throw new Error('loop mount!');
       }
-      self = self.parent;
+      self = self.return;
     }
+
     const block = new ModelBlock({ template, input });
 
     if (this.status === ModelBlockStatus.Done) {
-      this.triggerChildrenLifecycle('start', [block]);
-      this.childrenMap.add(block);
+      // TODO: trgger new lifecycle
+      // this.triggerChildrenLifecycle('start', [block]);
+      this.relationHelper.addNextChildren(block);
     } else if (this.status === ModelBlockStatus.Initing) {
       this.pendingChildren.push(block);
     } else if (this.status === ModelBlockStatus.BeforeInited) {
-      this.childrenMap.add(block);
+      this.relationHelper.addNextChildren(block);
     }
 
     return block;
@@ -159,212 +178,111 @@ export class ModelBlock<
     console.log(`[ModelBlock ${this.name} - ${this.id}]: ${message}`);
   }
 
-  protected async doWithChildren(
-    children: ModelBlock[],
-    fn: (modelBlock: ModelBlock) => void
-  ) {
-    const childList = [...children];
-
-    for (const modelBlock of childList) {
-      await fn(modelBlock);
-    }
-  }
-
-  protected async triggerChildrenLifecycle(
-    eventType: LifecycleEventType,
-    children: ModelBlock[] = this.childrenMap.children
-  ) {
-    await this.doWithChildren(children, async (modelBlock) => {
-      await modelBlock[eventType](this);
-    });
-  }
-
-  // protected triggerAtomLifecycleByAtoms(
-  //   atoms: Atom<any>[],
-  //   eventType: AtomLifecycleEventType,
-  //   depth = 0,
-  //   parentAtom?: Atom<any>
-  // ) {
-  //   if (depth > 25) {
-  //     throw new Error(
-  //       `${
-  //         parentAtom?.type || 'Atom'
-  //       } Depth max than 25, please check if there is a circle dependence`
-  //     );
-  //   }
-
-  //   for (const atom of atoms) {
-  //     if (!atom) {
-  //       continue;
-  //     }
-
-  //     atom?.[eventType]?.();
-  //     if (ModelContainerAtom.isContainer(atom)) {
-  //       const atomList = Object.values(atom.value);
-  //       if (Array.isArray(atomList) && atomList?.length) {
-  //         this.triggerAtomLifecycleByAtoms(
-  //           atomList,
-  //           eventType,
-  //           depth + 1,
-  //           atom
-  //         );
-  //       }
-  //     }
-  //   }
-  // }
-
-  protected async triggerAtomLifecycle(eventType: AtomLifecycleEventType) {
+  protected triggerLifecycle(eventType: AtomLifecycleEventType) {
     this.eventEmitter.emit(eventType);
-    // const atomList = Object.values(this.output || {});
-    // if (Array.isArray(atomList)) {
-    //   this.triggerAtomLifecycleByAtoms(atomList, eventType);
-    // }
   }
 
   // =============== Utils End =================== //
 
   // =============== Self Start =================== //
 
-  protected async preInitSelf() {
+  protected preInitSelf() {
     this.log('preInitSelf');
-    this.output = await this.template.setup(this.input, this.context);
+    this.output = this.template.setup(this.input, this.context);
     this.setupOutputToData();
     this.status = ModelBlockStatus.Initing;
   }
 
-  protected async postInitSelf() {
+  protected postInitSelf() {
     this.log('postInitSelf');
-    await this.triggerAtomLifecycle('postInit');
+    this.triggerLifecycle('postInit');
   }
 
-  protected async preMountSelf() {
+  protected preMountSelf() {
     this.log('preMountSelf');
-    await this.triggerAtomLifecycle('preMount');
+    this.triggerLifecycle('preMount');
   }
 
-  protected async postMountSelf() {
+  protected postMountSelf() {
     this.log('postMountSelf');
-    await this.triggerAtomLifecycle('postMount');
+    this.triggerLifecycle('postMount');
 
     // handle pending children
     this.status = ModelBlockStatus.Done;
     if (this.pendingChildren?.length) {
       this.log('pendingChildren');
-      await this.triggerChildrenLifecycle('start', this.pendingChildren);
+      const pendingChildren = this.pendingChildren;
+      // TODO: pendingChildren
+      // this.triggerChildrenLifecycle('start', pendingChildren);
       this.pendingChildren = [];
+      this.relationHelper.addNextChildren(...pendingChildren);
     }
   }
 
-  protected async beforeMountSelf() {
+  protected beforeMountSelf() {
     this.log('beforeMountSelf');
-    await this.triggerAtomLifecycle('beforeMount');
+    this.triggerLifecycle('beforeMount');
   }
 
-  protected async mountSelf() {
+  protected mountSelf() {
     this.log('mountSelf');
-    await this.triggerAtomLifecycle('mount');
+    this.triggerLifecycle('mount');
   }
 
-  protected async preUnmountSelf() {
+  protected preUnmountSelf() {
     this.log('preUnmountSelf');
-    await this.triggerAtomLifecycle('preUnmount');
+    this.triggerLifecycle('preUnmount');
   }
 
-  protected async postUnmountSelf() {
+  protected postUnmountSelf() {
     this.log('postUnmountSelf');
-    await this.triggerAtomLifecycle('postUnmount');
+    this.triggerLifecycle('postUnmount');
   }
 
-  protected async beforeUnmountSelf() {
+  protected beforeUnmountSelf() {
     this.log('beforeUnmountSelf');
-    await this.triggerAtomLifecycle('beforeUnmount');
+    this.triggerLifecycle('beforeUnmount');
   }
 
-  protected async unmountSelf() {
+  protected unmountSelf() {
     this.log('unmountSelf');
-    await this.triggerAtomLifecycle('unmount');
+    this.triggerLifecycle('unmount');
   }
 
   // =============== Self End =================== //
 
   // =============== Inner Lifecycle Start =================== //
-  // TBD: should be async or not?
-  protected async preInit(parent: ModelBlock<any> | null) {
-    this.parent = parent;
-    await this.preInitSelf();
-    await this.triggerChildrenLifecycle('preInit');
+  protected preAction(eventType: SelfLifeCycleType) {
+    this.relationHelper.preAction(this, (model) => {
+      model[eventType]?.();
+    });
   }
 
-  protected async postInit() {
-    await this.triggerChildrenLifecycle('postInit');
-    await this.postInitSelf();
-  }
-
-  protected async preMount() {
-    await this.preMountSelf();
-    await this.triggerChildrenLifecycle('preMount');
-  }
-
-  protected async postMount() {
-    await this.triggerChildrenLifecycle('postMount');
-    await this.postMountSelf();
-  }
-
-  protected async beforeMount() {
-    await this.beforeMountSelf();
-    await this.triggerChildrenLifecycle('beforeMount');
-  }
-
-  protected async mount() {
-    await this.triggerChildrenLifecycle('mount');
-    await this.mountSelf();
-  }
-
-  protected async beforeUnmount() {
-    await this.beforeUnmountSelf();
-    await this.triggerChildrenLifecycle('beforeUnmount');
-  }
-
-  protected async unmount() {
-    await this.triggerChildrenLifecycle('unmount');
-    await this.unmountSelf();
-  }
-
-  protected async preUnmount() {
-    await this.preUnmountSelf();
-    await this.triggerChildrenLifecycle('preUnmount');
-  }
-
-  protected async postUnmount() {
-    await this.triggerChildrenLifecycle('postUnmount');
-    await this.postUnmountSelf();
+  protected postAction(eventType: SelfLifeCycleType) {
+    this.relationHelper.postAction(this, (model) => {
+      model[eventType]?.();
+    });
   }
   // =============== Inner Lifecycle End =================== //
 
   // =============== Outer Lifecycle Start =================== //
+  start() {
+    this.preAction('preInitSelf');
+    this.postAction('postInitSelf');
 
-  protected async init(parent: ModelBlock | null) {
-    await this.preInit(parent);
-    await this.postInit();
+    this.preAction('preMountSelf');
+    this.postAction('postMountSelf');
+
+    this.preAction('beforeMountSelf');
+    this.postAction('mountSelf');
   }
 
-  protected async doMount() {
-    await this.preMount();
-    await this.postMount();
-    await this.beforeMount();
-    await this.mount();
-  }
+  stop() {
+    this.preAction('beforeUnmountSelf');
+    this.postAction('unmountSelf');
 
-  async start(parent?: ModelBlock | null) {
-    await this.init(parent || null);
-    await this.doMount();
-  }
-
-  async stop() {
-    await this.beforeUnmount();
-    await this.unmount();
-    await this.preUnmount();
-    await this.postUnmount();
+    this.preAction('preUnmountSelf');
+    this.postAction('postUnmountSelf');
   }
 
   // =============== Outer Lifecycle End =================== //
@@ -376,6 +294,7 @@ export class ModelBlock<
     for (const [key, value] of Object.entries(this.output || {})) {
       Object.defineProperty(this.current, key, {
         get() {
+          // TODO: 判断
           return value?.current;
         },
       });
@@ -383,11 +302,12 @@ export class ModelBlock<
   }
   // =============== Output End =================== //
 }
+
 export async function start<
   I extends InputOutputInterface,
   O extends InputOutputInterface
 >(template: ModelBlockTemplate<I, O>, input?: I) {
   const block = new ModelBlock({ template, input });
-  await block.start();
+  block.start();
   return block;
 }

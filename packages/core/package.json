@@ -2,7 +2,9 @@
   "name": "@mflow/core",
   "version": "0.0.1",
   "private": true,
-  "scripts": {},
+  "scripts": {
+    "dev": "ts-node index.ts"
+  },
   "dependencies": {
     "immer": "^10.0.2"
   },

@@ -59,7 +59,9 @@ const outerTemplate = new ModelBlockTemplate({
     });
 
     const inner = mount(innerTemplate, { defaultNum: count });
-    const inner2 = mount(innerTemplate2, { defaultNum: count });
+    setTimeout(() => {
+      const inner2 = mount(innerTemplate, { defaultNum: count });
+    });
 
     onLifecycle('mount', () => {
       console.log('outer ===> mount2');
@@ -77,7 +79,7 @@ async function main() {
     name: new ModelStateAtom('ahahah'),
   });
 
-  outer.stop();
+  outer.unmount();
 }
 
 main();

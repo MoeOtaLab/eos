@@ -286,7 +286,7 @@ export class ModelBlock<
   // =============== Inner Lifecycle End =================== //
 
   // =============== Outer Lifecycle Start =================== //
-  start() {
+  mount() {
     this.preAction('preInitSelf');
     this.postAction('postInitSelf');
 
@@ -297,7 +297,7 @@ export class ModelBlock<
     this.postAction('mountSelf');
   }
 
-  stop() {
+  unmount() {
     this.preAction('beforeUnmountSelf');
     this.postAction('unmountSelf');
 
@@ -328,6 +328,6 @@ export async function start<
   O extends InputOutputInterface
 >(template: ModelBlockTemplate<I, O>, input?: I) {
   const block = new ModelBlock({ template, input });
-  block.start();
+  block.mount();
   return block;
 }

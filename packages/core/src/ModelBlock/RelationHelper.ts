@@ -117,4 +117,18 @@ export class RelationHelper {
       next = next.return;
     }
   }
+
+  action(
+    type: 'pre' | 'post',
+    currentNode: ModelBlock,
+    action: (modelBlock: ModelBlock) => void
+  ) {
+    if (type === 'pre') {
+      return this.preAction(currentNode, action);
+    } else if (type === 'post') {
+      return this.postAction(currentNode, action);
+    } else {
+      console.log('unknow type', type);
+    }
+  }
 }

@@ -142,6 +142,28 @@ export class ModelBlock<
     };
   }
 
+  protected childrenAction(
+    type: 'pre' | 'post',
+    eventType: SelfLifeCycleType,
+    child: ModelBlock
+  ) {
+    this.relationHelper.action(type, child, (model) => {
+      model[eventType]?.();
+    });
+  }
+
+  protected mountChildOnly(child: ModelBlock) {
+    this.relationHelper.addNextChildren(child);
+    this.childrenAction('pre', 'preInitSelf', child);
+    this.childrenAction('post', 'postInitSelf', child);
+
+    this.childrenAction('pre', 'preMountSelf', child);
+    this.childrenAction('post', 'postMountSelf', child);
+
+    this.childrenAction('pre', 'beforeMountSelf', child);
+    this.childrenAction('post', 'mountSelf', child);
+  }
+
   protected mountChild<
     I extends InputOutputInterface,
     O extends InputOutputInterface
@@ -160,11 +182,10 @@ export class ModelBlock<
     }
 
     const block = new ModelBlock({ template, input });
+    console.log('mount::status', this.status);
 
     if (this.status === ModelBlockStatus.Done) {
-      // TODO: trgger new lifecycle
-      // this.triggerChildrenLifecycle('start', [block]);
-      this.relationHelper.addNextChildren(block);
+      this.mountChildOnly(block);
     } else if (this.status === ModelBlockStatus.Initing) {
       this.pendingChildren.push(block);
     } else if (this.status === ModelBlockStatus.BeforeInited) {
@@ -211,11 +232,10 @@ export class ModelBlock<
     this.status = ModelBlockStatus.Done;
     if (this.pendingChildren?.length) {
       this.log('pendingChildren');
-      const pendingChildren = this.pendingChildren;
-      // TODO: pendingChildren
-      // this.triggerChildrenLifecycle('start', pendingChildren);
+      this.pendingChildren.forEach((child) => {
+        this.mountChildOnly(child);
+      });
       this.pendingChildren = [];
-      this.relationHelper.addNextChildren(...pendingChildren);
     }
   }
 

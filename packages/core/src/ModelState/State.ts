@@ -2,11 +2,13 @@ import { Patch } from 'immer';
 
 export type ValuePayload<T> = {
   value: T;
-  path: {
-    current: T;
-    id: string;
-    reason?: string;
-    patches: Patch[];
-    inversePatches: Patch[];
-  }[];
+  traceId: string;
+};
+
+export type ReportPayload<T> = {
+  traceId: string;
+  current: T;
+  patches: Patch[];
+  inversePatches: Patch[];
+  reason?: string;
 };

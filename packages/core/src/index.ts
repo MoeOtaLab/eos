@@ -1,5 +1,8 @@
 import { ModelBlockTemplate, start } from './ModelBlock/ModelBlock';
 import { ModelStateAtom, Atom } from './ModelAtom';
+import { State } from './ModelState/State';
+import { ComputedState } from './ModelState/ComputedState';
+import { ExtraInfo } from './ModelState/ExtraInfo';
 
 const other2 = new ModelBlockTemplate({
   name: '1-1-2',
@@ -75,11 +78,25 @@ const outerTemplate = new ModelBlockTemplate({
 });
 
 async function main() {
-  const outer = await start(outerTemplate, {
-    name: new ModelStateAtom('ahahah'),
+  // const outer = await start(outerTemplate, {
+  //   name: new ModelStateAtom('ahahah'),
+  // });
+
+  // outer.unmount();
+
+  const a = new State(2);
+  const b = new State(2);
+
+  const c = new ComputedState(2);
+
+  c.compute([a, b], (a, b) => a + b);
+
+  c.subscribe((value, extra) => {
+    console.log('c=>', value, extra);
   });
 
-  outer.unmount();
+  a.update(3, new ExtraInfo());
+  b.update((a) => a + 1, new ExtraInfo());
 }
 
 main();

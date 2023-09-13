@@ -1,5 +1,6 @@
 import { EventEmitter } from '../EventEmitter';
 import { RelationHelper } from './RelationHelper';
+import { ModelTemplate } from './ModelTemplate';
 
 type LifecycleEventType =
   | 'start'
@@ -32,41 +33,18 @@ export type AtomLifecycleEventType = Exclude<
   'start' | 'stop' | 'preInit'
 >;
 
-type ModelBlockContext = {
+export type ModelBlockContext = {
   onLifecycle: (
     lifecycleType: AtomLifecycleEventType,
     callback: () => void
   ) => void;
   mount: <I extends InputOutputInterface, O extends InputOutputInterface>(
-    template: ModelBlockTemplate<I, O>,
+    template: ModelTemplate<I, O>,
     input: I
   ) => ModelBlock<I, O>;
 };
 
-type InputOutputInterface = Record<string, any>;
-
-type SetupFn<
-  InputInterface extends InputOutputInterface,
-  OutputInterface extends InputOutputInterface
-> = (input: InputInterface, context: ModelBlockContext) => OutputInterface;
-
-export class ModelBlockTemplate<
-  InputInterface extends InputOutputInterface = any,
-  OutputInterface extends InputOutputInterface = any
-> {
-  name: string;
-
-  setup: SetupFn<InputInterface, OutputInterface>;
-
-  constructor(options: {
-    name: string;
-    setup: SetupFn<InputInterface, OutputInterface>;
-  }) {
-    const { name, setup } = options;
-    this.name = name;
-    this.setup = setup;
-  }
-}
+export type InputOutputInterface = Record<string, any>;
 
 export enum ModelBlockStatus {
   BeforeInited,
@@ -80,7 +58,7 @@ export class ModelBlock<
 > {
   protected id = Math.random().toString(36).slice(2, 7);
 
-  protected template: ModelBlockTemplate<InputInterface, OutputInterface>;
+  template: ModelTemplate<InputInterface, OutputInterface>;
 
   /** 下一个 */
   next?: ModelBlock<any, any> | null = null;
@@ -108,7 +86,7 @@ export class ModelBlock<
   protected relationHelper: RelationHelper;
 
   constructor(options: {
-    template: ModelBlockTemplate<InputInterface, OutputInterface>;
+    template: ModelTemplate<InputInterface, OutputInterface>;
     input?: InputInterface;
   }) {
     const { template, input } = options;
@@ -120,7 +98,7 @@ export class ModelBlock<
   protected get context(): ModelBlockContext {
     return {
       onLifecycle: this.onLifecycle.bind(this),
-      mount: this.mountChild.bind(this),
+      mount: this.mountTemplate.bind(this),
     };
   }
 
@@ -164,10 +142,10 @@ export class ModelBlock<
     this.childrenAction('post', 'mountSelf', child);
   }
 
-  protected mountChild<
+  protected mountTemplate<
     I extends InputOutputInterface,
     O extends InputOutputInterface
-  >(template: ModelBlockTemplate<I, O>, input: I) {
+  >(template: ModelTemplate<I, O>, input: I) {
     /** @ts-ignore */
     if (template === this.template) {
       throw new Error('can not mount yourself');
@@ -182,6 +160,16 @@ export class ModelBlock<
     }
 
     const block = new ModelBlock({ template, input });
+
+    this.mountChild(block);
+
+    return block;
+  }
+
+  protected mountChild<
+    I extends InputOutputInterface,
+    O extends InputOutputInterface
+  >(block: ModelBlock<I, O>) {
     console.log('mount::status', this.status);
 
     if (this.status === ModelBlockStatus.Done) {
@@ -191,8 +179,6 @@ export class ModelBlock<
     } else if (this.status === ModelBlockStatus.BeforeInited) {
       this.relationHelper.addNextChildren(block);
     }
-
-    return block;
   }
 
   protected log(message: string) {
@@ -326,7 +312,7 @@ export class ModelBlock<
 export async function start<
   I extends InputOutputInterface,
   O extends InputOutputInterface
->(template: ModelBlockTemplate<I, O>, input?: I) {
+>(template: ModelTemplate<I, O>, input?: I) {
   const block = new ModelBlock({ template, input });
   block.mount();
   return block;

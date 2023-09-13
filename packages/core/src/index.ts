@@ -1,24 +1,25 @@
-import { ModelBlockTemplate, start } from './ModelBlock/ModelBlock';
+import { start } from './ModelBlock/ModelBlock';
+import { ModelTemplate } from './ModelBlock';
 import { ModelStateAtom, Atom } from './ModelAtom';
 import { State } from './ModelState/State';
 import { ComputedState } from './ModelState/ComputedState';
 import { ExtraInfo } from './ModelState/ExtraInfo';
 
-const other2 = new ModelBlockTemplate({
+const other2 = new ModelTemplate({
   name: '1-1-2',
   setup(input, context) {
     return {};
   },
 });
 
-const other = new ModelBlockTemplate({
+const other = new ModelTemplate({
   name: '1-1-1',
   setup(input, context) {
     return {};
   },
 });
 
-const innerTemplate = new ModelBlockTemplate<{ defaultNum: Atom<Number> }>({
+const innerTemplate = new ModelTemplate<{ defaultNum: Atom<Number> }>({
   name: '1-1',
   setup(input, context) {
     const { onLifecycle, mount } = context;
@@ -36,7 +37,7 @@ const innerTemplate = new ModelBlockTemplate<{ defaultNum: Atom<Number> }>({
   },
 });
 
-const innerTemplate2 = new ModelBlockTemplate<{ defaultNum: Atom<Number> }>({
+const innerTemplate2 = new ModelTemplate<{ defaultNum: Atom<Number> }>({
   name: '1-2',
   setup(input, context) {
     const { onLifecycle, mount } = context;
@@ -44,7 +45,7 @@ const innerTemplate2 = new ModelBlockTemplate<{ defaultNum: Atom<Number> }>({
   },
 });
 
-const outerTemplate = new ModelBlockTemplate({
+const outerTemplate = new ModelTemplate({
   name: '1',
   setup(input: { name: Atom<string> }, context) {
     const { onLifecycle } = context;
@@ -78,11 +79,11 @@ const outerTemplate = new ModelBlockTemplate({
 });
 
 async function main() {
-  // const outer = await start(outerTemplate, {
-  //   name: new ModelStateAtom('ahahah'),
-  // });
+  const outer = await start(outerTemplate, {
+    name: new ModelStateAtom('ahahah'),
+  });
 
-  // outer.unmount();
+  outer.unmount();
 
   const a = new State(2);
   const b = new State(2);

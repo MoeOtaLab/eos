@@ -1,5 +1,7 @@
 import { ModelBlockContext } from './ModelBlock';
 
+export type MountType = 'group' | 'block';
+
 export type InputOutputInterface = Record<string, any>;
 
 export type SetupFn<
@@ -13,6 +15,10 @@ type ModelTemplateOption<
 > = {
   name: string;
   setup: SetupFn<InputInterface, OutputInterface>;
+  /**
+   * @default block
+   */
+  preferMountType?: MountType;
 };
 
 export class ModelTemplate<
@@ -23,9 +29,12 @@ export class ModelTemplate<
 
   setup: SetupFn<InputInterface, OutputInterface>;
 
+  preferMountType: MountType;
+
   constructor(options: ModelTemplateOption) {
-    const { name, setup } = options;
+    const { name, setup, preferMountType = 'block' } = options;
     this.name = name;
     this.setup = setup;
+    this.preferMountType = preferMountType;
   }
 }

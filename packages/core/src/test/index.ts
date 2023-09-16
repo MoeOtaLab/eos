@@ -10,8 +10,8 @@ const other1 = new ModelTemplate({
 const other2 = new ModelTemplate({
   name: 'other2',
   setup(input, context) {
-    const { mountBlock } = context;
-    mountBlock(other1);
+    const { mount } = context;
+    mount(other1);
     return {};
   },
 });
@@ -19,12 +19,12 @@ const other2 = new ModelTemplate({
 const sub = new ModelTemplate({
   name: 'sub',
   setup(input, context) {
-    const { mountBlock, mountGroup, onLifecycle } = context;
+    const { mount, onLifecycle } = context;
 
-    mountBlock(other1);
-    mountBlock(other2);
+    mount(other1);
+    mount(other2);
 
-    mountGroup(other2);
+    mount(other2, undefined, { mountType: 'group' });
 
     onLifecycle('preMount', () => {
       console.log('preMount -> sub -> input', input);
@@ -37,10 +37,10 @@ const sub = new ModelTemplate({
 const app = new ModelTemplate({
   name: 'app',
   setup(input, context) {
-    const { mountBlock } = context;
+    const { mount } = context;
     const theme = new State<'dark' | 'light'>('dark');
 
-    const subIns = mountBlock(sub, { theme });
+    const subIns = mount(sub, { theme });
 
     return {
       theme,

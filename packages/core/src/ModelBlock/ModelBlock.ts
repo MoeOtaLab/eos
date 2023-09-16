@@ -1,13 +1,12 @@
 import { EventEmitter } from '../EventEmitter';
 import { RelationHelper } from './RelationHelper';
-import { ModelTemplate, InputOutputInterface } from './ModelTemplate';
+import {
+  ModelTemplate,
+  InputOutputInterface,
+  MountType,
+} from './ModelTemplate';
 import { ModelConstructor, ModelConstructorOption } from './ModelConstructor';
 import { ModelGroup } from './ModelGroup';
-
-enum MountType {
-  Group = 'Group',
-  Block = 'Block',
-}
 
 type LifecycleEventType =
   | 'start'
@@ -42,6 +41,7 @@ export type AtomLifecycleEventType = Exclude<
 
 export type MountTemplateOption = {
   currentParent?: ModelConstructor;
+  mountType?: MountType;
 };
 
 export type ModelBlockContext = {
@@ -50,12 +50,7 @@ export type ModelBlockContext = {
     lifecycleType: AtomLifecycleEventType,
     callback: () => void
   ) => void;
-  mountBlock: <I extends InputOutputInterface, O extends InputOutputInterface>(
-    template: ModelTemplate<I, O>,
-    input?: I,
-    options?: MountTemplateOption
-  ) => ModelConstructor<I, O>;
-  mountGroup: <I extends InputOutputInterface, O extends InputOutputInterface>(
+  mount: <I extends InputOutputInterface, O extends InputOutputInterface>(
     template: ModelTemplate<I, O>,
     input?: I,
     options?: MountTemplateOption
@@ -142,8 +137,7 @@ export class ModelBlock<
     return {
       id: this.id,
       onLifecycle: this.onLifecycle.bind(this),
-      mountBlock: this.mountBlockTemplate.bind(this),
-      mountGroup: this.mountGroupTemplate.bind(this),
+      mount: this.mountTemplate.bind(this),
       // TODO: unmount
       unmount: null,
     };
@@ -193,7 +187,7 @@ export class ModelBlock<
     input?: I,
     options?: {
       currentParent?: ModelConstructor;
-      mountType: MountType;
+      mountType?: MountType;
     }
   ): ModelConstructor<I, O> {
     /** @ts-ignore */
@@ -209,7 +203,9 @@ export class ModelBlock<
       self = self.return;
     }
 
-    if (options?.mountType === MountType.Group) {
+    const mountType = options?.mountType || template?.preferMountType;
+
+    if (mountType === 'group') {
       return new ModelGroup({
         template,
         input,
@@ -217,6 +213,11 @@ export class ModelBlock<
         parentBlock: this,
       });
     } else {
+      // block or default
+      if (mountType && mountType !== 'block') {
+        console.warn(`unknown mountType: \`${mountType}\``);
+      }
+
       const block = new ModelBlock({
         template,
         input,
@@ -227,26 +228,6 @@ export class ModelBlock<
 
       return block;
     }
-  }
-
-  protected mountBlockTemplate<
-    I extends InputOutputInterface,
-    O extends InputOutputInterface
-  >(template: ModelTemplate<I, O>, input?: I, options?: MountTemplateOption) {
-    return this.mountTemplate(template, input, {
-      ...options,
-      mountType: MountType.Block,
-    });
-  }
-
-  protected mountGroupTemplate<
-    I extends InputOutputInterface,
-    O extends InputOutputInterface
-  >(template: ModelTemplate<I, O>, input?: I, options?: MountTemplateOption) {
-    return this.mountTemplate(template, input, {
-      ...options,
-      mountType: MountType.Group,
-    });
   }
 
   protected mountChild<

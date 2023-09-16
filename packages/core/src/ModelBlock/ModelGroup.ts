@@ -40,31 +40,18 @@ export class ModelGroup<
       // transport lifecycle relative context
       id: this.id,
       onLifecycle: parentContext?.onLifecycle,
-      mountBlock: this.mountBlockTemplate.bind(this),
-      mountGroup: this.mountGroupTemplate.bind(this),
+      mount: this.mountTemplate.bind(this),
       unmount: parentContext?.unmount,
     };
   }
 
-  protected mountBlockTemplate<
+  protected mountTemplate<
     I extends InputOutputInterface,
     O extends InputOutputInterface
   >(template: ModelTemplate<I, O>, input?: I, options?: MountTemplateOption) {
     const parentContext = this.getParentContext();
 
-    return parentContext?.mountBlock<I, O>(template, input, {
-      ...options,
-      currentParent: this,
-    });
-  }
-
-  protected mountGroupTemplate<
-    I extends InputOutputInterface,
-    O extends InputOutputInterface
-  >(template: ModelTemplate<I, O>, input?: I, options?: MountTemplateOption) {
-    const parentContext = this.getParentContext();
-
-    return parentContext?.mountGroup<I, O>(template, input, {
+    return parentContext?.mount<I, O>(template, input, {
       ...options,
       currentParent: this,
     });

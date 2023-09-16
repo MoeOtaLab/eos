@@ -1,6 +1,13 @@
 import { EventEmitter } from '../EventEmitter';
 import { RelationHelper } from './RelationHelper';
-import { ModelTemplate } from './ModelTemplate';
+import { ModelTemplate, InputOutputInterface } from './ModelTemplate';
+import { ModelConstructor, ModelConstructorOption } from './ModelConstructor';
+import { ModelGroup } from './ModelGroup';
+
+enum MountType {
+  Group = 'Group',
+  Block = 'Block',
+}
 
 type LifecycleEventType =
   | 'start'
@@ -33,18 +40,28 @@ export type AtomLifecycleEventType = Exclude<
   'start' | 'stop' | 'preInit'
 >;
 
+export type MountTemplateOption = {
+  currentParent?: ModelConstructor;
+};
+
 export type ModelBlockContext = {
+  id: string;
   onLifecycle: (
     lifecycleType: AtomLifecycleEventType,
     callback: () => void
   ) => void;
-  mount: <I extends InputOutputInterface, O extends InputOutputInterface>(
+  mountBlock: <I extends InputOutputInterface, O extends InputOutputInterface>(
     template: ModelTemplate<I, O>,
-    input: I
-  ) => ModelBlock<I, O>;
+    input?: I,
+    options?: MountTemplateOption
+  ) => ModelConstructor<I, O>;
+  mountGroup: <I extends InputOutputInterface, O extends InputOutputInterface>(
+    template: ModelTemplate<I, O>,
+    input?: I,
+    options?: MountTemplateOption
+  ) => ModelConstructor<I, O>;
+  unmount: null;
 };
-
-export type InputOutputInterface = Record<string, any>;
 
 export enum ModelBlockStatus {
   BeforeInited,
@@ -55,29 +72,31 @@ export enum ModelBlockStatus {
 export class ModelBlock<
   InputInterface extends InputOutputInterface = any,
   OutputInterface extends InputOutputInterface = any
-> {
-  protected id = Math.random().toString(36).slice(2, 7);
-
-  template: ModelTemplate<InputInterface, OutputInterface>;
-
-  /** 下一个 */
+> extends ModelConstructor<InputInterface, OutputInterface> {
+  /**
+   * @deprecated
+   * @private
+   * 下一个
+   * */
   next?: ModelBlock<any, any> | null = null;
 
-  /** 下一个兄弟节点 */
+  /**
+   * @deprecated
+   * @private
+   * 下一个兄弟节点
+   * */
   nextSibling?: ModelBlock<any, any> | null = null;
 
-  /** 父节点 */
+  /**
+   * @deprecated
+   * @private
+   * 父节点
+   * */
   return: ModelBlock | null = null;
 
-  /** output after handled */
-  current: any;
+  protected currentParent?: ModelConstructor | null | undefined;
 
   protected eventEmitter: EventEmitter = new EventEmitter();
-
-  /** raw data */
-  protected output?: OutputInterface;
-
-  protected input: InputInterface;
 
   protected status: ModelBlockStatus = ModelBlockStatus.BeforeInited;
 
@@ -85,25 +104,49 @@ export class ModelBlock<
 
   protected relationHelper: RelationHelper;
 
-  constructor(options: {
-    template: ModelTemplate<InputInterface, OutputInterface>;
-    input?: InputInterface;
-  }) {
-    const { template, input } = options;
-    this.template = template;
-    this.input = input || ({} as InputInterface);
+  constructor(
+    options: ModelConstructorOption<InputInterface, OutputInterface> & {
+      currentParent?: ModelConstructor;
+    }
+  ) {
+    super(options);
     this.relationHelper = new RelationHelper(this);
+    this.currentParent = options?.currentParent;
   }
 
-  protected get context(): ModelBlockContext {
+  protected setNext(next: ModelBlock<any, any> | null | undefined) {
+    this.next = next;
+  }
+
+  protected setNextSibling(
+    nextSibling: ModelBlock<any, any> | null | undefined
+  ) {
+    this.nextSibling = nextSibling;
+  }
+
+  protected setReturn(parent: ModelBlock<any, any> | null | undefined) {
+    this.return = parent || null;
+  }
+
+  /**
+   * @deprecated should not be use outside
+   * @private
+   */
+  _getInnerHandler() {
     return {
-      onLifecycle: this.onLifecycle.bind(this),
-      mount: this.mountTemplate.bind(this),
+      getContext: this.getContext.bind(this),
     };
   }
 
-  get name() {
-    return this.template?.name;
+  protected getContext(): ModelBlockContext {
+    return {
+      id: this.id,
+      onLifecycle: this.onLifecycle.bind(this),
+      mountBlock: this.mountBlockTemplate.bind(this),
+      mountGroup: this.mountGroupTemplate.bind(this),
+      // TODO: unmount
+      unmount: null,
+    };
   }
 
   // =============== Utils Start =================== //
@@ -145,7 +188,14 @@ export class ModelBlock<
   protected mountTemplate<
     I extends InputOutputInterface,
     O extends InputOutputInterface
-  >(template: ModelTemplate<I, O>, input: I) {
+  >(
+    template: ModelTemplate<I, O>,
+    input?: I,
+    options?: {
+      currentParent?: ModelConstructor;
+      mountType: MountType;
+    }
+  ): ModelConstructor<I, O> {
     /** @ts-ignore */
     if (template === this.template) {
       throw new Error('can not mount yourself');
@@ -159,11 +209,44 @@ export class ModelBlock<
       self = self.return;
     }
 
-    const block = new ModelBlock({ template, input });
+    if (options?.mountType === MountType.Group) {
+      return new ModelGroup({
+        template,
+        input,
+        parent: options?.currentParent || this,
+        parentBlock: this,
+      });
+    } else {
+      const block = new ModelBlock({
+        template,
+        input,
+        currentParent: options?.currentParent,
+      });
 
-    this.mountChild(block);
+      this.mountChild(block);
 
-    return block;
+      return block;
+    }
+  }
+
+  protected mountBlockTemplate<
+    I extends InputOutputInterface,
+    O extends InputOutputInterface
+  >(template: ModelTemplate<I, O>, input?: I, options?: MountTemplateOption) {
+    return this.mountTemplate(template, input, {
+      ...options,
+      mountType: MountType.Block,
+    });
+  }
+
+  protected mountGroupTemplate<
+    I extends InputOutputInterface,
+    O extends InputOutputInterface
+  >(template: ModelTemplate<I, O>, input?: I, options?: MountTemplateOption) {
+    return this.mountTemplate(template, input, {
+      ...options,
+      mountType: MountType.Group,
+    });
   }
 
   protected mountChild<
@@ -181,10 +264,6 @@ export class ModelBlock<
     }
   }
 
-  protected log(message: string) {
-    console.log(`[ModelBlock ${this.name} - ${this.id}]: ${message}`);
-  }
-
   protected triggerLifecycle(eventType: AtomLifecycleEventType) {
     this.eventEmitter.emit(eventType);
   }
@@ -195,8 +274,7 @@ export class ModelBlock<
 
   protected preInitSelf() {
     this.log('preInitSelf');
-    this.output = this.template.setup(this.input, this.context);
-    this.setupOutputToData();
+    this.output = this.template.setup(this.input, this.getContext());
     this.status = ModelBlockStatus.Initing;
   }
 
@@ -290,30 +368,5 @@ export class ModelBlock<
     this.preAction('preUnmountSelf');
     this.postAction('postUnmountSelf');
   }
-
   // =============== Outer Lifecycle End =================== //
-
-  // =============== Output Start =================== //
-
-  protected setupOutputToData() {
-    this.current = {};
-    for (const [key, value] of Object.entries(this.output || {})) {
-      Object.defineProperty(this.current, key, {
-        get() {
-          // TODO: 判断
-          return value?.current;
-        },
-      });
-    }
-  }
-  // =============== Output End =================== //
-}
-
-export async function start<
-  I extends InputOutputInterface,
-  O extends InputOutputInterface
->(template: ModelTemplate<I, O>, input?: I) {
-  const block = new ModelBlock({ template, input });
-  block.mount();
-  return block;
 }

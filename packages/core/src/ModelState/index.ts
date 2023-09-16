@@ -1,2 +1,1 @@
-export { ModelState } from './ModelState';
-export { ModelComputedState } from './ModelComputedState';
+export { State } from './State';

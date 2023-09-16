@@ -1,1 +1,1 @@
-# mflow core
+# eos core

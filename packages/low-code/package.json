@@ -1,11 +1,11 @@
 {
-  "name": "@mflow/low-code",
+  "name": "@eos/low-code",
   "version": "0.0.1",
   "private": true,
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "build:gh-page": "tsc && vite build --base /mflow/",
+    "build:gh-page": "tsc && vite build --base /eos/",
     "serve": "vite preview"
   },
   "dependencies": {

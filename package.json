@@ -1,13 +1,13 @@
 {
-  "name": "@mflow/root",
+  "name": "@eos/root",
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "build:gh-page": "pnpm build:gh-page --filter @mflow/low-code"
+    "build:gh-page": "pnpm build:gh-page --filter @eos/low-code"
   },
   "dependencies": {
-    "@mflow/core": "workspace:*",
-    "@mflow/shared": "workspace:*"
+    "@eos/core": "workspace:*",
+    "@eos/shared": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^18.7.16",

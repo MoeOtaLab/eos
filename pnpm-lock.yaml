@@ -4,8 +4,8 @@ importers:
 
   .:
     specifiers:
-      '@mflow/core': workspace:*
-      '@mflow/shared': workspace:*
+      '@eos/core': workspace:*
+      '@eos/shared': workspace:*
       '@types/node': ^18.7.16
       '@typescript-eslint/eslint-plugin': ^4.33.0
       '@typescript-eslint/parser': ^4.33.0
@@ -20,8 +20,8 @@ importers:
       prettier: ^2.5.1
       typescript: ^4.3.2
     dependencies:
-      '@mflow/core': link:packages/core
-      '@mflow/shared': link:packages/shared
+      '@eos/core': link:packages/core
+      '@eos/shared': link:packages/shared
     devDependencies:
       '@types/node': 18.7.16
       '@typescript-eslint/eslint-plugin': 4.33.0_3289a875d95a672b97ebf589745c66ef

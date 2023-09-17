@@ -1,7 +1,7 @@
 type Listener = () => void;
 
 export class EventEmitter {
-  listenerMap: Map<string, Set<Listener>> = new Map();
+  listenerMap = new Map<string, Set<Listener>>();
 
   on(event: string, callback: Listener) {
     const listenerSet = this.listenerMap.get(event);

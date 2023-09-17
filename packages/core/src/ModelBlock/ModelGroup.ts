@@ -1,9 +1,9 @@
-import { ModelConstructor, ModelConstructorOption } from './ModelConstructor';
-import { InputOutputInterface, ModelTemplate } from './ModelTemplate';
+import { ModelConstructor, type ModelConstructorOption } from './ModelConstructor';
+import { type InputOutputInterface, type ModelTemplate } from './ModelTemplate';
 import type {
   ModelBlock,
   ModelBlockContext,
-  MountTemplateOption,
+  MountTemplateOption
 } from './ModelBlock';
 
 export class ModelGroup<
@@ -41,7 +41,7 @@ export class ModelGroup<
       id: this.id,
       onLifecycle: parentContext?.onLifecycle,
       mount: this.mountTemplate.bind(this),
-      unmount: parentContext?.unmount,
+      unmount: parentContext?.unmount
     };
   }
 
@@ -53,11 +53,11 @@ export class ModelGroup<
 
     return parentContext?.mount<I, O>(template, input, {
       ...options,
-      currentParent: this,
+      currentParent: this
     });
   }
 
-  protected async mount() {
+  protected mount() {
     this.output = this.template.setup(this.input, this.context);
   }
 }

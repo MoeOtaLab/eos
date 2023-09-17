@@ -1,32 +1,46 @@
 module.exports = {
-  root: true,
-  env: {
-    browser: true,
-    es2021: true,
+  'env': {
+    'browser': true,
+    'es2021': true,
+    'node': true
   },
-  extends: [
-    'plugin:react/recommended',
-    'standard',
-    'plugin:react/jsx-runtime',
-    'plugin:prettier/recommended',
+  'extends': [
+    'standard-with-typescript',
+    'plugin:react/recommended'
   ],
-  parser: '@typescript-eslint/parser',
-  parserOptions: {
-    ecmaFeatures: {
-      jsx: true,
-    },
-    ecmaVersion: 12,
-    sourceType: 'module',
+  'overrides': [
+    {
+      'env': {
+        'node': true
+      },
+      'files': [
+        '.eslintrc.{js,cjs}'
+      ],
+      'parserOptions': {
+        'sourceType': 'script'
+      }
+    }
+  ],
+  'parserOptions': {
+    'ecmaVersion': 'latest',
+    'sourceType': 'module'
   },
-  plugins: ['react', '@typescript-eslint'],
-  rules: {
-    'no-use-before-define': 'off',
-    'no-unused-vars': ['warn'],
-    'no-mixed-operators': ['warn'],
-  },
-  settings: {
-    react: {
-      version: 'detect',
-    },
-  },
-};
+  'plugins': [
+    'react'
+  ],
+  'rules': {
+    '@typescript-eslint/explicit-function-return-type': 'off',
+    '@typescript-eslint/space-before-function-paren': 'off',
+    'semi': ['error', 'always'],
+    '@typescript-eslint/semi': ['error', 'always'],
+    'n/no-callback-literal': 'off',
+    '@typescript-eslint/strict-boolean-expressions': 'off',
+    '@typescript-eslint/member-delimiter-style': ['error', {
+      multiline: { delimiter: 'semi', requireLast: true },
+      singleline: { delimiter: 'semi', requireLast: false },
+      multilineDetection: 'brackets',
+    }],
+    '@typescript-eslint/prefer-nullish-coalescing': 'off',
+    '@typescript-eslint/consistent-type-assertions': 'off'
+  }
+}

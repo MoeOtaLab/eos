@@ -12,7 +12,7 @@
   "devDependencies": {
     "@types/uuid": "^9.0.3",
     "ts-node": "^10.9.1",
-    "typescript": "5",
+    "typescript": "^5",
     "vite": "^2.6.0"
   }
 }

@@ -1,13 +1,13 @@
 import { v4 as uuid } from 'uuid';
-import { ModelTemplate, InputOutputInterface } from './ModelTemplate';
+import { type ModelTemplate, type InputOutputInterface } from './ModelTemplate';
 
-export type ModelConstructorOption<
+export interface ModelConstructorOption<
   InputInterface extends InputOutputInterface = any,
   OutputInterface extends InputOutputInterface = any
-> = {
+> {
   template: ModelTemplate<InputInterface, OutputInterface>;
   input?: InputInterface;
-};
+}
 
 export class ModelConstructor<
   InputInterface extends InputOutputInterface = any,

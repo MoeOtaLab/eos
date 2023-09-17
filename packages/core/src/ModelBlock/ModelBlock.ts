@@ -1,11 +1,11 @@
 import { EventEmitter } from '../EventEmitter';
 import { RelationHelper } from './RelationHelper';
 import {
-  ModelTemplate,
-  InputOutputInterface,
-  MountType,
+  type ModelTemplate,
+  type InputOutputInterface,
+  type MountType
 } from './ModelTemplate';
-import { ModelConstructor, ModelConstructorOption } from './ModelConstructor';
+import { ModelConstructor, type ModelConstructorOption } from './ModelConstructor';
 import { ModelGroup } from './ModelGroup';
 
 type LifecycleEventType =
@@ -35,16 +35,16 @@ type SelfLifeCycleType =
   | 'unmountSelf';
 
 export type AtomLifecycleEventType = Exclude<
-  LifecycleEventType,
-  'start' | 'stop' | 'preInit'
+LifecycleEventType,
+'start' | 'stop' | 'preInit'
 >;
 
-export type MountTemplateOption = {
+export interface MountTemplateOption {
   currentParent?: ModelConstructor;
   mountType?: MountType;
-};
+}
 
-export type ModelBlockContext = {
+export interface ModelBlockContext {
   id: string;
   onLifecycle: (
     lifecycleType: AtomLifecycleEventType,
@@ -56,7 +56,7 @@ export type ModelBlockContext = {
     options?: MountTemplateOption
   ) => ModelConstructor<I, O>;
   unmount: null;
-};
+}
 
 export enum ModelBlockStatus {
   BeforeInited,
@@ -120,7 +120,7 @@ export class ModelBlock<
   }
 
   protected setReturn(parent: ModelBlock<any, any> | null | undefined) {
-    this.return = parent || null;
+    this.return = parent ?? null;
   }
 
   /**
@@ -129,7 +129,7 @@ export class ModelBlock<
    */
   _getInnerHandler() {
     return {
-      getContext: this.getContext.bind(this),
+      getContext: this.getContext.bind(this)
     };
   }
 
@@ -139,7 +139,7 @@ export class ModelBlock<
       onLifecycle: this.onLifecycle.bind(this),
       mount: this.mountTemplate.bind(this),
       // TODO: unmount
-      unmount: null,
+      unmount: null
     };
   }
 
@@ -153,7 +153,7 @@ export class ModelBlock<
     return {
       unsubscribe: () => {
         this.eventEmitter.off(lifecycleType, callback);
-      },
+      }
     };
   }
 
@@ -190,7 +190,8 @@ export class ModelBlock<
       mountType?: MountType;
     }
   ): ModelConstructor<I, O> {
-    /** @ts-ignore */
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    /** @ts-expect-error */
     if (template === this.template) {
       throw new Error('can not mount yourself');
     }
@@ -210,18 +211,19 @@ export class ModelBlock<
         template,
         input,
         parent: options?.currentParent || this,
-        parentBlock: this,
+        parentBlock: this
       });
     } else {
       // block or default
       if (mountType && mountType !== 'block') {
+        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
         console.warn(`unknown mountType: \`${mountType}\``);
       }
 
       const block = new ModelBlock({
         template,
         input,
-        currentParent: options?.currentParent,
+        currentParent: options?.currentParent
       });
 
       this.mountChild(block);

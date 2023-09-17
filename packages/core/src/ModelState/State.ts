@@ -1,13 +1,13 @@
 import { Observable } from './Observable';
-import { ExtraInfo } from './ExtraInfo';
+import { type ExtraInfo } from './ExtraInfo';
 
-export type ReportPayload<T> = {
+export interface ReportPayload<T> {
   traceId: string; // maybe multiple input source.
   operatorId: string;
   current: T;
   next: T;
   reason?: string;
-};
+}
 
 type UpdateAction<T> = (source: T) => T;
 
@@ -31,7 +31,7 @@ export class Atom<ValueType> extends Observable<ValueType> {
   ) {
     const nextValue =
       typeof updateAction === 'function'
-        ? (updateAction as Function)(this._current)
+        ? (updateAction as (...args: any) => any)(this._current)
         : updateAction;
     this._current = nextValue;
 

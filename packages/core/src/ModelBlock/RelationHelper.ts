@@ -54,7 +54,7 @@ export class RelationHelper {
     return false;
   }
 
-  *children() {
+  * children() {
     let next = this.node.next;
     while (next) {
       yield next;
@@ -124,9 +124,9 @@ export class RelationHelper {
     action: (modelBlock: ModelBlock) => void
   ) {
     if (type === 'pre') {
-      return this.preAction(currentNode, action);
+      this.preAction(currentNode, action);
     } else if (type === 'post') {
-      return this.postAction(currentNode, action);
+      this.postAction(currentNode, action);
     } else {
       console.log('unknow type', type);
     }

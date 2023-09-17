@@ -1,4 +1,4 @@
-import { ModelBlockContext } from './ModelBlock';
+import { type ModelBlockContext } from './ModelBlock';
 
 export type MountType = 'group' | 'block';
 
@@ -9,17 +9,17 @@ export type SetupFn<
   OutputInterface extends InputOutputInterface
 > = (input: InputInterface, context: ModelBlockContext) => OutputInterface;
 
-type ModelTemplateOption<
+interface ModelTemplateOption<
   InputInterface extends InputOutputInterface = any,
   OutputInterface extends InputOutputInterface = any
-> = {
+> {
   name: string;
   setup: SetupFn<InputInterface, OutputInterface>;
   /**
    * @default block
    */
   preferMountType?: MountType;
-};
+}
 
 export class ModelTemplate<
   InputInterface extends InputOutputInterface = any,

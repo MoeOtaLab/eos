@@ -1,5 +1,5 @@
 import { ModelBlock } from './ModelBlock';
-import { InputOutputInterface, ModelTemplate } from './ModelTemplate';
+import { type InputOutputInterface, type ModelTemplate } from './ModelTemplate';
 
 export function start<
   I extends InputOutputInterface,

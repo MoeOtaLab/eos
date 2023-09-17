@@ -1,19 +1,19 @@
-import { Observable, Subscription } from './Observable';
+import { type Observable, type Subscription } from './Observable';
 import { ExtraInfo } from './ExtraInfo';
 import { Atom } from './State';
 
 type GetObservableValue<ObservableType extends Observable<any>> =
   ObservableType extends Observable<infer ValueType> ? ValueType : unknown;
 
-type GetObservableValueList<ObservableListType extends Observable<any>[]> = {
+type GetObservableValueList<ObservableListType extends Array<Observable<any>>> = {
   [K in keyof ObservableListType]: GetObservableValue<ObservableListType[K]>;
 };
 
 export class ComputedState<ComputedValueType> extends Atom<
-  ComputedValueType | undefined
+ComputedValueType | undefined
 > {
-  #subjects: Observable<any>[] = [];
-  #subscriptions: Set<Subscription> = new Set();
+  #subjects: Array<Observable<any>> = [];
+  #subscriptions = new Set<Subscription>();
   #computeFn?: (...subjectValueList: any) => ComputedValueType;
 
   protected cleanup() {
@@ -24,7 +24,7 @@ export class ComputedState<ComputedValueType> extends Atom<
     this.#subjects = [];
   }
 
-  compute<ObservableSubjectList extends Observable<any>[]>(
+  compute<ObservableSubjectList extends Array<Observable<any>>>(
     subjects: [...ObservableSubjectList],
     computeFn: (
       ...subjectValueList: GetObservableValueList<ObservableSubjectList>

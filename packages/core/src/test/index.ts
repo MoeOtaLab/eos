@@ -2,23 +2,24 @@ import { start, ModelTemplate, State } from '..';
 
 const other1 = new ModelTemplate({
   name: 'other1',
-  setup(input, context) {
+  setup (input, context) {
     return {};
-  },
+  }
 });
 
 const other2 = new ModelTemplate({
   name: 'other2',
-  setup(input, context) {
+  setup (input, context) {
     const { mount } = context;
     mount(other1);
+    mount(other1, undefined, { mountType: 'group' });
     return {};
-  },
+  }
 });
 
 const sub = new ModelTemplate({
   name: 'sub',
-  setup(input, context) {
+  setup (input, context) {
     const { mount, onLifecycle } = context;
 
     mount(other1);
@@ -31,12 +32,12 @@ const sub = new ModelTemplate({
     });
 
     return {};
-  },
+  }
 });
 
 const app = new ModelTemplate({
   name: 'app',
-  setup(input, context) {
+  setup (input, context) {
     const { mount } = context;
     const theme = new State<'dark' | 'light'>('dark');
 
@@ -44,12 +45,12 @@ const app = new ModelTemplate({
 
     return {
       theme,
-      subIns,
+      subIns
     };
-  },
+  }
 });
 
-async function main() {
+function main() {
   const appInstance = start(app);
 
   console.log(appInstance);

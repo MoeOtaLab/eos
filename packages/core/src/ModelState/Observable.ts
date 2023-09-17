@@ -1,14 +1,14 @@
-import { ExtraInfo } from './ExtraInfo';
+import { type ExtraInfo } from './ExtraInfo';
 
 type CleanupCallback = () => void;
 type Callback<T> = (value: T, extraInfo: ExtraInfo) => any;
 
 export interface Subscribable<ValueType = any> {
-  subscribe(callback: Callback<ValueType>): Subscription;
+  subscribe: (callback: Callback<ValueType>) => Subscription;
 }
 
 export class Subscription {
-  #cleanupCallbacks: Set<CleanupCallback> = new Set();
+  #cleanupCallbacks = new Set<CleanupCallback>();
 
   add(cleanupFn: CleanupCallback) {
     this.#cleanupCallbacks.add(cleanupFn);
@@ -33,12 +33,11 @@ export class Observable<ValueType> implements Subscribable<ValueType> {
     this.next = this.next.bind(this);
   }
 
-  #subscribers: Set<Callback<ValueType>> = new Set();
+  #subscribers = new Set<Callback<ValueType>>();
 
   protected next(...args: Parameters<Callback<ValueType>>) {
     for (const callback of this.#subscribers.values()) {
       try {
-        // eslint-disable-next-line node/no-callback-literal
         callback(...args);
       } catch (error) {
         // if error, skip

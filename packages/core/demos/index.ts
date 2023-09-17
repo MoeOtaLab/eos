@@ -17,9 +17,9 @@ const other1 = new ModelTemplate({
 
     return {
       count,
-      event
+      event,
     };
-  }
+  },
 });
 
 const other2 = new ModelTemplate({
@@ -29,7 +29,7 @@ const other2 = new ModelTemplate({
     mount(other1);
     mount(other1, undefined, { mountType: 'group' });
     return {};
-  }
+  },
 });
 
 const sub = new ModelTemplate({
@@ -47,9 +47,9 @@ const sub = new ModelTemplate({
     });
 
     return {
-      other1Ins
+      other1Ins,
     };
-  }
+  },
 });
 
 const app = new ModelTemplate({
@@ -62,9 +62,9 @@ const app = new ModelTemplate({
 
     return {
       theme,
-      subIns
+      subIns,
     };
-  }
+  },
 });
 
 function main() {

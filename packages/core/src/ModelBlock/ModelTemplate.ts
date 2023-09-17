@@ -31,7 +31,7 @@ export class ModelTemplate<
 
   preferMountType: MountType;
 
-  constructor(options: ModelTemplateOption) {
+  constructor(options: ModelTemplateOption<InputInterface, OutputInterface>) {
     const { name, setup, preferMountType = 'block' } = options;
     this.name = name;
     this.setup = setup;

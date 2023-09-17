@@ -5,4 +5,4 @@ export {
   type ModelBlockContextType,
   start
 } from './src/ModelBlock';
-export { State } from './src/ModelState';
+export { ModelState, ModelEvent } from './src/ModelState';

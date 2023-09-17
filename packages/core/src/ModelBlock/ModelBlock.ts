@@ -46,10 +46,10 @@ export interface MountTemplateOption {
 
 export interface ModelBlockContextType {
   id: string;
-  onLifecycle: (
+  onLifecycle: <CallbackType extends () => any>(
     lifecycleType: AtomLifecycleEventType,
-    callback: () => void
-  ) => void;
+    callback: CallbackType
+  ) => any;
   mount: <I extends InputOutputInterface, O extends InputOutputInterface>(
     template: ModelTemplate<I, O>,
     input?: I,
@@ -145,9 +145,9 @@ export class ModelBlock<
 
   // =============== Utils Start =================== //
 
-  protected onLifecycle(
+  protected onLifecycle<CallbackType extends () => any>(
     lifecycleType: AtomLifecycleEventType,
-    callback: () => void
+    callback: CallbackType
   ) {
     this.eventEmitter.on(lifecycleType, callback);
     return {

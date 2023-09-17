@@ -1,4 +1,4 @@
-import { v4 as uuid } from 'uuid';
+import { uuid } from '../utils/uuid';
 import { type ModelTemplate, type InputOutputInterface } from './ModelTemplate';
 
 export interface ModelConstructorOption<

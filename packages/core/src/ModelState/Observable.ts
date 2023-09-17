@@ -24,7 +24,7 @@ export class Subscription {
 }
 
 export class Observable<ValueType> implements Subscribable<ValueType> {
-  get current(): ValueType {
+  protected get current(): ValueType {
     throw new Error('need override');
   }
 

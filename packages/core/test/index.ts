@@ -1,9 +1,24 @@
-import { start, ModelTemplate, State } from '..';
+import { start, ModelTemplate, ModelState, ModelEvent } from '..';
 
 const other1 = new ModelTemplate({
   name: 'other1',
   setup (input, context) {
-    return {};
+    const { onLifecycle } = context;
+    const count = new ModelState(0);
+    const event = new ModelEvent();
+
+    onLifecycle('postInit', () => {
+      const subscription = count.subscribe((val, extraInfo) => {
+        event.next(val, extraInfo);
+      });
+
+      return subscription;
+    });
+
+    return {
+      count,
+      event
+    };
   }
 });
 
@@ -22,7 +37,7 @@ const sub = new ModelTemplate({
   setup (input, context) {
     const { mount, onLifecycle } = context;
 
-    mount(other1);
+    const other1Ins = mount(other1);
     mount(other2);
 
     mount(other2, undefined, { mountType: 'group' });
@@ -31,7 +46,9 @@ const sub = new ModelTemplate({
       console.log('preMount -> sub -> input', input);
     });
 
-    return {};
+    return {
+      other1Ins
+    };
   }
 });
 
@@ -39,7 +56,7 @@ const app = new ModelTemplate({
   name: 'app',
   setup (input, context) {
     const { mount } = context;
-    const theme = new State<'dark' | 'light'>('dark');
+    const theme = new ModelState<'dark' | 'light'>('dark');
 
     const subIns = mount(sub, { theme });
 
@@ -55,9 +72,21 @@ function main() {
 
   console.log(appInstance);
 
-  setTimeout(() => {
-    appInstance.unmount();
+  const count = appInstance.output?.subIns.output?.other1Ins.output?.count;
+
+  const event = appInstance.output?.subIns.output?.other1Ins.output?.event;
+
+  event?.subscribe((value, extra) => {
+    console.log('count change..', value, extra);
   });
+
+  count?.update(1, { traceId: '233' });
+  setTimeout(() => {
+    count?.update(2, { traceId: '234' });
+  });
+  setTimeout(() => {
+    count?.update(v => v + 1, { traceId: '235' });
+  }, 2000);
 }
 
 main();

@@ -41,6 +41,21 @@ module.exports = {
       multilineDetection: 'brackets',
     }],
     '@typescript-eslint/prefer-nullish-coalescing': 'off',
-    '@typescript-eslint/consistent-type-assertions': 'off'
+    '@typescript-eslint/consistent-type-assertions': 'off',
+    "comma-dangle": 'off',
+    "@typescript-eslint/comma-dangle": ["error", {
+      "arrays": "always-multiline",
+      "objects": "always-multiline",
+      "imports": "always-multiline",
+      "exports": "always-multiline",
+      "functions": "never"
+    }],
+    "array-element-newline": ["error", {
+      "ArrayExpression": "always",
+      "ArrayPattern": { "minItems": 3 },
+    }],
+    "function-call-argument-newline": ['error', "consistent"],
+    'function-paren-newline': ['error', 'multiline'],
+    'array-bracket-newline': ['error', { "multiline": true }]
   }
 }

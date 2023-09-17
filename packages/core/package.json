@@ -3,16 +3,20 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "dev": "ts-node test/index.ts"
+    "dev": "ts-node demos/index.ts",
+    "test": "jest"
   },
   "dependencies": {
     "immer": "^10.0.2",
     "uuid": "^9.0.1"
   },
   "devDependencies": {
+    "@types/jest": "^29.5.5",
     "@types/uuid": "^9.0.3",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.1.1",
     "ts-node": "^10.9.1",
-    "typescript": "^5",
+    "typescript": "^5.2.2",
     "vite": "^2.6.0"
   }
 }

@@ -1,13 +1,11 @@
 {
   "compilerOptions": {
     "target": "ESNext",
-    "module": "commonjs",
-    "outDir": "out",
+    "module": "CommonJS",
+    "outDir": "output",
     "sourceMap": true,
     "useDefineForClassFields": true,
     "lib": [
-      "DOM",
-      "DOM.Iterable",
       "ESNext"
     ],
     "allowJs": true,

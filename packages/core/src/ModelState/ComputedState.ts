@@ -1,18 +1,18 @@
-import { type Observable, type Subscription } from './Observable';
+import { type Subscription } from './Observable';
 import { ExtraInfo } from './ExtraInfo';
 import { Atom } from './State';
 
-type GetObservableValue<ObservableType extends Observable<any>> =
-  ObservableType extends Observable<infer ValueType> ? ValueType : unknown;
+type GetObservableValue<ObservableType extends Atom<any>> =
+  ObservableType extends Atom<infer ValueType> ? ValueType : unknown;
 
-type GetObservableValueList<ObservableListType extends Array<Observable<any>>> = {
+type GetObservableValueList<ObservableListType extends Array<Atom<any>>> = {
   [K in keyof ObservableListType]: GetObservableValue<ObservableListType[K]>;
 };
 
 export class ComputedState<ComputedValueType> extends Atom<
 ComputedValueType | undefined
 > {
-  #subjects: Array<Observable<any>> = [];
+  #subjects: Array<Atom<any>> = [];
   #subscriptions = new Set<Subscription>();
   #computeFn?: (...subjectValueList: any) => ComputedValueType;
 
@@ -24,7 +24,7 @@ ComputedValueType | undefined
     this.#subjects = [];
   }
 
-  compute<ObservableSubjectList extends Array<Observable<any>>>(
+  compute<ObservableSubjectList extends Array<Atom<any>>>(
     subjects: [...ObservableSubjectList],
     computeFn: (
       ...subjectValueList: GetObservableValueList<ObservableSubjectList>
@@ -45,14 +45,12 @@ ComputedValueType | undefined
       const subscription = subject.subscribe((value, extraInfo) => {
         this.update(
           () =>
-            this.#computeFn?.(
-              ...this.#subjects.map((currentSubject) => {
-                if (subject === currentSubject) {
-                  return value;
-                }
-                return currentSubject.current;
-              })
-            ),
+            this.#computeFn?.(...this.#subjects.map((currentSubject) => {
+              if (subject === currentSubject) {
+                return value;
+              }
+              return currentSubject.current;
+            })),
           new ExtraInfo(extraInfo)
         );
       });

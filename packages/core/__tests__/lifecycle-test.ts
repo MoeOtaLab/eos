@@ -1,4 +1,4 @@
-import { ModelTemplate, start } from '..';
+import { ModelTemplate, start } from '../src';
 
 let preLifecycleStack: Array<{ name: string; lifecycle: string }> = [];
 let postLifecycleStack: Array<{ name: string; lifecycle: string }> = [];

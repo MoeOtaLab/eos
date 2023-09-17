@@ -1,4 +1,4 @@
-import { start, ModelTemplate, ModelState, ModelEvent } from '..';
+import { start, ModelTemplate, ModelState, ModelEvent } from '../src';
 
 const other1 = new ModelTemplate({
   name: 'other1',

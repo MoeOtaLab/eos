@@ -44,7 +44,7 @@ export interface MountTemplateOption {
   mountType?: MountType;
 }
 
-export interface ModelBlockContext {
+export interface ModelBlockContextType {
   id: string;
   onLifecycle: (
     lifecycleType: AtomLifecycleEventType,
@@ -133,7 +133,7 @@ export class ModelBlock<
     };
   }
 
-  protected getContext(): ModelBlockContext {
+  protected getContext(): ModelBlockContextType {
     return {
       id: this.id,
       onLifecycle: this.onLifecycle.bind(this),

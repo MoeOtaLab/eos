@@ -2,7 +2,7 @@ import { ModelConstructor, type ModelConstructorOption } from './ModelConstructo
 import { type InputOutputInterface, type ModelTemplate } from './ModelTemplate';
 import type {
   ModelBlock,
-  ModelBlockContext,
+  ModelBlockContextType,
   MountTemplateOption
 } from './ModelBlock';
 
@@ -33,7 +33,7 @@ export class ModelGroup<
     return this.parentBlock?._getInnerHandler().getContext();
   }
 
-  protected get context(): ModelBlockContext {
+  protected get context(): ModelBlockContextType {
     const parentContext = this.getParentContext();
 
     return {

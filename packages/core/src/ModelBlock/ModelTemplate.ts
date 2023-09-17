@@ -1,4 +1,4 @@
-import { type ModelBlockContext } from './ModelBlock';
+import { type ModelBlockContextType } from './ModelBlock';
 
 export type MountType = 'group' | 'block';
 
@@ -7,7 +7,7 @@ export type InputOutputInterface = Record<string, any>;
 export type SetupFn<
   InputInterface extends InputOutputInterface,
   OutputInterface extends InputOutputInterface
-> = (input: InputInterface, context: ModelBlockContext) => OutputInterface;
+> = (input: InputInterface, context: ModelBlockContextType) => OutputInterface;
 
 interface ModelTemplateOption<
   InputInterface extends InputOutputInterface = any,

@@ -56,6 +56,7 @@ module.exports = {
     }],
     "function-call-argument-newline": ['error', "consistent"],
     'function-paren-newline': ['error', 'multiline'],
-    'array-bracket-newline': ['error', { "multiline": true }]
+    'array-bracket-newline': ['error', { "multiline": true }],
+    '@typescript-eslint/array-type': 'off'
   }
 }

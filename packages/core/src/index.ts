@@ -1,8 +1,8 @@
 export {
   ModelBlock,
-  ModelGroup,
-  ModelTemplate,
+  type SetupFn,
   type ModelBlockContextType,
   start,
+  type InputOutputInterface,
 } from './ModelBlock';
 export { ModelState, ModelEvent } from './ModelState';

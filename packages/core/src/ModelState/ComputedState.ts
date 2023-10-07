@@ -5,7 +5,7 @@ import { Atom } from './State';
 type GetObservableValue<ObservableType extends Atom<any>> =
   ObservableType extends Atom<infer ValueType> ? ValueType : unknown;
 
-type GetObservableValueList<ObservableListType extends Array<Atom<any>>> = {
+export type GetObservableValueList<ObservableListType extends Array<Atom<any>>> = {
   [K in keyof ObservableListType]: GetObservableValue<ObservableListType[K]>;
 };
 

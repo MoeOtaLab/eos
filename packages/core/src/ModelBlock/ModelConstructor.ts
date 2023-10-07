@@ -1,11 +1,11 @@
 import { uuid } from '../utils/uuid';
-import { type ModelTemplate, type InputOutputInterface } from './ModelTemplate';
+import { type SetupFn, type InputOutputInterface } from './ModelTemplate';
 
 export interface ModelConstructorOption<
   InputInterface extends InputOutputInterface = any,
   OutputInterface extends InputOutputInterface = any
 > {
-  template: ModelTemplate<InputInterface, OutputInterface>;
+  template: SetupFn<InputInterface, OutputInterface>;
   input?: InputInterface;
 }
 
@@ -15,23 +15,21 @@ export class ModelConstructor<
 > {
   id = uuid();
 
-  protected template: ModelTemplate<InputInterface, OutputInterface>;
+  protected template: SetupFn<InputInterface, OutputInterface>;
 
   /** raw data */
   output?: OutputInterface;
 
   protected input: InputInterface;
 
-  constructor(
-    options: ModelConstructorOption<InputInterface, OutputInterface>
-  ) {
+  constructor(options: ModelConstructorOption<InputInterface, OutputInterface>) {
     const { template, input } = options;
     this.template = template;
     this.input = input || ({} as InputInterface);
   }
 
   get name() {
-    return this.template?.name;
+    return this.template.meta?.name || this.template?.name;
   }
 
   protected log(message: string) {

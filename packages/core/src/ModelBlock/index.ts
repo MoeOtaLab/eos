@@ -1,4 +1,3 @@
 export { ModelBlock, type ModelBlockContextType } from './ModelBlock';
-export { ModelTemplate } from './ModelTemplate';
-export { ModelGroup } from './ModelGroup';
+export type { SetupFn, InputOutputInterface } from './ModelTemplate';
 export { start } from './start';

@@ -1,12 +1,10 @@
 import { EventEmitter } from '../EventEmitter';
 import { RelationHelper } from './RelationHelper';
 import {
-  type ModelTemplate,
+  type SetupFn,
   type InputOutputInterface,
-  type MountType
 } from './ModelTemplate';
 import { ModelConstructor, type ModelConstructorOption } from './ModelConstructor';
-import { ModelGroup } from './ModelGroup';
 
 type LifecycleEventType =
   | 'start'
@@ -39,11 +37,6 @@ LifecycleEventType,
 'start' | 'stop' | 'preInit'
 >;
 
-export interface MountTemplateOption {
-  currentParent?: ModelConstructor;
-  mountType?: MountType;
-}
-
 export interface ModelBlockContextType {
   id: string;
   onLifecycle: <CallbackType extends () => any>(
@@ -51,9 +44,8 @@ export interface ModelBlockContextType {
     callback: CallbackType
   ) => any;
   mount: <I extends InputOutputInterface, O extends InputOutputInterface>(
-    template: ModelTemplate<I, O>,
+    template: SetupFn<I, O>,
     input?: I,
-    options?: MountTemplateOption
   ) => ModelConstructor<I, O>;
   unmount: null;
 }
@@ -61,7 +53,7 @@ export interface ModelBlockContextType {
 export enum ModelBlockStatus {
   BeforeInited,
   Initing,
-  Done,
+  Done
 }
 
 export class ModelBlock<
@@ -89,8 +81,6 @@ export class ModelBlock<
    * */
   return: ModelBlock | null = null;
 
-  protected currentParent?: ModelConstructor | null | undefined;
-
   protected eventEmitter: EventEmitter = new EventEmitter();
 
   protected status: ModelBlockStatus = ModelBlockStatus.BeforeInited;
@@ -99,23 +89,16 @@ export class ModelBlock<
 
   protected relationHelper: RelationHelper;
 
-  constructor(
-    options: ModelConstructorOption<InputInterface, OutputInterface> & {
-      currentParent?: ModelConstructor;
-    }
-  ) {
+  constructor(options: ModelConstructorOption<InputInterface, OutputInterface>) {
     super(options);
     this.relationHelper = new RelationHelper(this);
-    this.currentParent = options?.currentParent;
   }
 
   protected setNext(next: ModelBlock<any, any> | null | undefined) {
     this.next = next;
   }
 
-  protected setNextSibling(
-    nextSibling: ModelBlock<any, any> | null | undefined
-  ) {
+  protected setNextSibling(nextSibling: ModelBlock<any, any> | null | undefined) {
     this.nextSibling = nextSibling;
   }
 
@@ -129,7 +112,7 @@ export class ModelBlock<
    */
   _getInnerHandler() {
     return {
-      getContext: this.getContext.bind(this)
+      getContext: this.getContext.bind(this),
     };
   }
 
@@ -139,13 +122,14 @@ export class ModelBlock<
       onLifecycle: this.onLifecycle.bind(this),
       mount: this.mountTemplate.bind(this),
       // TODO: unmount
-      unmount: null
+      unmount: null,
     };
   }
 
   // =============== Utils Start =================== //
 
-  protected onLifecycle<CallbackType extends () => any>(
+  protected onLifecycle<CallbackType extends (
+  ) => any>(
     lifecycleType: AtomLifecycleEventType,
     callback: CallbackType
   ) {
@@ -153,7 +137,7 @@ export class ModelBlock<
     return {
       unsubscribe: () => {
         this.eventEmitter.off(lifecycleType, callback);
-      }
+      },
     };
   }
 
@@ -183,12 +167,8 @@ export class ModelBlock<
     I extends InputOutputInterface,
     O extends InputOutputInterface
   >(
-    template: ModelTemplate<I, O>,
-    input?: I,
-    options?: {
-      currentParent?: ModelConstructor;
-      mountType?: MountType;
-    }
+    template: SetupFn<I, O>,
+    input?: I
   ): ModelConstructor<I, O> {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     /** @ts-expect-error */
@@ -204,32 +184,14 @@ export class ModelBlock<
       self = self.return;
     }
 
-    const mountType = options?.mountType || template?.preferMountType;
+    const block = new ModelBlock({
+      template,
+      input,
+    });
 
-    if (mountType === 'group') {
-      return new ModelGroup({
-        template,
-        input,
-        parent: options?.currentParent || this,
-        parentBlock: this
-      });
-    } else {
-      // block or default
-      if (mountType && mountType !== 'block') {
-        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-        console.warn(`unknown mountType: \`${mountType}\``);
-      }
+    this.mountChild(block);
 
-      const block = new ModelBlock({
-        template,
-        input,
-        currentParent: options?.currentParent
-      });
-
-      this.mountChild(block);
-
-      return block;
-    }
+    return block;
   }
 
   protected mountChild<
@@ -257,7 +219,7 @@ export class ModelBlock<
 
   protected preInitSelf() {
     this.log('preInitSelf');
-    this.output = this.template.setup(this.input, this.getContext());
+    this.output = this.template(this.input, this.getContext());
     this.status = ModelBlockStatus.Initing;
   }
 

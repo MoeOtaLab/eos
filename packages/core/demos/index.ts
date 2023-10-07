@@ -1,76 +1,101 @@
-import { start, ModelTemplate, ModelState, ModelEvent } from '../src';
+import { start, ModelState, ModelEvent, type ModelBlockContextType } from '../src';
+import { Computed } from '../src/operators';
+import { ExtraInfo } from '../src/ModelState/ExtraInfo';
 
-const other1 = new ModelTemplate({
-  name: 'other1',
-  setup (input, context) {
-    const { onLifecycle } = context;
-    const count = new ModelState(0);
-    const event = new ModelEvent();
+function other1(input: any, context: ModelBlockContextType) {
+  const { onLifecycle } = context;
+  const count = new ModelState(0);
+  const event = new ModelEvent();
 
-    onLifecycle('postInit', () => {
-      const subscription = count.subscribe((val, extraInfo) => {
-        event.next(val, extraInfo);
-      });
-
-      return subscription;
+  onLifecycle('postInit', () => {
+    const subscription = count.subscribe((val, extraInfo) => {
+      event.next(val, extraInfo);
     });
 
-    return {
-      count,
-      event,
-    };
-  },
-});
+    return subscription;
+  });
 
-const other2 = new ModelTemplate({
-  name: 'other2',
-  setup (input, context) {
-    const { mount } = context;
-    mount(other1);
-    mount(other1, undefined, { mountType: 'group' });
-    return {};
-  },
-});
+  return {
+    count,
+    event,
+  };
+}
 
-const sub = new ModelTemplate({
-  name: 'sub',
-  setup (input, context) {
-    const { mount, onLifecycle } = context;
+function other2(input: any, context: ModelBlockContextType) {
+  const { mount } = context;
+  mount(other1);
+  const other1Instance = other1({}, context);
+  return { other1Instance };
+}
 
-    const other1Ins = mount(other1);
-    mount(other2);
+function sub(input: any, context: ModelBlockContextType) {
+  const { mount, onLifecycle } = context;
 
-    mount(other2, undefined, { mountType: 'group' });
+  const other1Ins = mount(other1);
+  mount(other2);
 
-    onLifecycle('preMount', () => {
-      console.log('preMount -> sub -> input', input);
+  const other2Ins = other2({}, context);
+
+  onLifecycle('preMount', () => {
+    console.log('preMount -> sub -> input', input);
+  });
+
+  return {
+    other1Ins,
+    other2Ins,
+  };
+}
+
+function Test(_input: any, context: ModelBlockContextType) {
+  const { onLifecycle } = context;
+  const state1 = new ModelState(0);
+  const state2 = new ModelState(1);
+  const computedState = Computed({
+    inputs: [
+      state1,
+      state2,
+    ],
+    defaultValue: 0,
+    computedFn(...inputs) {
+      console.log('a => ', inputs);
+      return inputs.reduce((acc, cur) => acc + cur, 0);
+    },
+  }, context);
+
+  onLifecycle('mount', () => {
+    computedState.subscribe((state, extra) => {
+      console.log('computed: ', state, extra);
     });
 
-    return {
-      other1Ins,
-    };
-  },
-});
+    state1.update(c => c + 2, new ExtraInfo());
+    state2.update(c => c * 5, new ExtraInfo());
+  });
 
-const app = new ModelTemplate({
-  name: 'app',
-  setup (input, context) {
-    const { mount } = context;
-    const theme = new ModelState<'dark' | 'light'>('dark');
+  return {
+    state1,
+    state2,
+    computedState,
+  };
+}
 
-    const subIns = mount(sub, { theme });
+function App(input: any, context: ModelBlockContextType) {
+  const { mount } = context;
+  const theme = new ModelState<'dark' | 'light'>('dark');
 
-    return {
-      theme,
-      subIns,
-    };
-  },
-});
+  const subIns = mount(sub, { theme });
+
+  mount(Test, {});
+
+  return {
+    theme,
+    subIns,
+  };
+}
 
 function main() {
-  const appInstance = start(app);
+  const appInstance = start(App);
 
-  console.log(appInstance);
+  // console.log(appInstance);
 
   const count = appInstance.output?.subIns.output?.other1Ins.output?.count;
 

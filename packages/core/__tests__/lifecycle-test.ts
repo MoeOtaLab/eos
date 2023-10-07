@@ -1,4 +1,4 @@
-import { ModelTemplate, start } from '../src';
+import { type ModelBlockContextType, type SetupFn, start } from '../src';
 
 let preLifecycleStack: Array<{ name: string; lifecycle: string }> = [];
 let postLifecycleStack: Array<{ name: string; lifecycle: string }> = [];
@@ -20,39 +20,42 @@ const lifecycleList = ([
   'postUnmount',
 ] as const);
 
-function createModelTemplate(name: string, ...children: ModelTemplate[]) {
-  return new ModelTemplate({
+function createModelTemplate(name: string, ...children: SetupFn<any, any>[]) {
+  function ModelTemplate(_input: any, context: ModelBlockContextType) {
+    const { mount, onLifecycle } = context;
+    preLifecycleStack.push({ lifecycle: 'preInit', name });
+    postLifecycleStack.push({ lifecycle: 'preInit', name });
+
+    lifecycleList.forEach(lifecycleName => {
+      onLifecycle(lifecycleName, () => {
+        preLifecycleStack.push({
+          lifecycle: lifecycleName,
+          name,
+        });
+      });
+    });
+
+    children.forEach(child => {
+      mount(child);
+    });
+
+    lifecycleList.forEach(lifecycleName => {
+      onLifecycle(lifecycleName, () => {
+        postLifecycleStack.push({
+          lifecycle: lifecycleName,
+          name,
+        });
+      });
+    });
+
+    return {};
+  };
+
+  ModelTemplate.meta = {
     name,
-    setup(input, context) {
-      const { mount, onLifecycle } = context;
-      preLifecycleStack.push({ lifecycle: 'preInit', name });
-      postLifecycleStack.push({ lifecycle: 'preInit', name });
+  };
 
-      lifecycleList.forEach(lifecycleName => {
-        onLifecycle(lifecycleName, () => {
-          preLifecycleStack.push({
-            lifecycle: lifecycleName,
-            name,
-          });
-        });
-      });
-
-      children.forEach(child => {
-        mount(child);
-      });
-
-      lifecycleList.forEach(lifecycleName => {
-        onLifecycle(lifecycleName, () => {
-          postLifecycleStack.push({
-            lifecycle: lifecycleName,
-            name,
-          });
-        });
-      });
-
-      return {};
-    },
-  });
+  return ModelTemplate;
 }
 
 const App = createModelTemplate(

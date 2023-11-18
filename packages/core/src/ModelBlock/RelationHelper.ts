@@ -69,7 +69,7 @@ export class RelationHelper {
       action(next);
       if (next.next) {
         next = next.next;
-      } else if (next.nextSibling) {
+      } else if (next.nextSibling && next !== currentNode) {
         next = next.nextSibling;
         // next = next.return;
       } else {
@@ -104,7 +104,7 @@ export class RelationHelper {
     while (next && next !== currentNode.return) {
       action(next);
 
-      if (next.nextSibling) {
+      if (next.nextSibling && next !== currentNode) {
         next = next.nextSibling;
         // get down.
         while (next.next) {

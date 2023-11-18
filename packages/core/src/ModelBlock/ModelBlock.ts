@@ -47,7 +47,7 @@ export interface ModelBlockContextType {
     template: SetupFn<I, O>,
     input?: I,
   ) => ModelConstructor<I, O>;
-  unmount: null;
+  unmount: (node: ModelConstructor) => void;
 }
 
 export enum ModelBlockStatus {
@@ -63,7 +63,7 @@ export class ModelBlock<
   /**
    * @deprecated
    * @private
-   * 下一个
+   * 下一个子节点
    * */
   next?: ModelBlock<any, any> | null = null;
 
@@ -121,8 +121,7 @@ export class ModelBlock<
       id: this.id,
       onLifecycle: this.onLifecycle.bind(this),
       mount: this.mountTemplate.bind(this),
-      // TODO: unmount
-      unmount: null,
+      unmount: this.unmountChild.bind(this),
     };
   }
 
@@ -206,6 +205,13 @@ export class ModelBlock<
       this.pendingChildren.push(block);
     } else if (this.status === ModelBlockStatus.BeforeInited) {
       this.relationHelper.addNextChildren(block);
+    }
+  }
+
+  protected unmountChild(block: ModelConstructor) {
+    if (block instanceof ModelBlock) {
+      this.relationHelper.removeChild(block);
+      block.unmount();
     }
   }
 

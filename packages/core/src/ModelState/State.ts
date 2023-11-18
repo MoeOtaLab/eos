@@ -9,7 +9,16 @@ export interface ReportPayload<T> {
   reason?: string;
 }
 
-type UpdateAction<T> = (source: T) => T;
+export type UpdateAction<T> = (source: T) => T;
+
+export function updateValue<T>(currentValue: T, updateAction: UpdateAction<T> | T) {
+  const nextValue =
+  typeof updateAction === 'function'
+    ? (updateAction as (...args: any) => any)(currentValue)
+    : updateAction;
+
+  return nextValue;
+}
 
 export class Atom<ValueType> extends Observable<ValueType> {
   protected _current: ValueType;
@@ -29,10 +38,7 @@ export class Atom<ValueType> extends Observable<ValueType> {
     updateAction: UpdateAction<ValueType> | ValueType,
     extraInfo: ExtraInfo
   ) {
-    const nextValue =
-      typeof updateAction === 'function'
-        ? (updateAction as (...args: any) => any)(this._current)
-        : updateAction;
+    const nextValue = updateValue(this._current, updateAction);
     this._current = nextValue;
 
     this.next(nextValue, extraInfo);

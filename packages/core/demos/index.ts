@@ -2,6 +2,7 @@ import { start, ModelState, ModelEvent, type ModelBlockContextType } from '../sr
 import { Computed } from '../src/operators';
 import { ExtraInfo } from '../src/ModelState/ExtraInfo';
 import { SimpleDemoApp } from './simple-demo';
+import { TodoListDemoApp } from './todo-list-demo';
 
 function other1(input: any, context: ModelBlockContextType) {
   const { onLifecycle } = context;
@@ -100,10 +101,7 @@ function main() {
   appInstance.output?.event.next(2, new ExtraInfo('manual add 2'));
   console.log('result', appInstance.output?.result.current);
 
-  setTimeout(() => {
-    console.log('result', appInstance.output?.result.current);
-    console.log(appInstance);
-  }, 1 * 1000);
+  start(TodoListDemoApp);
 
   // const { state, onUpdate } = modelStateSelector(() => appInstance.output?.subIns.output?.other1Ins.output?.count);
 

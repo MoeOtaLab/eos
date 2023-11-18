@@ -1,5 +1,5 @@
 import { get } from 'lodash';
-import { ModelState, type ModelBlockContextType, type SetupFn, type InputOutputInterface } from '..';
+import { ModelState, type ModelBlockContextType, type SetupFn, type InputOutputInterface } from '../..';
 
 export function mountList<Data extends ModelState<any[]>, Output extends InputOutputInterface>(input: { data: Data; key: string }, context: ModelBlockContextType, template: SetupFn<{ index: ModelState<number>; data: Data; key: string }, Output>) {
   const { data, key } = input;

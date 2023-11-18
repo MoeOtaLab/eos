@@ -1,7 +1,6 @@
 import { get, set, clone } from 'lodash';
-import { ModelState } from '..';
-import { type ExtraInfo } from '../ModelState/ExtraInfo';
-import { updateValue, type UpdateAction } from '../ModelState/State';
+import { ModelState, type ExtraInfo } from '../..';
+import { updateValue, type UpdateAction } from '../../ModelState/State';
 
 // todo 重载
 export function proxyData<T extends Record<any, any>, Key extends string>(originState: ModelState<T>, key: Key) {

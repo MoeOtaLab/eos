@@ -1,0 +1,1 @@
+export { sumValue } from './sumValue';

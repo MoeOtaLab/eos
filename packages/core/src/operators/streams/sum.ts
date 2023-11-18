@@ -1,6 +1,5 @@
-import { type Atom } from '../ModelState/State';
-import { ModelState } from '../ModelState';
-import { ExtraInfo } from '../ModelState/ExtraInfo';
+import { type Atom } from '../../ModelState/State';
+import { ExtraInfo, ModelState } from '../..';
 
 export function sum<ObservableSubjectList extends Array<Atom<number>>>(...inputs: ObservableSubjectList) {
   const result = new ModelState<number>(0);

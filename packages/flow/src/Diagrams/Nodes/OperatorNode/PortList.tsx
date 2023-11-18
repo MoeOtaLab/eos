@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import classnames from 'classnames';
-import { Handle, type HandleProps, Position } from 'react-flow-renderer';
+import { Handle, type HandleProps, Position } from 'reactflow';
 import { type NodePort } from '../../Operators/Operator';
 import css from './OperatorNode.module.less';
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import classnames from 'classnames';
-import { type NodeComponentProps } from 'react-flow-renderer';
+import { type NodeComponentProps } from 'reactflow';
 import { PortList } from './PortList';
 import { type OperatorNodeData, type Operator } from '../../Operators/Operator';
 import css from './OperatorNode.module.less';

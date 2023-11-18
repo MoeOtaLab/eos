@@ -1,25 +1,22 @@
 import React from 'react';
-import { useStoreState, isNode } from 'react-flow-renderer';
+import { useStore, isNode } from 'reactflow';
 import { useDiagramsContextSelector } from '../../State/DiagramsProvider';
 import { OperatorMap } from '../../Operators';
-import { Operator } from '../../Operators/Operator';
+import { type Operator } from '../../Operators/Operator';
 
 export const AttributePanel: React.FC = () => {
-  const selectedElements = useStoreState((ctx) =>
-    ctx.selectedElements?.filter((item) => isNode(item))
-  );
+  const selectedElements = useStore((ctx) =>
+    ctx.getNodes()?.filter((item) => isNode(item) && item.selected));
   const selectedElement = selectedElements?.[0];
 
-  const selectedElementNode = useDiagramsContextSelector(
-    (ctx) =>
-      ctx.elements.find((item) => item.id === selectedElement?.id) as Operator
-  );
+  const selectedElementNode = useDiagramsContextSelector((ctx) =>
+    ctx.nodes.find((item) => item.id === selectedElement?.id) as Operator);
 
   const operatorType = selectedElementNode?.data?.operatorType;
   const Operator = OperatorMap.get(operatorType);
   const showConfig = selectedElements?.length === 1 && operatorType;
 
-  const updateElement = useDiagramsContextSelector((ctx) => ctx.updateElement);
+  const updateNode = useDiagramsContextSelector((ctx) => ctx.updateNode);
 
   return (
     <div>
@@ -28,7 +25,7 @@ export const AttributePanel: React.FC = () => {
         Operator?.generateAttributeControl?.({
           value: selectedElementNode as any,
           actions: {
-            updateElement,
+            updateElement: updateNode,
           },
         })}
     </div>

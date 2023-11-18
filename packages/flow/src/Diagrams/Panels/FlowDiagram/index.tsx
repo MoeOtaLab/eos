@@ -1,17 +1,18 @@
-import React, { useRef, DragEventHandler, useEffect } from 'react';
+import React, { useRef, type DragEventHandler, useEffect, useCallback } from 'react';
 import ReactFlow, {
-  ReactFlowState,
-  removeElements,
   addEdge,
-  ReactFlowProps,
-  useStoreActions,
-  useStoreState,
+  type ReactFlowProps,
+  useStore,
   Background,
   BackgroundVariant,
   MiniMap,
   Controls,
   isEdge,
-} from 'react-flow-renderer';
+  type Node,
+  applyNodeChanges,
+  applyEdgeChanges,
+  type Edge,
+} from 'reactflow';
 import { MODEL_FORMAT } from '../OperatorPanel';
 import { OperatorMap } from '../../Operators';
 import { useDiagramsContext } from '../../State/DiagramsProvider';
@@ -19,7 +20,7 @@ import { nodeTypes } from '../../Nodes';
 import { isSameSourceHandle, isSameTargetHandle } from '../../utils';
 import css from './FlowDiagram.module.less';
 
-const initialElements = [
+const initialNodes: Node[] = [
   {
     id: '$flow_slgum',
     position: {
@@ -71,27 +72,6 @@ const initialElements = [
     },
   },
   {
-    source: '$flow_x3gaw',
-    sourceHandle: 'Source',
-    target: '$flow_5i9q0',
-    targetHandle: 'Input_1',
-    id: 'reactflow__edge-$flow_x3gawSource-$flow_5i9q0Input_1',
-  },
-  {
-    source: '$flow_qekmc',
-    sourceHandle: 'Source',
-    target: '$flow_5i9q0',
-    targetHandle: 'Input_2',
-    id: 'reactflow__edge-$flow_qekmcSource-$flow_5i9q0Input_2',
-  },
-  {
-    source: '$flow_5i9q0',
-    sourceHandle: 'Result',
-    target: '$flow_slgum',
-    targetHandle: 'Target',
-    id: 'reactflow__edge-$flow_5i9q0Result-$flow_slgumTarget',
-  },
-  {
     id: '$flow_x3gaw',
     position: {
       x: 319,
@@ -134,41 +114,61 @@ const initialElements = [
     },
   },
 ];
+const initialEdges = [
+  {
+    source: '$flow_x3gaw',
+    sourceHandle: 'Source',
+    target: '$flow_5i9q0',
+    targetHandle: 'Input_1',
+    id: 'reactflow__edge-$flow_x3gawSource-$flow_5i9q0Input_1',
+  },
+  {
+    source: '$flow_qekmc',
+    sourceHandle: 'Source',
+    target: '$flow_5i9q0',
+    targetHandle: 'Input_2',
+    id: 'reactflow__edge-$flow_qekmcSource-$flow_5i9q0Input_2',
+  },
+  {
+    source: '$flow_5i9q0',
+    sourceHandle: 'Result',
+    target: '$flow_slgum',
+    targetHandle: 'Target',
+    id: 'reactflow__edge-$flow_5i9q0Result-$flow_slgumTarget',
+  },
+];
 
 export const FlowDiagram: React.FC = () => {
-  const { elements, setElements } = useDiagramsContext();
+  const { nodes, edges, setNodes, setEdges } = useDiagramsContext();
 
   useEffect(() => {
-    setElements(initialElements as any);
+    setNodes(initialNodes);
+    setEdges(initialEdges);
   }, []);
 
   console.log({
-    elements,
+    nodes,
+    edges,
   });
 
-  const onElementsRemove: ReactFlowProps['onElementsRemove'] = (
-    elementsToRemove
-  ) => setElements((els) => removeElements(elementsToRemove, els));
+  const addSelectedEdges = useStore((ctx) => ctx.addSelectedEdges);
 
-  const addSelectedElements = useStoreActions((ctx) => ctx.addSelectedElements);
-
-  const onConnect: ReactFlowProps['onConnect'] = (params) => {
-    const eles = addEdge(params, elements).filter((item) => {
+  const onConnect: ReactFlowProps['onConnect'] = (connection) => {
+    setEdges((eds) => addEdge(connection, eds).filter((item) => {
       if (isEdge(item)) {
         if (
-          !isSameSourceHandle(item, params) &&
-          isSameTargetHandle(item, params)
+          !isSameSourceHandle(item, connection) &&
+          isSameTargetHandle(item, connection)
         ) {
           return false;
         }
       }
       return true;
-    });
+    }));
 
-    setElements(eles);
     setTimeout(() => {
-      const targetEdge = eles.find((el) => {
-        const edge = params;
+      const targetEdge = edges.find((el) => {
+        const edge = connection;
         return (
           isEdge(el) &&
           el.source === edge.source &&
@@ -179,16 +179,16 @@ export const FlowDiagram: React.FC = () => {
             (!el.targetHandle && !edge.targetHandle))
         );
       });
-      addSelectedElements([targetEdge].filter(Boolean));
+      addSelectedEdges([targetEdge].filter((item): item is Edge => Boolean(item)).map(item => item.id));
     });
   };
 
   const dropTarget = useRef<HTMLDivElement>(null);
 
-  const updateNodePos = useStoreActions((ctx) => ctx.updateNodePos);
-  const nodesRef = useRef<ReactFlowState['nodes']>([]);
-  useStoreState((ctx) => {
-    nodesRef.current = ctx.nodes;
+  const updateNodePos = useStore((ctx) => ctx.updateNodePositions);
+  const nodesRef = useRef<Node[]>([]);
+  useStore((ctx) => {
+    nodesRef.current = ctx.getNodes();
     return nodesRef;
   });
 
@@ -205,31 +205,27 @@ export const FlowDiagram: React.FC = () => {
           x: clientX - rect.left,
           y: clientY - rect.y,
         };
-        operatorInstance.style = {
-          visibility: 'hidden',
-        };
       }
 
-      setElements((eles) => [...eles, operatorInstance]);
+      setNodes((eles) => [
+        ...eles,
+        operatorInstance,
+      ]);
       setTimeout(() => {
-        const node = nodesRef.current.find(
-          (item) => item.id === operatorInstance.id
-        );
+        const node = nodesRef.current.find((item) => item.id === operatorInstance.id);
 
         if (node) {
           const pos = {
-            x: node?.position?.x - node?.__rf.width / 2,
-            y: node.position.y - Math.max(node.__rf.height / 5, 30),
+            x: node?.position?.x - (node?.width || 0) / 2,
+            y: node.position.y - Math.max((node?.height || 0) / 5, 30),
           };
 
+          node.position = pos;
           // TODO: zoom
-          updateNodePos({
-            id: node.id,
-            pos,
-          });
+          updateNodePos([node], false, false);
         }
 
-        setElements((eles) => {
+        setNodes((eles) => {
           const target = eles.find((item) => item.id === operatorInstance.id);
           if (target) {
             operatorInstance.style = {
@@ -248,6 +244,15 @@ export const FlowDiagram: React.FC = () => {
     }
   };
 
+  const onNodesChange = useCallback(
+    (changes) => { setNodes((ns) => applyNodeChanges(changes, ns)); },
+    []
+  );
+  const onEdgesChange = useCallback(
+    (changes) => { setEdges((es) => applyEdgeChanges(changes, es)); },
+    []
+  );
+
   return (
     <div
       className={css['main-flow']}
@@ -258,8 +263,10 @@ export const FlowDiagram: React.FC = () => {
     >
       <ReactFlow
         nodeTypes={nodeTypes}
-        elements={elements}
-        onElementsRemove={onElementsRemove}
+        nodes={nodes}
+        edges={edges}
+        onNodesChange={onNodesChange}
+        onEdgesChange={onEdgesChange}
         onConnect={onConnect}
         zoomOnScroll={false}
       >

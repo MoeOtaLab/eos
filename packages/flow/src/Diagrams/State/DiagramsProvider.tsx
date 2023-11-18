@@ -6,66 +6,115 @@ import {
 import React, { useCallback, useState } from 'react';
 import {
   ReactFlowProvider,
-  Elements,
-  FlowElement,
+  type Node,
+  type Edge,
   useUpdateNodeInternals,
-} from 'react-flow-renderer';
+} from 'reactflow';
 
-export type DiagramsContextType<T = FlowElement> = {
-  elements: T[];
-  setElements: React.Dispatch<React.SetStateAction<T[]>>;
-  updateElement: (id: string, action: React.SetStateAction<T>) => void;
-};
+export interface DiagramsContextType {
+  nodes: Node[];
+  setNodes: React.Dispatch<React.SetStateAction<Node[]>>;
+  updateNode: (id: string, action: React.SetStateAction<Node>) => void;
+
+  edges: Edge[];
+  setEdges: React.Dispatch<React.SetStateAction<Edge[]>>;
+  updateEdge: (id: string, action: React.SetStateAction<Edge>) => void;
+}
 
 export const DiagramsContext = createContext<DiagramsContextType>({
-  elements: [],
-  setElements: (() => {}) as any,
-  updateElement: (() => {}) as any,
+  nodes: [],
+  setNodes: (() => undefined) as any,
+  updateNode: (() => undefined) as any,
+
+  edges: [],
+  setEdges: (() => undefined) as any,
+  updateEdge: (() => undefined) as any,
 });
 
 export function useDiagramsContext() {
   return useContext(DiagramsContext);
 }
 
-export function useDiagramsContextSelector<T>(
-  selector: (ctx: DiagramsContextType) => T
-) {
+export function useDiagramsContextSelector<T>(selector: (ctx: DiagramsContextType) => T) {
   return useContextSelector(DiagramsContext, selector);
 }
 
 export function useDiagramsState() {
-  const elements = useDiagramsContextSelector((ctx) => ctx.elements);
+  const nodes = useDiagramsContextSelector((ctx) => ctx.nodes);
+  const edges = useDiagramsContextSelector((ctx) => ctx.edges);
   return {
-    elements,
+    nodes,
+    edges,
   };
 }
 
 export function useDiagramsActions() {
-  const updateElement = useDiagramsContextSelector((ctx) => ctx.updateElement);
-  const setElements = useDiagramsContextSelector((ctx) => ctx.setElements);
+  const setEdges = useDiagramsContextSelector((ctx) => ctx.setEdges);
+  const setNodes = useDiagramsContextSelector((ctx) => ctx.setNodes);
+  const updateEdge = useDiagramsContextSelector((ctx) => ctx.updateEdge);
+  const updateNode = useDiagramsContextSelector((ctx) => ctx.updateNode);
 
   return {
-    updateElement,
-    setElements,
+    setEdges,
+    setNodes,
+    updateEdge,
+    updateNode,
   };
 }
 
 export const DiagramsContextInnerProvider: React.FC = (props) => {
   const { children } = props;
-  const [elements, setElements] = useState<Elements>([]);
+  const [nodes, setNodes] = useState<Node[]>([]);
+  const [edges, setEdges] = useState<Edge[]>([]);
+
   const updateNodeInternals = useUpdateNodeInternals();
 
-  const updateElement = useCallback(
+  const updateEdge = useCallback(
     (
       id: string,
-      updateElementAction: React.SetStateAction<FlowElement>,
+      updateElementAction: React.SetStateAction<Edge>,
       updateInternal?: boolean
     ) => {
       if (!id) {
         return;
       }
 
-      setElements((eles) => {
+      setEdges((eles) => {
+        const targetIndex = eles.findIndex((item) => item.id === id);
+
+        if (targetIndex < 0) {
+          return eles;
+        }
+
+        const elesWillUpdate = [...eles];
+        const target = elesWillUpdate.splice(targetIndex, 1)?.[0];
+        const res =
+          typeof updateElementAction === 'function'
+            ? updateElementAction(target)
+            : updateElementAction;
+        return elesWillUpdate.concat(res);
+      });
+
+      if (updateInternal) {
+        setTimeout(() => {
+          updateNodeInternals(id);
+        }, 0);
+      }
+    },
+    [updateNodeInternals]
+  );
+
+  const updateNode = useCallback(
+    (
+      id: string,
+      updateElementAction: React.SetStateAction<Node>,
+      updateInternal?: boolean
+    ) => {
+      if (!id) {
+        return;
+      }
+
+      setNodes((eles) => {
         const targetIndex = eles.findIndex((item) => item.id === id);
 
         if (targetIndex < 0) {
@@ -93,9 +142,12 @@ export const DiagramsContextInnerProvider: React.FC = (props) => {
   return (
     <DiagramsContext.Provider
       value={{
-        elements,
-        setElements,
-        updateElement,
+        nodes,
+        edges,
+        updateEdge,
+        updateNode,
+        setEdges,
+        setNodes,
       }}
     >
       {children}

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Operator } from '../Operator';
 import css from './AddOperator.module.less';
-import { GraphNode } from '../../Compiler/flowGraph';
+import { type GraphNode } from '../../Compiler/flowGraph';
 import {
   getState,
   combineLogic,
@@ -80,8 +80,7 @@ export class AddOperator extends Operator {
     const output = combineLogic(
       // declare
       sourceLinks.map(([targetName, link]) =>
-        getState(link.target.id, targetName)
-      ),
+        getState(link.target.id, targetName)),
       // run
       generateFunction(
         'operations.AddOperator.addOperation',

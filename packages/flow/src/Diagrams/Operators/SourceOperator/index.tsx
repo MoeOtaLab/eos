@@ -1,6 +1,6 @@
 import React from 'react';
 import { Operator } from '../Operator';
-import { GraphNode } from '../../Compiler/flowGraph';
+import { type GraphNode } from '../../Compiler/flowGraph';
 import { combineLogic, exportValue } from '../../Compiler/utils';
 
 export class SourceOperator extends Operator {
@@ -23,7 +23,7 @@ export class SourceOperator extends Operator {
         <label>请选择数据来源</label>
         <input
           value={value.data?.dataSourceId || ''}
-          onChange={(e) => handleChange(e.target.value)}
+          onChange={(e) => { handleChange(e.target.value); }}
         />
       </div>
     );

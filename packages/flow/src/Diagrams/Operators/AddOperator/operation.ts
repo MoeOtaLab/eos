@@ -1,4 +1,4 @@
-import { combineLatest, Observable } from 'rxjs';
+import { combineLatest, type Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 function add(args: number[]) {
@@ -10,15 +10,12 @@ export function addOperation(
   targetNames: (string | undefined)[] = []
 ) {
   return combineLatest(sources)
-    .pipe(
-      map((sourceValues) =>
-        sourceValues.map((value, index) => {
-          const targetName = targetNames[index];
-          return typeof value === 'object' && targetName
-            ? value[targetName]
-            : value;
-        })
-      )
-    )
+    .pipe(map((sourceValues) =>
+      sourceValues.map((value, index) => {
+        const targetName = targetNames[index];
+        return typeof value === 'object' && targetName
+          ? value[targetName]
+          : value;
+      })))
     .pipe(map(add));
 }

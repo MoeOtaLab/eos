@@ -1,22 +1,22 @@
 import React from 'react';
-import { Node } from 'react-flow-renderer';
+import { type Node } from 'reactflow';
 import { getRandomId } from '../utils';
-import { GraphNode, LogicStateStore } from '../Compiler/flowGraph';
+import { type GraphNode } from '../Compiler/flowGraph';
 
-export type NodePort = {
+export interface NodePort {
   id: string;
   label: string;
   isConnectable?: boolean;
   children?: NodePort[];
-};
+}
 
-export type OperatorNodeData = {
+export interface OperatorNodeData {
   label?: string;
   sourcePorts?: NodePort[];
   targetPorts?: NodePort[];
   operatorType: string;
   [key: string]: any;
-};
+}
 
 export class Operator<T = OperatorNodeData> implements Node<T> {
   static generateOperatorIcon() {
@@ -40,7 +40,7 @@ export class Operator<T = OperatorNodeData> implements Node<T> {
           placeholder="input label"
           style={{ width: '100%', maxWidth: 'none' }}
           value={value.data.label}
-          onChange={(e) => handleChange(e.target.value)}
+          onChange={(e) => { handleChange(e.target.value); }}
         />
       </>
     );
@@ -66,7 +66,7 @@ export class Operator<T = OperatorNodeData> implements Node<T> {
   className?: Node['className'];
   targetPosition?: Node['targetPosition'];
   sourcePosition?: Node['sourcePosition'];
-  isHidden?: boolean;
+  hidden?: boolean;
   draggable?: boolean;
   selectable?: boolean;
   connectable?: boolean;

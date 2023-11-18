@@ -1,4 +1,4 @@
-import React, { DragEventHandler } from 'react';
+import React, { type DragEventHandler } from 'react';
 import { OperatorMap } from '../../Operators';
 import css from './OperatorPanel.module.less';
 

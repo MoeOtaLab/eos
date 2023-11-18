@@ -5,7 +5,7 @@ import { LinkRuntimeContextProvider } from '../../Compiler/runtime';
 import { Demo } from './Demo';
 
 export const ConsolePanel: React.FC = () => {
-  const { elements } = useDiagramsState();
+  const { nodes, edges } = useDiagramsState();
   const [output, setOutput] = useState('');
 
   return (
@@ -22,13 +22,21 @@ export const ConsolePanel: React.FC = () => {
       >
         <button
           onClick={() => {
-            console.log(convertToGraph(elements));
+            console.log(convertToGraph([
+              ...nodes,
+              ...edges,
+            ]));
           }}
         >
           console graph
         </button>
 
-        <button onClick={() => setOutput(compile(elements))}>
+        <button onClick={() => {
+          setOutput(compile([
+            ...nodes,
+            ...edges,
+          ]));
+        }}>
           Compile And Run
         </button>
       </div>

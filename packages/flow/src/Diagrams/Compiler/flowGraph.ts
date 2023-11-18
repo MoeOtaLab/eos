@@ -1,4 +1,4 @@
-import { type Elements, isEdge, type Edge } from 'react-flow-renderer';
+import { type Node, isEdge, type Edge } from 'reactflow';
 import { OperatorMap } from '../Operators';
 import { type Operator } from '../Operators/Operator';
 import { type Subject } from 'rxjs';
@@ -12,7 +12,7 @@ export interface GraphNode {
 export type LogicStateStore = Map<string, Subject<any>>;
 export const LogicStateStoreSymbol = 'logicStateStore';
 
-export function convertToGraph(elements: Elements) {
+export function convertToGraph(elements: (Node | Edge)[]) {
   // convert to graph, only care about their target's source comes from.
   const edges = elements.filter((el) => isEdge(el)) as Edge[];
 
@@ -50,7 +50,7 @@ export function convertToGraph(elements: Elements) {
   return [...graphMap.values()];
 }
 
-export function generateLogicState(elements: Elements) {
+export function generateLogicState(elements: (Node | Edge)[]) {
   const graph = convertToGraph(elements);
   const initial = `
     ${graph

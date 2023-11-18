@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import classnames from 'classnames';
-import { Handle, HandleProps, Position } from 'react-flow-renderer';
-import { NodePort } from '../../Operators/Operator';
+import { Handle, type HandleProps, Position } from 'react-flow-renderer';
+import { type NodePort } from '../../Operators/Operator';
 import css from './OperatorNode.module.less';
 
-export type PortListProps = {
+export interface PortListProps {
   value?: NodePort[];
   type: HandleProps['type'];
   nestLevel?: number;
-};
+}
 
 export const PortList: React.FC<PortListProps> = (props) => {
   const { value = [], type, nestLevel = 0 } = props;

@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "build:gh-page": "pnpm build:gh-page --filter @eos/low-code",
+    "build:gh-page": "pnpm build:gh-page --filter @eos/flow",
     "postinstall": "husky install",
     "commitlint": "commitlint --edit",
     "lint-staged": "lint-staged"

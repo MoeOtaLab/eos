@@ -1,13 +1,13 @@
-import { Elements, isEdge, Edge } from 'react-flow-renderer';
+import { type Elements, isEdge, type Edge } from 'react-flow-renderer';
 import { OperatorMap } from '../Operators';
-import { Operator } from '../Operators/Operator';
-import { Subject } from 'rxjs';
+import { type Operator } from '../Operators/Operator';
+import { type Subject } from 'rxjs';
 
-export type GraphNode = {
+export interface GraphNode {
   id: string;
   operator: Operator;
   sourceLink: Record<string, { target: GraphNode; handler: string }>;
-};
+}
 
 export type LogicStateStore = Map<string, Subject<any>>;
 export const LogicStateStoreSymbol = 'logicStateStore';
@@ -16,18 +16,16 @@ export function convertToGraph(elements: Elements) {
   // convert to graph, only care about their target's source comes from.
   const edges = elements.filter((el) => isEdge(el)) as Edge[];
 
-  const graphMap = new Map<string, GraphNode>(
-    elements
-      .filter((el) => !isEdge(el))
-      .map((item) => [
-        item.id,
-        {
-          id: item.id,
-          operator: item,
-          sourceLink: {},
-        } as GraphNode,
-      ])
-  );
+  const graphMap = new Map<string, GraphNode>(elements
+    .filter((el) => !isEdge(el))
+    .map((item) => [
+      item.id,
+      {
+        id: item.id,
+        operator: item,
+        sourceLink: {},
+      } as GraphNode,
+    ]));
 
   edges.forEach((edge) => {
     const target = graphMap.get(edge.target);
@@ -56,20 +54,16 @@ export function generateLogicState(elements: Elements) {
   const graph = convertToGraph(elements);
   const initial = `
     ${graph
-      .map(
-        (item) => `
+      .map((item) => `
       ${LogicStateStoreSymbol}.set('${item.id}', new Rx.Subject());
-    `
-      )
+    `)
       .join('\n')}
   `;
 
   // link
   const graphCode = graph
     .map((item) => {
-      const operation = OperatorMap.get(
-        item.operator?.data?.operatorType
-      )?.generateOperation(item);
+      const operation = OperatorMap.get(item.operator?.data?.operatorType)?.generateOperation(item);
       const result = `
       (function () {
         let exports;

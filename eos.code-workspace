@@ -9,8 +9,8 @@
       "path": "packages/core"
     },
     {
-      "name": "LC",
-      "path": "packages/low-code"
+      "name": "Flow",
+      "path": "packages/flow"
     },
     {
       "name": "Shared",

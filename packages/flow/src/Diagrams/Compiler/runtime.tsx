@@ -1,13 +1,13 @@
 import React, { useState, useMemo, useEffect, useContext, useRef } from 'react';
-import { LogicStateStore, LogicStateStoreSymbol } from './flowGraph';
+import { type LogicStateStore, LogicStateStoreSymbol } from './flowGraph';
 import * as Rx from 'rxjs';
 import * as operations from '../Operators/operations';
 import * as link from '../../Link/link';
 import { useObservable } from 'rxjs-hooks';
 
-export type LinkRuntimeContextState = {
+export interface LinkRuntimeContextState {
   store: LogicStateStore;
-};
+}
 
 export const LinkRuntimeContext = React.createContext<LinkRuntimeContextState>({
   store: new Map(),
@@ -31,12 +31,12 @@ export function runCode(code: string) {
   return logicStateStore;
 }
 
-type LinkRuntimeContextProviderProps = {
+interface LinkRuntimeContextProviderProps {
   value: string;
-};
+}
 
 export const LinkRuntimeContextProvider: React.FC<
-  LinkRuntimeContextProviderProps
+LinkRuntimeContextProviderProps
 > = (props) => {
   const { value, children } = props;
   const [store, setStore] = useState<LogicStateStore>(new Map());
@@ -82,7 +82,10 @@ export function useValue<T = any>(id: string) {
       subscription?.unsubscribe();
       targetSubject.current.next(undefined);
     };
-  }, [store, id]);
+  }, [
+    store,
+    id,
+  ]);
 
   const output = useObservable(() => targetSubject.current);
   return output as T;

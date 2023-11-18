@@ -1,3 +1,4 @@
+import { Entity } from '../Entity';
 import { type ExtraInfo } from './ExtraInfo';
 
 type CleanupCallback = () => void;
@@ -23,12 +24,13 @@ export class Subscription {
   }
 }
 
-export class Observable<ValueType> implements Subscribable<ValueType> {
+export class Observable<ValueType> extends Entity implements Subscribable<ValueType> {
   protected get current(): ValueType {
     throw new Error('need override');
   }
 
   constructor() {
+    super();
     this.subscribe = this.subscribe.bind(this);
     this.next = this.next.bind(this);
   }

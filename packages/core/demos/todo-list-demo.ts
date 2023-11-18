@@ -125,22 +125,22 @@ export function TodoListDemoApp(_input: any, context: ModelBlockContextType) {
       // 增加一个
       todoListContainerInstance.output?.addItemEvent.next({ key: '23333', title: 'new item' }, new ExtraInfo('add manually'));
       console.log('listData addItemEvent', listData.current);
-      todoListContainerInstance.output?.checkAllEvent.next(true, new ExtraInfo());
+      todoListContainerInstance.output?.checkAllEvent.next(true, new ExtraInfo('listData checkAllEvent true'));
       console.log('listData checkAllEvent true', listData.current);
-      todoListContainerInstance.output?.checkAllEvent.next(false, new ExtraInfo());
+      todoListContainerInstance.output?.checkAllEvent.next(false, new ExtraInfo('listData checkAllEvent false'));
       console.log('listData checkAllEvent false', listData.current);
 
       // change title
-      todoListContainerInstance.output?.instanceList?.current?.at(-1)?.instance.output?.titleChangeEvent.next('change - title', new ExtraInfo());
+      todoListContainerInstance.output?.instanceList?.current?.at(-1)?.instance.output?.titleChangeEvent.next('change - title', new ExtraInfo('listData titleChangeEvent'));
       console.log('listData titleChangeEvent', listData.current);
 
-      todoListContainerInstance.output?.instanceList?.current?.at(-1)?.instance.output?.checkEvent.next(true, new ExtraInfo());
+      todoListContainerInstance.output?.instanceList?.current?.at(-1)?.instance.output?.checkEvent.next(true, new ExtraInfo('listData checkEvent true'));
       console.log('listData checkEvent true', listData.current);
 
-      todoListContainerInstance.output?.instanceList?.current?.at(-2)?.instance.output?.deleteEvent.next(undefined, new ExtraInfo());
+      todoListContainerInstance.output?.instanceList?.current?.at(-2)?.instance.output?.deleteEvent.next(undefined, new ExtraInfo('listData deleteEvent'));
       console.log('listData deleteEvent', listData.current);
 
-      todoListContainerInstance.output?.clearAllEvent.next(false, new ExtraInfo());
+      todoListContainerInstance.output?.clearAllEvent.next(false, new ExtraInfo('listData clearAllEvent'));
       console.log('listData clearAllEvent', listData.current);
     }, 3000);
   });

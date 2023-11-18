@@ -9,6 +9,7 @@ export type GetObservableValueList<ObservableListType extends Array<Atom<any>>> 
   [K in keyof ObservableListType]: GetObservableValue<ObservableListType[K]>;
 };
 
+/** @deprecated */
 export class ComputedState<ComputedValueType> extends Atom<
 ComputedValueType | undefined
 > {

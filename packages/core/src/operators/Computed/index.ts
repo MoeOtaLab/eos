@@ -2,6 +2,7 @@ import { ComputedState, type GetObservableValueList } from '../../ModelState/Com
 import { type ModelBlockContextType } from '../../ModelBlock';
 import { type Atom } from '../../ModelState/State';
 
+/** @deprecated */
 export function Computed<ComputedValueType, ObservableSubjectList extends Array<Atom<any>>>(input: {
   inputs: ObservableSubjectList;
   defaultValue: ComputedValueType;

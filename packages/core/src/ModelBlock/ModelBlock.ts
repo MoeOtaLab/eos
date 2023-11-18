@@ -118,7 +118,7 @@ export class ModelBlock<
 
   protected getContext(): ModelBlockContextType {
     return {
-      id: this.id,
+      id: this.uid,
       onLifecycle: this.onLifecycle.bind(this),
       mount: this.mountTemplate.bind(this),
       unmount: this.unmountChild.bind(this),
@@ -216,7 +216,7 @@ export class ModelBlock<
   }
 
   protected triggerLifecycle(eventType: AtomLifecycleEventType) {
-    this.eventEmitter.emit(eventType);
+    this.eventEmitter.emit(eventType, undefined);
   }
 
   // =============== Utils End =================== //

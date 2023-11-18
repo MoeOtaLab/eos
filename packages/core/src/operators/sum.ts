@@ -9,11 +9,11 @@ export function sum<ObservableSubjectList extends Array<Atom<number>>>(...inputs
     result.update(inputs.map(input => input.current).reduce((acc, cur) => acc + cur, 0), extraInfo);
   }
 
-  computed(new ExtraInfo({ hint: '[sum]: init' }));
+  computed(new ExtraInfo('[sum]: init'));
 
   inputs.forEach(input => {
     input.subscribe((_value, extraInfo) => {
-      computed(extraInfo);
+      computed(extraInfo.concat('sum'));
     });
   });
 

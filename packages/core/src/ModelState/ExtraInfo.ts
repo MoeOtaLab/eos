@@ -1,17 +1,20 @@
-import { uuid } from '../utils/uuid';
+import { Entity } from '../Entity';
 
-export class ExtraInfo {
-  traceId: string;
-  hint?: string;
+export class ExtraInfo extends Entity {
+  hint: string[] = [];
 
-  constructor(defaultDataOrHint?: ExtraInfo['hint'] | Partial<ExtraInfo>) {
+  constructor(defaultDataOrHint?: ExtraInfo['hint'][number] | Partial<ExtraInfo>) {
+    super(typeof defaultDataOrHint === 'object' ? defaultDataOrHint?.uid : undefined);
     if (typeof defaultDataOrHint === 'string') {
       // hint
-      this.hint = defaultDataOrHint;
+      this.hint = [defaultDataOrHint];
     } else {
       Object.assign(this, defaultDataOrHint ?? {});
     }
+  }
 
-    this.traceId ??= uuid();
+  concat(hint: string) {
+    this.hint.push(hint);
+    return this;
   }
 }

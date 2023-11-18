@@ -1,4 +1,4 @@
-import { start, ModelState, ModelEvent, type ModelBlockContextType } from '../src';
+import { start, ModelState, ModelEvent, type ModelBlockContextType, tracker, type TrackRecord } from '../src';
 import { Computed } from '../src/operators';
 import { ExtraInfo } from '../src/ModelState/ExtraInfo';
 import { SimpleDemoApp } from './simple-demo';
@@ -95,6 +95,11 @@ export function App(input: any, context: ModelBlockContextType) {
 }
 
 function main() {
+  const logs: TrackRecord[] = [];
+  tracker.onTrack(record => {
+    logs.push(record);
+  });
+
   const appInstance = start(SimpleDemoApp);
 
   console.log(appInstance.output?.result.current);
@@ -102,6 +107,12 @@ function main() {
   console.log('result', appInstance.output?.result.current);
 
   start(TodoListDemoApp);
+
+  setTimeout(() => {
+    console.log('====== RECORD ======');
+    console.log(JSON.stringify(logs, undefined, 2));
+    console.log('====== RECORD END ======');
+  }, 10000);
 
   // const { state, onUpdate } = modelStateSelector(() => appInstance.output?.subIns.output?.other1Ins.output?.count);
 

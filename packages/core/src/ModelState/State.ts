@@ -1,5 +1,6 @@
 import { Observable } from './Observable';
 import { type ExtraInfo } from './ExtraInfo';
+import { tracker } from '../Tracker';
 
 export interface ReportPayload<T> {
   traceId: string; // maybe multiple input source.
@@ -40,6 +41,7 @@ export class Atom<ValueType> extends Observable<ValueType> {
   ) {
     const nextValue = updateValue(this._current, updateAction);
     this._current = nextValue;
+    tracker.track({ target: this.uid, extraInfo });
 
     this.next(nextValue, extraInfo);
   }

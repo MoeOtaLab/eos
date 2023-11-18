@@ -1,6 +1,7 @@
 import { start, ModelState, ModelEvent, type ModelBlockContextType } from '../src';
 import { Computed } from '../src/operators';
 import { ExtraInfo } from '../src/ModelState/ExtraInfo';
+import { SimpleDemoApp } from './simple-demo';
 
 function other1(input: any, context: ModelBlockContextType) {
   const { onLifecycle } = context;
@@ -78,7 +79,7 @@ function Test(_input: any, context: ModelBlockContextType) {
   };
 }
 
-function App(input: any, context: ModelBlockContextType) {
+export function App(input: any, context: ModelBlockContextType) {
   const { mount } = context;
   const theme = new ModelState<'dark' | 'light'>('dark');
 
@@ -93,25 +94,36 @@ function App(input: any, context: ModelBlockContextType) {
 }
 
 function main() {
-  const appInstance = start(App);
+  const appInstance = start(SimpleDemoApp);
+
+  console.log(appInstance.output?.result.current);
+  appInstance.output?.event.next(2, new ExtraInfo('manual add 2'));
+  console.log('result', appInstance.output?.result.current);
+
+  setTimeout(() => {
+    console.log('result', appInstance.output?.result.current);
+    console.log(appInstance);
+  }, 1 * 1000);
+
+  // const { state, onUpdate } = modelStateSelector(() => appInstance.output?.subIns.output?.other1Ins.output?.count);
 
   // console.log(appInstance);
 
-  const count = appInstance.output?.subIns.output?.other1Ins.output?.count;
+  // const count = appInstance.output?.subIns.output?.other1Ins.output?.count;
 
-  const event = appInstance.output?.subIns.output?.other1Ins.output?.event;
+  // const event = appInstance.output?.subIns.output?.other1Ins.output?.event;
 
-  event?.subscribe((value, extra) => {
-    console.log('count change..', value, extra);
-  });
+  // event?.subscribe((value, extra) => {
+  //   console.log('count change..', value, extra);
+  // });
 
-  count?.update(1, { traceId: '233' });
-  setTimeout(() => {
-    count?.update(2, { traceId: '234' });
-  });
-  setTimeout(() => {
-    count?.update(v => v + 1, { traceId: '235' });
-  }, 2000);
+  // count?.update(1, { traceId: '233' });
+  // setTimeout(() => {
+  //   count?.update(2, { traceId: '234' });
+  // });
+  // setTimeout(() => {
+  //   count?.update(v => v + 1, { traceId: '235' });
+  // }, 2000);
 }
 
 main();

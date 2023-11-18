@@ -56,4 +56,8 @@ export class Observable<ValueType> implements Subscribable<ValueType> {
     });
     return subscription;
   }
+
+  pipe<T extends Observable<any>>(fn: (currentObservale: Observable<ValueType>) => T) {
+    return fn(this);
+  }
 }

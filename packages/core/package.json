@@ -11,10 +11,27 @@
   "files": [
     "index.ts",
     "src",
-    "output"
+    "output",
+    "operators"
   ],
-  "main": "./output/eos-core.esm.js",
-  "types": "./output/eos-core.d.ts",
+  "main": "./output/esm/eos-core.js",
+  "types": "./output/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./output/types/index.d.ts",
+      "import": "./output/esm/eos-core.js",
+      "node": "./output/cjs/eos-core.js",
+      "require": "./output/cjs/eos-core.js",
+      "default": "./output/esm/eos-core.js"
+    },
+    "./operators": {
+      "types": "./output/types/operators/index.d.ts",
+      "import": "./output/esm/eos-operators.js",
+      "node": "./output/cjs/eos-operators.js",
+      "require": "./output/cjs/eos-operators.js",
+      "default": "./output/esm/eos-operators.js"
+    }
+  },
   "dependencies": {
     "immer": "^10.0.2",
     "lodash": "^4.17.21",
@@ -27,6 +44,7 @@
     "@types/uuid": "^9.0.3",
     "jest": "^29.7.0",
     "rollup": "^3.29.2",
+    "rollup-plugin-clear": "^2.0.7",
     "ts-jest": "^29.1.1",
     "ts-node": "^10.9.1",
     "typescript": "^5.2.2",

@@ -1,17 +1,40 @@
 import { defineConfig } from 'rollup';
+import * as clear from 'rollup-plugin-clear';
 import typescript from '@rollup/plugin-typescript';
 
 export default defineConfig({
-  input: './src/index.ts',
+  input: {
+    core: './src/index.ts',
+    operators: './src/operators/index.ts',
+  },
   output: [
     {
-      file: 'output/eos-core.cjs.js',
+      dir: 'output',
       format: 'cjs',
+      sourcemap: true,
+      entryFileNames(chunkInfo) {
+        return `cjs/eos-${chunkInfo.name}.js`;
+      },
+      chunkFileNames(chunkInfo) {
+        return `cjs/eos-${chunkInfo.name}.js`;
+      },
     },
     {
-      file: 'output/eos-core.esm.js',
+      dir: 'output',
       format: 'esm',
+      sourcemap: true,
+      entryFileNames(chunkInfo) {
+        return `esm/eos-${chunkInfo.name}.js`;
+      },
+      chunkFileNames(chunkInfo) {
+        return `esm/eos-${chunkInfo.name}.js`;
+      },
     },
   ],
-  plugins: [typescript({ module: 'ESNext' })],
+  plugins: [
+    clear({
+      targets: ['output'],
+    }),
+    typescript({ module: 'ESNext', include: ['src/**'] }),
+  ],
 });

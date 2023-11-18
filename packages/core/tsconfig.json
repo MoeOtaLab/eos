@@ -9,6 +9,9 @@
       "ESNext"
     ],
     "allowJs": true,
+    "declaration": true,
+    "declarationDir": "output/types",
+    "declarationMap": true,
     "skipLibCheck": false,
     "esModuleInterop": false,
     "allowSyntheticDefaultImports": true,

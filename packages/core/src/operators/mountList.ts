@@ -1,7 +1,7 @@
 import { get } from 'lodash';
-import { ModelState, type ModelBlockContextType, type SetupFn } from '..';
+import { ModelState, type ModelBlockContextType, type SetupFn, type InputOutputInterface } from '..';
 
-export function mountList<Data extends ModelState<any[]>, Template extends SetupFn<{ index: ModelState<number>; data: Data; key: string }, any>>(input: { data: Data; key: string }, context: ModelBlockContextType, template: Template) {
+export function mountList<Data extends ModelState<any[]>, Output extends InputOutputInterface>(input: { data: Data; key: string }, context: ModelBlockContextType, template: SetupFn<{ index: ModelState<number>; data: Data; key: string }, Output>) {
   const { data, key } = input;
   const { mount, unmount } = context;
 
@@ -17,6 +17,7 @@ export function mountList<Data extends ModelState<any[]>, Template extends Setup
   }) || []);
 
   data.subscribe((_val, extraInfo) => {
+    // console.log('change::', extraInfo, data.current, instanceList);
     const nextList = data.current.map((item, index) => ({ key: get(item, key), index }));
     const currentList = instanceList.current;
     // reconciliation
@@ -48,6 +49,7 @@ export function mountList<Data extends ModelState<any[]>, Template extends Setup
           instance: mount(template, { index: indexState, data, key: currentNextItem.key }),
         };
         nextInstanceList.push(itemWillMount);
+        console.log('mount ==> ', itemWillMount.key);
       }
     }
 
@@ -57,7 +59,7 @@ export function mountList<Data extends ModelState<any[]>, Template extends Setup
       unmount(node.instance);
     });
 
-    instanceList.update(currentList, extraInfo);
+    instanceList.update(nextInstanceList, extraInfo);
   });
 
   return {

@@ -77,50 +77,54 @@ export const Demo: React.FC = () => {
         justifyContent: 'start',
       }}
     >
-      <div>
-        <div>Input</div>
-        <div style={{ display: 'grid', gap: 12 }}>
-          <Input
-            value={inputValue}
-            onChange={(event) => {
-              setInputValue(event.target.value);
-            }}
-            size="small"
-            placeholder="发送事件的参数（请填写 JSON）"
-          />
-          <div style={{ display: 'grid', gap: 12 }}>
-            {inputNode?.data.sourcePorts
-              .filter((item) => item.type === InputNodePortTypeEnum.Event)
-              .map((item) => (
-                <Button
-                  key={item.id}
-                  onClick={() => {
-                    store.exports?.output?.var_container?.output?.[
-                      formatVariableName(item.id || '')
-                    ]?.next(JSON.parse(inputValue));
-                  }}
-                >
-                  {item.label}
-                </Button>
-              ))}
-          </div>
-        </div>
-      </div>
-      <div>
-        <div>Output</div>
-        {outputValueIds?.map(({ port, handleId }) => {
-          return (
-            <div key={port.id}>
-              {port.label}:
-              {JSON.stringify(
-                store.exports?.output?.var_container?.output?.[
-                  formatVariableName(handleId || '')
-                ]?.current,
-              )}
+      {store.exports.output && (
+        <>
+          <div>
+            <div>Input</div>
+            <div style={{ display: 'grid', gap: 12 }}>
+              <Input
+                value={inputValue}
+                onChange={(event) => {
+                  setInputValue(event.target.value);
+                }}
+                size="small"
+                placeholder="发送事件的参数（请填写 JSON）"
+              />
+              <div style={{ display: 'grid', gap: 12 }}>
+                {inputNode?.data.sourcePorts
+                  .filter((item) => item.type === InputNodePortTypeEnum.Event)
+                  .map((item) => (
+                    <Button
+                      key={item.id}
+                      onClick={() => {
+                        store.exports?.output?.var_container?.output?.[
+                          formatVariableName(item.id || '')
+                        ]?.next(JSON.parse(inputValue));
+                      }}
+                    >
+                      {item.label}
+                    </Button>
+                  ))}
+              </div>
             </div>
-          );
-        })}
-      </div>
+          </div>
+          <div>
+            <div>Output</div>
+            {outputValueIds?.map(({ port, handleId }) => {
+              return (
+                <div key={port.id}>
+                  {port.label}:
+                  {JSON.stringify(
+                    store.exports?.output?.var_container?.output?.[
+                      formatVariableName(handleId || '')
+                    ]?.current,
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </>
+      )}
     </div>
   );
 };

@@ -1,7 +1,7 @@
 import { type Node } from 'reactflow';
 import { getRandomId } from '../utils';
 import { type IBaseNodeData, NodePort } from '../Nodes/types';
-import { type IAttributeControlOption } from './types';
+import { type IHookOption, type IAttributeControlOption } from './types';
 import { type IGenerationOption } from '../Compiler/graph';
 
 export { NodePort };
@@ -21,17 +21,17 @@ export class Operator<T = any> implements Node<T> {
   static generateAttributeControl?(
     options: IAttributeControlOption<Operator<any>>,
   ) {
-    const { value, actions } = options;
+    const { node, actions } = options;
     function handleChange(val: string) {
-      value.data.label = val;
-      actions.updateElement(value.id, value);
+      node.data.label = val;
+      actions.updateNode(node.id, node);
     }
     return (
       <>
         <input
           placeholder="input label"
           style={{ width: '100%', maxWidth: 'none' }}
-          value={value.data.label}
+          value={node.data.label}
           onChange={(e) => {
             handleChange(e.target.value);
           }}
@@ -50,6 +50,10 @@ export class Operator<T = any> implements Node<T> {
 
   static generateBlockOutput?(options: IGenerationOption): string[] {
     return [];
+  }
+
+  static onAfterCreate?(options: IHookOption<Operator<any>>) {
+    // nothing
   }
 
   // 1. should generate the attributes that can modified by user
@@ -73,7 +77,10 @@ export class Operator<T = any> implements Node<T> {
   selectable?: boolean;
   connectable?: boolean;
 
-  constructor(operatorType: string = 'Operator', data?: Partial<Node<T>>) {
+  constructor(
+    operatorType: string = 'Operator',
+    data?: Partial<Node<Partial<T>>>,
+  ) {
     Object.assign(this, {
       ...data,
       data: {

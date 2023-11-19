@@ -12,11 +12,21 @@ export function BaseNode(
       title?: React.ReactNode;
       onSourcePortAdd?: () => void;
       onTargetPortAdd?: () => void;
+      onDoubleClick?: () => void;
+      description?: string;
     }
   >,
 ) {
-  const { data, selected, className, title, onSourcePortAdd, onTargetPortAdd } =
-    props;
+  const {
+    data,
+    selected,
+    className,
+    title,
+    onSourcePortAdd,
+    onTargetPortAdd,
+    onDoubleClick,
+    description,
+  } = props;
   const operatorName = data?.operatorName;
 
   const ports = [
@@ -41,8 +51,9 @@ export function BaseNode(
       )}
     >
       <div className={css['node__operator-name']}>{operatorName}</div>
-      <div className={css.node__content}>
+      <div className={css.node__content} onDoubleClick={onDoubleClick}>
         <div className={css.node__title}>
+          <div className={css['node__operator-description']}>{description}</div>
           <div>{data.label}</div>
           <div>{title}</div>
         </div>

@@ -71,12 +71,18 @@ export function useDiagramsActions() {
   const setNodes = useDiagramsContextSelector((ctx) => ctx.setNodes);
   const updateEdge = useDiagramsContextSelector((ctx) => ctx.updateEdge);
   const updateNode = useDiagramsContextSelector((ctx) => ctx.updateNode);
+  const setLayer = useDiagramsContextSelector((ctx) => ctx.setLayer);
+  const setActiveLayerId = useDiagramsContextSelector(
+    (ctx) => ctx.setActiveLayerId,
+  );
 
   return {
     setEdges,
     setNodes,
     updateEdge,
     updateNode,
+    setLayer,
+    setActiveLayerId,
   };
 }
 

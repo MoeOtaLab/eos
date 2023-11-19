@@ -4,14 +4,21 @@ import { type DiagramsContextType } from '../../State/DiagramsProvider';
 type GetOperatorType<T> = T extends Operator<infer P> ? P : any;
 
 export interface IAttributeControlOption<Op extends Operator<any>> {
-  /** @deprecated */
-  value: Op;
   node: Op;
-  actions: {
-    /** @deprecated */
-    updateElement: any;
-  } & Pick<
+  actions: Pick<
     DiagramsContextType<GetOperatorType<Op>>,
-    'updateEdge' | 'updateNode'
+    'updateEdge' | 'updateNode' | 'setLayer'
+  >;
+}
+
+export interface IHookOption<Op extends Operator<any>> {
+  node: Op;
+  currentState: Pick<
+    DiagramsContextType<GetOperatorType<Op>>,
+    'activeLayerId' | 'layer' | 'nodes' | 'edges'
+  >;
+  actions: Pick<
+    DiagramsContextType<GetOperatorType<Op>>,
+    'updateEdge' | 'updateNode' | 'setLayer' | 'setActiveLayerId'
   >;
 }

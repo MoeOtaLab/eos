@@ -15,8 +15,12 @@ export class NodePort {
 }
 
 export interface IBaseNodeData {
+  /** 类型唯一标识 */
+  operatorType: string;
+  /** 可以修改 */
   operatorName: string;
   label?: string;
+  description?: string;
   sourcePorts: NodePort[];
   targetPorts: NodePort[];
 }
@@ -39,6 +43,10 @@ export type IOutputNodeData = IBaseNodeData;
 
 export type IStreamOperatorNodeData = IBaseNodeData & {
   allowAddTargetPort?: boolean;
+};
+
+export type ICustomNodeData = IBaseNodeData & {
+  layerId: string;
 };
 
 export enum StateNodePortTypeEnum {

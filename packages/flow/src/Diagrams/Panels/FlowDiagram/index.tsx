@@ -18,6 +18,7 @@ import ReactFlow, {
   BackgroundVariant,
   MiniMap,
   Controls,
+  Panel,
 } from 'reactflow';
 import { MODEL_FORMAT } from '../OperatorPanel';
 import { OperatorMap } from '../../Operators';
@@ -28,6 +29,9 @@ import { isSameSourceHandle, isSameTargetHandle } from '../../utils';
 import { defaultDataWithOperator as defaultData } from './defaultData';
 import css from './FlowDiagram.module.less';
 import { message } from 'antd';
+import { type Operator } from '../../Operators/Operator';
+import { useLatest } from 'ahooks';
+import { BackToLayer } from '../LayerPanel/BackToLayer';
 
 const nodeColor = (node: Node) => {
   switch (node.type) {
@@ -38,13 +42,33 @@ const nodeColor = (node: Node) => {
       return '#5D9C59';
     case NodeTypeEnum.StreamOperatorNode:
       return '#FF0060';
+    case NodeTypeEnum.CustomNode:
+      return '#FBCB0A';
     default:
       return '#ff0072';
   }
 };
 
 export const FlowDiagram: React.FC = () => {
-  const { nodes, edges, setNodes, setEdges } = useDiagramsContext();
+  const {
+    nodes,
+    edges,
+    setNodes,
+    setEdges,
+    updateEdge,
+    updateNode,
+    setActiveLayerId,
+    setLayer,
+    layer,
+    activeLayerId,
+  } = useDiagramsContext();
+
+  const latestState = useLatest({
+    nodes,
+    edges,
+    layer,
+    activeLayerId,
+  });
 
   useEffect(() => {
     setNodes(defaultData.nodes);
@@ -146,6 +170,17 @@ export const FlowDiagram: React.FC = () => {
           }
           return [...eles];
         });
+
+        Operator?.onAfterCreate?.({
+          node: node as Operator,
+          currentState: latestState.current,
+          actions: {
+            updateEdge,
+            updateNode,
+            setActiveLayerId,
+            setLayer,
+          },
+        });
       });
     }
   };
@@ -189,6 +224,9 @@ export const FlowDiagram: React.FC = () => {
         />
         <MiniMap nodeColor={nodeColor} nodeStrokeWidth={3} zoomable pannable />
         <Controls />
+        <Panel position="top-left">
+          <BackToLayer />
+        </Panel>
       </ReactFlow>
     </div>
   );

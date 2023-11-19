@@ -1,6 +1,5 @@
 import { type Node } from 'reactflow';
 import { getRandomId } from '../utils';
-import { type GraphNode } from '../Compiler/flowGraph';
 import { type IBaseNodeData, NodePort } from '../Nodes/types';
 import { type IAttributeControlOption } from './types';
 import { type IGenerationOption } from '../Compiler/graph';
@@ -39,11 +38,6 @@ export class Operator<T = any> implements Node<T> {
         />
       </>
     );
-  }
-
-  /** @deprecated  */
-  static generateOperation?(node: GraphNode): string {
-    return '';
   }
 
   static generateBlockDeclarations?(options: IGenerationOption): string[] {

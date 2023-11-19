@@ -1,31 +1,26 @@
 import { type Node } from 'reactflow';
 import { getRandomId } from '../utils';
 import { type GraphNode } from '../Compiler/flowGraph';
-import { type IBaseNodeData } from '../Nodes/types';
+import { type IBaseNodeData, NodePort } from '../Nodes/types';
+import { type IAttributeControlOption } from './types';
 
-export interface NodePort {
-  id: string;
-  label: string;
-  isConnectable?: boolean;
-  children?: NodePort[];
-}
+export { NodePort };
 
 export interface OperatorNodeData extends IBaseNodeData {
   operatorType: string;
   [key: string]: any;
 }
 
-export class Operator<T = OperatorNodeData> implements Node<T> {
+export class Operator<T = any> implements Node<T> {
+  unique?: boolean;
+
   static generateOperatorIcon() {
     return <div>{this.name}</div>;
   }
 
-  static generateAttributeControl(options: {
-    value: Operator;
-    actions: {
-      updateElement: any;
-    };
-  }) {
+  static generateAttributeControl(
+    options: IAttributeControlOption<Operator<any>>,
+  ) {
     const { value, actions } = options;
     function handleChange(val: string) {
       value.data.label = val;
@@ -37,7 +32,9 @@ export class Operator<T = OperatorNodeData> implements Node<T> {
           placeholder="input label"
           style={{ width: '100%', maxWidth: 'none' }}
           value={value.data.label}
-          onChange={(e) => { handleChange(e.target.value); }}
+          onChange={(e) => {
+            handleChange(e.target.value);
+          }}
         />
       </>
     );

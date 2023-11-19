@@ -44,10 +44,12 @@ module.exports = {
     '@typescript-eslint/prefer-nullish-coalescing': 'off',
     '@typescript-eslint/consistent-type-assertions': 'off',
     "comma-dangle": 'off',
+    '@typescript-eslint/indent': 'off',
     '@typescript-eslint/comma-dangle': 'off',
     'function-paren-newline': 'off',
     '@typescript-eslint/array-type': 'off',
     'react/react-in-jsx-scope': 'off',
     'prettier/prettier': 'error',
+    '@typescript-eslint/no-floating-promises': 'off',
   }
 }

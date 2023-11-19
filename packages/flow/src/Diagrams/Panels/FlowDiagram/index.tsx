@@ -221,6 +221,12 @@ export const FlowDiagram: React.FC = () => {
 
     if (Operator) {
       const operatorInstance = new Operator();
+      if (operatorInstance.unique) {
+        if (nodes.find((item) => item.type === operatorInstance.type)) {
+          alert('只允许存在一个');
+          return;
+        }
+      }
       const { clientX, clientY } = event;
       const rect = dropTarget.current?.getBoundingClientRect();
       if (rect) {

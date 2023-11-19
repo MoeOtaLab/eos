@@ -11,14 +11,14 @@ import {
   useUpdateNodeInternals,
 } from 'reactflow';
 
-export interface DiagramsContextType {
-  nodes: Node[];
-  setNodes: React.Dispatch<React.SetStateAction<Node[]>>;
-  updateNode: (id: string, action: React.SetStateAction<Node>) => void;
+export interface DiagramsContextType<T = any> {
+  nodes: Node<T>[];
+  setNodes: React.Dispatch<React.SetStateAction<Node<T>[]>>;
+  updateNode: (id: string, action: React.SetStateAction<Node<T>>) => void;
 
-  edges: Edge[];
-  setEdges: React.Dispatch<React.SetStateAction<Edge[]>>;
-  updateEdge: (id: string, action: React.SetStateAction<Edge>) => void;
+  edges: Edge<T>[];
+  setEdges: React.Dispatch<React.SetStateAction<Edge<T>[]>>;
+  updateEdge: (id: string, action: React.SetStateAction<Edge<T>>) => void;
 }
 
 export const DiagramsContext = createContext<DiagramsContextType>({
@@ -35,7 +35,9 @@ export function useDiagramsContext() {
   return useContext(DiagramsContext);
 }
 
-export function useDiagramsContextSelector<T>(selector: (ctx: DiagramsContextType) => T) {
+export function useDiagramsContextSelector<T>(
+  selector: (ctx: DiagramsContextType) => T,
+) {
   return useContextSelector(DiagramsContext, selector);
 }
 
@@ -73,7 +75,7 @@ export const DiagramsContextInnerProvider: React.FC = (props) => {
     (
       id: string,
       updateElementAction: React.SetStateAction<Edge>,
-      updateInternal?: boolean
+      updateInternal?: boolean,
     ) => {
       if (!id) {
         return;
@@ -101,14 +103,14 @@ export const DiagramsContextInnerProvider: React.FC = (props) => {
         }, 0);
       }
     },
-    [updateNodeInternals]
+    [updateNodeInternals],
   );
 
   const updateNode = useCallback(
     (
       id: string,
       updateElementAction: React.SetStateAction<Node>,
-      updateInternal?: boolean
+      updateInternal?: boolean,
     ) => {
       if (!id) {
         return;
@@ -136,7 +138,7 @@ export const DiagramsContextInnerProvider: React.FC = (props) => {
         }, 0);
       }
     },
-    [updateNodeInternals]
+    [updateNodeInternals],
   );
 
   return (

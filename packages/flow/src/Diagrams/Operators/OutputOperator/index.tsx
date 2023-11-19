@@ -15,13 +15,15 @@ export class OutputOperator extends Operator<IOutputNodeData> {
       type: NodeTypeEnum.OutputNode,
     });
 
+    this.unique = true;
+
     // init ports
     this.data = {
       ...this.data,
       sourcePorts: [],
       targetPorts: [
         new NodePort({
-          label: 'data',
+          label: 'state',
           type: OutputNodePortTypeEnum.State,
         }),
         new NodePort({

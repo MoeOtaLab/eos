@@ -15,20 +15,36 @@ export class InputOperator extends Operator<IInputNodeData> {
       type: NodeTypeEnum.InputNode,
     });
 
+    this.unique = true;
+
     // init ports
     this.data = {
       ...this.data,
       sourcePorts: [
         new NodePort({
-          label: 'data',
+          label: 'state',
           type: InputNodePortTypeEnum.State,
         }),
+
         new NodePort({
           label: 'event',
           type: InputNodePortTypeEnum.Event,
         }),
+
         new NodePort({
-          label: 'lifecycle',
+          label: 'beforeMount',
+          type: InputNodePortTypeEnum.LifeCycle,
+        }),
+        new NodePort({
+          label: 'mount',
+          type: InputNodePortTypeEnum.LifeCycle,
+        }),
+        new NodePort({
+          label: 'beforeUnmount',
+          type: InputNodePortTypeEnum.LifeCycle,
+        }),
+        new NodePort({
+          label: 'unmount',
           type: InputNodePortTypeEnum.LifeCycle,
         }),
       ],

@@ -21,7 +21,17 @@ export interface IBaseNodeData {
   targetPorts: NodePort[];
 }
 
-export type IStateNodeData = IBaseNodeData;
+export enum StateNodeValueTypeEnum {
+  String = 'string',
+  Number = 'number',
+  Boolean = 'boolean',
+  Object = 'object',
+}
+
+export type IStateNodeData = IBaseNodeData & {
+  valueType: StateNodeValueTypeEnum;
+  value: string | number | boolean | undefined;
+};
 
 export type IInputNodeData = IBaseNodeData;
 

@@ -1,5 +1,5 @@
 import { type NodeProps } from 'reactflow';
-import { BaseNode } from '../BaseNode';
+import { BaseNode } from '../components/BaseNode';
 import { type IStateNodeData } from '../types';
 import css from './StateNode.module.less';
 

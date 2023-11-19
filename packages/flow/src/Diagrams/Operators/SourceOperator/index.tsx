@@ -24,7 +24,9 @@ export class SourceOperator extends Operator {
         <label>请选择数据来源</label>
         <input
           value={value.data?.dataSourceId || ''}
-          onChange={(e) => { handleChange(e.target.value); }}
+          onChange={(e) => {
+            handleChange(e.target.value);
+          }}
         />
       </div>
     );
@@ -50,7 +52,7 @@ export class SourceOperator extends Operator {
     return combineLogic(
       `const result = link.getValueSource('${node.operator.data.dataSourceId}');`,
       `console.log({result, type: '${node.operator.data.dataSourceId}'})`,
-      exportValue('result')
+      exportValue('result'),
     );
   }
 }

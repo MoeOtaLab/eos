@@ -1,11 +1,13 @@
 import { type PropsWithChildren } from 'react';
 import classnames from 'classnames';
 import { type NodeProps } from 'reactflow';
-import { type IBaseNodeData } from '../types';
+import { type IBaseNodeData } from '../../types';
 import { PortList } from './PortList';
 import css from './BaseNode.module.less';
 
-export function BaseNode(props: PropsWithChildren<NodeProps<IBaseNodeData> & { className?: string }>) {
+export function BaseNode(
+  props: PropsWithChildren<NodeProps<IBaseNodeData> & { className?: string }>,
+) {
   const { data, selected, className } = props;
   const operatorName = data?.operatorName;
 
@@ -22,9 +24,13 @@ export function BaseNode(props: PropsWithChildren<NodeProps<IBaseNodeData> & { c
 
   return (
     <div
-      className={classnames(css.node__container, {
-        [css['is-selected']]: selected,
-      }, className)}
+      className={classnames(
+        css.node__container,
+        {
+          [css['is-selected']]: selected,
+        },
+        className,
+      )}
     >
       <div className={css['node__operator-name']}>{operatorName}</div>
       <div className={css.node__content}>
@@ -38,4 +44,4 @@ export function BaseNode(props: PropsWithChildren<NodeProps<IBaseNodeData> & { c
       </div>
     </div>
   );
-};
+}

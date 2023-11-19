@@ -10,5 +10,11 @@ export enum NodeTypeEnum {
   /** 输出节点 */
   OutputNode = 'OutputNode',
   /** 输入节点 */
-  InputNode = 'InputNode'
+  InputNode = 'InputNode',
+  /**
+   * 容器
+   * @see https://reactflow.dev/learn/layouting/sub-flows#adding-child-nodes
+   * @see https://reactflow.dev/examples/layout/sub-flows
+   * */
+  ContainerNode = 'ContainerNode',
 }

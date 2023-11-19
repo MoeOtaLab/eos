@@ -18,6 +18,7 @@ import { MODEL_FORMAT } from '../OperatorPanel';
 import { OperatorMap } from '../../Operators';
 import { useDiagramsContext } from '../../State/DiagramsProvider';
 import { nodeTypes } from '../../Nodes';
+import { NodeTypeEnum } from '../../Nodes/NodeTypeEnum';
 import { isSameSourceHandle, isSameTargetHandle } from '../../utils';
 import css from './FlowDiagram.module.less';
 
@@ -143,8 +144,11 @@ const nodeColor = (node: Node) => {
   switch (node.type) {
     case 'OperatorNode':
       return '#6ede87';
-    case 'output':
-      return '#6865A5';
+    case NodeTypeEnum.StateNode:
+      return '#0079FF';
+    case NodeTypeEnum.InputNode:
+    case NodeTypeEnum.OutputNode:
+      return '#5D9C59';
     default:
       return '#ff0072';
   }
@@ -166,17 +170,20 @@ export const FlowDiagram: React.FC = () => {
   const addSelectedEdges = useStore((ctx) => ctx.addSelectedEdges);
 
   const onConnect: ReactFlowProps['onConnect'] = (connection) => {
-    setEdges((eds) => addEdge(connection, eds).filter((item) => {
-      if (isEdge(item)) {
-        if (
-          !isSameSourceHandle(item, connection) &&
-          isSameTargetHandle(item, connection)
-        ) {
-          return false;
+    console.log('connection', connection);
+    setEdges((eds) =>
+      addEdge(connection, eds).filter((item) => {
+        if (isEdge(item)) {
+          if (
+            !isSameSourceHandle(item, connection) &&
+            isSameTargetHandle(item, connection)
+          ) {
+            return false;
+          }
         }
-      }
-      return true;
-    }));
+        return true;
+      }),
+    );
 
     setTimeout(() => {
       const targetEdge = edges.find((el) => {
@@ -191,7 +198,11 @@ export const FlowDiagram: React.FC = () => {
             (!el.targetHandle && !edge.targetHandle))
         );
       });
-      addSelectedEdges([targetEdge].filter((item): item is Edge => Boolean(item)).map(item => item.id));
+      addSelectedEdges(
+        [targetEdge]
+          .filter((item): item is Edge => Boolean(item))
+          .map((item) => item.id),
+      );
     });
   };
 
@@ -219,12 +230,11 @@ export const FlowDiagram: React.FC = () => {
         };
       }
 
-      setNodes((eles) => [
-        ...eles,
-        operatorInstance,
-      ]);
+      setNodes((eles) => [...eles, operatorInstance]);
       setTimeout(() => {
-        const node = nodesRef.current.find((item) => item.id === operatorInstance.id);
+        const node = nodesRef.current.find(
+          (item) => item.id === operatorInstance.id,
+        );
 
         if (node) {
           const pos = {
@@ -256,14 +266,12 @@ export const FlowDiagram: React.FC = () => {
     }
   };
 
-  const onNodesChange = useCallback(
-    (changes) => { setNodes((ns) => applyNodeChanges(changes, ns)); },
-    []
-  );
-  const onEdgesChange = useCallback(
-    (changes) => { setEdges((es) => applyEdgeChanges(changes, es)); },
-    []
-  );
+  const onNodesChange = useCallback((changes) => {
+    setNodes((ns) => applyNodeChanges(changes, ns));
+  }, []);
+  const onEdgesChange = useCallback((changes) => {
+    setEdges((es) => applyEdgeChanges(changes, es));
+  }, []);
 
   return (
     <div

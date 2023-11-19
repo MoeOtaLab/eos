@@ -21,7 +21,7 @@ export const OperatorPanel: React.FC = () => {
           return (
             <div
               key={name}
-              style={{ cursor: 'pointer' }}
+              className={css['operator-item']}
               draggable={true}
               onDragStart={handleDragStart(name)}
             >

@@ -1,41 +1,41 @@
 import { Operator } from '../Operator';
 import { type GraphNode } from '../../Compiler/flowGraph';
 import { NodeTypeEnum } from '../../Nodes/NodeTypeEnum';
+import { type Node } from 'reactflow';
 import {
-  StateNodePortTypeEnum,
+  OutputNodePortTypeEnum,
   NodePort,
-  type IStateNodeData,
+  type IOutputNodeData,
 } from '../../Nodes/types';
 
-export class StateOperator extends Operator<IStateNodeData> {
-  constructor(data?: Partial<StateOperator>) {
-    super('StateOperator', {
+export class OutputOperator extends Operator<IOutputNodeData> {
+  constructor(data?: Partial<Node<IOutputNodeData>>) {
+    super('OutputOperator', {
       ...data,
-      type: NodeTypeEnum.StateNode,
+      type: NodeTypeEnum.OutputNode,
     });
 
     // init ports
     this.data = {
       ...this.data,
-      sourcePorts: [
-        new NodePort({
-          label: 'data',
-          type: StateNodePortTypeEnum.State,
-        }),
-      ],
+      sourcePorts: [],
       targetPorts: [
         new NodePort({
-          label: 'update',
-          type: StateNodePortTypeEnum.UpdateHanlder,
+          label: 'data',
+          type: OutputNodePortTypeEnum.State,
+        }),
+        new NodePort({
+          label: 'event',
+          type: OutputNodePortTypeEnum.Event,
         }),
       ],
-      operatorName: 'StateOperator',
+      operatorName: 'OutputOperator',
       ...data?.data,
-    } as IStateNodeData;
+    } as IOutputNodeData;
   }
 
   static generateAttributeControl(options: {
-    value: StateOperator;
+    value: OutputOperator;
     actions: {
       updateElement: any;
     };

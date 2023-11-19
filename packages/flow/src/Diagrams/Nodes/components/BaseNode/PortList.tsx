@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import classnames from 'classnames';
 import { Handle, type HandleProps, Position } from 'reactflow';
-import { type NodePort } from '../../Operators/Operator';
+import { type NodePort } from '../../../Operators/Operator';
 import css from './BaseNode.module.less';
 
 export interface PortListProps {

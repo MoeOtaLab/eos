@@ -25,7 +25,9 @@ export class TargetOperator extends Operator {
         <label>请选择输出位置</label>
         <input
           value={value.data?.dataSourceId || ''}
-          onChange={(e) => { handleChange(e.target.value); }}
+          onChange={(e) => {
+            handleChange(e.target.value);
+          }}
         />
       </div>
     );
@@ -52,7 +54,7 @@ export class TargetOperator extends Operator {
     const item = Object.values(node.sourceLink)[0];
     return combineLogic(
       getState(item.target.id, 'target'),
-      exportValue('target')
+      exportValue('target'),
     );
   }
 }

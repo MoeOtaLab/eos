@@ -81,15 +81,16 @@ export class AddOperator extends Operator {
     const output = combineLogic(
       // declare
       sourceLinks.map(([targetName, link]) =>
-        getState(link.target.id, targetName)),
+        getState(link.target.id, targetName),
+      ),
       // run
       generateFunction(
         'operations.AddOperator.addOperation',
         'addResult$',
         generateArray(sourceLinks.map(([targetName]) => targetName)),
-        generateArray(sourceLinks.map(([, link]) => `'${link.handler}'`))
+        generateArray(sourceLinks.map(([, link]) => `'${link.handler}'`)),
       ),
-      exportValue('addResult$')
+      exportValue('addResult$'),
     );
 
     console.log(output);

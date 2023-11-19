@@ -1,4 +1,4 @@
-import { type Node, isEdge, type Edge } from 'reactflow';
+import { type Node, type Edge } from 'reactflow';
 import { OperatorMap } from '../Operators';
 import { type Operator } from '../Operators/Operator';
 import { type Subject } from 'rxjs';
@@ -12,20 +12,19 @@ export interface GraphNode {
 export type LogicStateStore = Map<string, Subject<any>>;
 export const LogicStateStoreSymbol = 'logicStateStore';
 
-export function convertToGraph(elements: (Node | Edge)[]) {
+export function convertToGraph(nodes: Node[], edges: Edge[]) {
   // convert to graph, only care about their target's source comes from.
-  const edges = elements.filter((el) => isEdge(el)) as Edge[];
 
-  const graphMap = new Map<string, GraphNode>(elements
-    .filter((el) => !isEdge(el))
-    .map((item) => [
+  const graphMap = new Map<string, GraphNode>(
+    nodes.map((item) => [
       item.id,
       {
         id: item.id,
         operator: item,
         sourceLink: {},
       } as GraphNode,
-    ]));
+    ]),
+  );
 
   edges.forEach((edge) => {
     const target = graphMap.get(edge.target);
@@ -50,20 +49,24 @@ export function convertToGraph(elements: (Node | Edge)[]) {
   return [...graphMap.values()];
 }
 
-export function generateLogicState(elements: (Node | Edge)[]) {
-  const graph = convertToGraph(elements);
+export function generateLogicState(nodes: Node[], edges: Edge[]) {
+  const graph = convertToGraph(nodes, edges);
   const initial = `
     ${graph
-      .map((item) => `
+      .map(
+        (item) => `
       ${LogicStateStoreSymbol}.set('${item.id}', new Rx.Subject());
-    `)
+    `,
+      )
       .join('\n')}
   `;
 
   // link
   const graphCode = graph
     .map((item) => {
-      const operation = OperatorMap.get(item.operator?.data?.operatorType)?.generateOperation(item);
+      const operation = OperatorMap.get(
+        item.operator?.data?.operatorType,
+      )?.generateOperation(item);
       const result = `
       (function () {
         let exports;

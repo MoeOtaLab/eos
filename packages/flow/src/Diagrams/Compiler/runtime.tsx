@@ -19,13 +19,13 @@ export function useLinkRuntimeContext() {
 
 export function runCode(code: string) {
   const logicStateStore: LogicStateStore = new Map();
-  // eslint-disable-next-line no-new-func
+  // eslint-disable-next-line no-new-func, @typescript-eslint/no-implied-eval
   const runLinkLogic = new Function(
     'Rx',
     'operations',
     'link',
     LogicStateStoreSymbol,
-    code
+    code,
   );
   runLinkLogic(Rx, operations, link, logicStateStore);
   return logicStateStore;
@@ -36,7 +36,7 @@ interface LinkRuntimeContextProviderProps {
 }
 
 export const LinkRuntimeContextProvider: React.FC<
-LinkRuntimeContextProviderProps
+  LinkRuntimeContextProviderProps
 > = (props) => {
   const { value, children } = props;
   const [store, setStore] = useState<LogicStateStore>(new Map());
@@ -45,7 +45,7 @@ LinkRuntimeContextProviderProps
     () => ({
       store,
     }),
-    [store]
+    [store],
   );
 
   useEffect(() => {
@@ -82,10 +82,7 @@ export function useValue<T = any>(id: string) {
       subscription?.unsubscribe();
       targetSubject.current.next(undefined);
     };
-  }, [
-    store,
-    id,
-  ]);
+  }, [store, id]);
 
   const output = useObservable(() => targetSubject.current);
   return output as T;

@@ -3,6 +3,7 @@ import { useDiagramsState } from '../../State/DiagramsProvider';
 import { convertToGraph, compile } from '../../Compiler';
 import { LinkRuntimeContextProvider } from '../../Compiler/runtime';
 import { Demo } from './Demo';
+import { Button } from 'antd';
 
 export const ConsolePanel: React.FC = () => {
   const { nodes, edges } = useDiagramsState();
@@ -10,7 +11,7 @@ export const ConsolePanel: React.FC = () => {
 
   return (
     <div>
-      <div>Console Panel</div>
+      <div>Console</div>
       <br />
       <div
         style={{
@@ -20,25 +21,27 @@ export const ConsolePanel: React.FC = () => {
           justifyContent: 'start',
         }}
       >
-        <button
+        <Button
+          type="link"
           onClick={() => {
-            console.log(convertToGraph([
-              ...nodes,
-              ...edges,
-            ]));
+            console.log(convertToGraph(nodes, edges));
+            console.log({
+              nodes,
+              edges,
+            });
           }}
         >
-          console graph
-        </button>
+          Console Graph
+        </Button>
 
-        <button onClick={() => {
-          setOutput(compile([
-            ...nodes,
-            ...edges,
-          ]));
-        }}>
-          Compile And Run
-        </button>
+        <Button
+          type="link"
+          onClick={() => {
+            setOutput(compile(nodes, edges));
+          }}
+        >
+          Compile and Run
+        </Button>
       </div>
 
       <div>

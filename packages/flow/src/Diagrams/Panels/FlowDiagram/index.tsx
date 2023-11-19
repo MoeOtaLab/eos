@@ -1,4 +1,9 @@
-import React, { useRef, type DragEventHandler, useCallback } from 'react';
+import React, {
+  useRef,
+  type DragEventHandler,
+  useCallback,
+  useEffect,
+} from 'react';
 import ReactFlow, {
   addEdge,
   type ReactFlowProps,
@@ -20,6 +25,7 @@ import { useDiagramsContext } from '../../State/DiagramsProvider';
 import { nodeTypes } from '../../Nodes';
 import { NodeTypeEnum } from '../../Nodes/NodeTypeEnum';
 import { isSameSourceHandle, isSameTargetHandle } from '../../utils';
+import { defaultData } from './defaultData';
 import css from './FlowDiagram.module.less';
 
 export const initialNodes: Node[] = [
@@ -157,15 +163,10 @@ const nodeColor = (node: Node) => {
 export const FlowDiagram: React.FC = () => {
   const { nodes, edges, setNodes, setEdges } = useDiagramsContext();
 
-  // useEffect(() => {
-  //   setNodes(initialNodes);
-  //   setEdges(initialEdges);
-  // }, []);
-
-  console.log({
-    nodes,
-    edges,
-  });
+  useEffect(() => {
+    setNodes(defaultData.nodes);
+    setEdges(defaultData.edges);
+  }, []);
 
   const addSelectedEdges = useStore((ctx) => ctx.addSelectedEdges);
 

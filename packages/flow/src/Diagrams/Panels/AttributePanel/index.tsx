@@ -26,7 +26,7 @@ export const AttributePanel: React.FC = () => {
 
   return (
     <div>
-      <div>Attribute Panel</div>
+      <div>Attributes</div>
       {showConfig &&
         Operator?.generateAttributeControl?.({
           value: selectedElementNode as any,

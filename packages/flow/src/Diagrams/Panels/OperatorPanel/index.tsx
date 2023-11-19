@@ -15,7 +15,7 @@ export const OperatorPanel: React.FC = () => {
 
   return (
     <div className={css.container}>
-      <div className={css.title}>Operator Panel</div>
+      <div className={css.title}>Operators</div>
       <div className={css.content}>
         {[...OperatorMap.entries()].map(([name, Operator]) => {
           return (

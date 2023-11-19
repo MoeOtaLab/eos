@@ -25,7 +25,7 @@ export const OperatorPanel: React.FC = () => {
               draggable={true}
               onDragStart={handleDragStart(name)}
             >
-              {Operator?.generateOperatorIcon() || name}
+              {Operator?.generateOperatorIcon?.() || name}
             </div>
           );
         })}

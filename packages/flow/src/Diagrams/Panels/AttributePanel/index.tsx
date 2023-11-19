@@ -1,5 +1,5 @@
 import React from 'react';
-import { useStore, isNode } from 'reactflow';
+import { useStore } from 'reactflow';
 import {
   useDiagramsContextSelector,
   useDiagramsActions,
@@ -8,10 +8,13 @@ import { OperatorMap } from '../../Operators';
 import { type Operator } from '../../Operators/Operator';
 
 export const AttributePanel: React.FC = () => {
-  const selectedElements = useStore(
-    (ctx) => ctx.getNodes()?.filter((item) => isNode(item) && item.selected),
-  );
-  const selectedElement = selectedElements?.[0];
+  const selectedElement = useStore((ctx) => {
+    const selectedElements = ctx.getNodes()?.filter((item) => item.selected);
+    if (selectedElements?.length === 1) {
+      return selectedElements[0];
+    }
+    return undefined;
+  });
 
   const selectedElementNode = useDiagramsContextSelector(
     (ctx) =>
@@ -20,7 +23,7 @@ export const AttributePanel: React.FC = () => {
 
   const operatorType = selectedElementNode?.data?.operatorType;
   const Operator = OperatorMap.get(operatorType);
-  const showConfig = selectedElements?.length === 1 && operatorType;
+  const showConfig = !!selectedElement && operatorType;
 
   const { updateEdge, updateNode } = useDiagramsActions();
 

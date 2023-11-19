@@ -30,6 +30,12 @@
       "node": "./output/cjs/eos-operators.js",
       "require": "./output/cjs/eos-operators.js",
       "default": "./output/esm/eos-operators.js"
+    },
+    "./src": {
+      "import": "./src/index.ts",
+      "node": "./src/index.ts",
+      "default": "./src/index.ts",
+      "require": "./src/index.ts"
     }
   },
   "dependencies": {

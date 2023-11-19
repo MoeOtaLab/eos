@@ -1,5 +1,4 @@
 import { Operator } from '../Operator';
-import { type GraphNode } from '../../Compiler/flowGraph';
 import { NodeTypeEnum } from '../../Nodes/NodeTypeEnum';
 import {
   StateNodePortTypeEnum,
@@ -9,6 +8,8 @@ import {
 } from '../../Nodes/types';
 import { Form, Input, Select, message } from 'antd';
 import { type IAttributeControlOption } from '../types';
+import { type IGenerationOption } from '../../Compiler/graph';
+import { EosCoreSymbol } from '../../Compiler/runtime';
 
 function getDefaultValue(valueType: StateNodeValueTypeEnum) {
   switch (valueType) {
@@ -142,8 +143,45 @@ export class StateOperator extends Operator<IStateNodeData> {
     );
   }
 
-  static generateOperation(node: GraphNode) {
-    // todo
-    return '';
+  static getStateSymbol(options: IGenerationOption<IStateNodeData>) {
+    const { node, formatVariableName } = options;
+    return formatVariableName(
+      node.data.sourcePorts.find(
+        (item) => item.type === StateNodePortTypeEnum.State,
+      )?.id || '',
+    );
+  }
+
+  static generateBlockDeclarations?(
+    options: IGenerationOption<IStateNodeData>,
+  ): string[] {
+    const { node } = options;
+
+    return [
+      `const ${StateOperator.getStateSymbol(
+        options,
+      )} = new ${EosCoreSymbol}.ModelState(${JSON.stringify(node.data.value)})`,
+    ];
+  }
+
+  static generateBlockRelation?(
+    options: IGenerationOption<IStateNodeData>,
+  ): string[] {
+    const { node, formatVariableName, nodeGraph } = options;
+
+    const sources = nodeGraph.findSourceNodes(node.id) || [];
+
+    return [
+      ...sources?.map(
+        (item) => `
+          ${formatVariableName(
+            item.relatedHandleId,
+          )}.subscribe((val, extraInfo) => {
+            ${StateOperator.getStateSymbol(
+              options,
+            )}.update(val, extraInfo.concat('${item.nodeId}'));
+          });`,
+      ),
+    ];
   }
 }

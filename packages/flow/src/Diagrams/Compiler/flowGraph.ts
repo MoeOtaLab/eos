@@ -14,7 +14,6 @@ export const LogicStateStoreSymbol = 'logicStateStore';
 
 export function convertToGraph(nodes: Node[], edges: Edge[]) {
   // convert to graph, only care about their target's source comes from.
-
   const graphMap = new Map<string, GraphNode>(
     nodes.map((item) => [
       item.id,
@@ -49,6 +48,7 @@ export function convertToGraph(nodes: Node[], edges: Edge[]) {
   return [...graphMap.values()];
 }
 
+/** @deprecated */
 export function generateLogicState(nodes: Node[], edges: Edge[]) {
   const graph = convertToGraph(nodes, edges);
   const initial = `

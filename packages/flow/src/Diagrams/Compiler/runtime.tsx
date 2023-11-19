@@ -1,51 +1,54 @@
-import React, { useState, useMemo, useEffect, useContext, useRef } from 'react';
-import { type LogicStateStore, LogicStateStoreSymbol } from './flowGraph';
-import * as Rx from 'rxjs';
-import * as operations from '../Operators/operations';
-import * as link from '../../Link/link';
-import { useObservable } from 'rxjs-hooks';
+import { type Edge, type Node } from 'reactflow';
+import React, { useState, useMemo, useEffect, useContext } from 'react';
+import * as EosCore from '@eos/core/src';
 
-export interface LinkRuntimeContextState {
-  store: LogicStateStore;
+export const EosCoreSymbol = 'EosCore';
+
+export interface RuntimeContextState {
+  store: { exports: any };
+  nodes: Node[];
+  edges: Edge[];
 }
 
-export const LinkRuntimeContext = React.createContext<LinkRuntimeContextState>({
-  store: new Map(),
+export const RuntimeContext = React.createContext<RuntimeContextState>({
+  store: { exports: {} },
+  nodes: [],
+  edges: [],
 });
 
 export function useLinkRuntimeContext() {
-  return useContext(LinkRuntimeContext);
+  return useContext(RuntimeContext);
 }
 
 export function runCode(code: string) {
-  const logicStateStore: LogicStateStore = new Map();
+  const moduleData = { exports: {} };
   // eslint-disable-next-line no-new-func, @typescript-eslint/no-implied-eval
-  const runLinkLogic = new Function(
-    'Rx',
-    'operations',
-    'link',
-    LogicStateStoreSymbol,
-    code,
-  );
-  runLinkLogic(Rx, operations, link, logicStateStore);
-  return logicStateStore;
+  const runLinkLogic = new Function(EosCoreSymbol, 'module', code);
+  runLinkLogic(EosCore, moduleData);
+  return moduleData;
 }
 
 interface LinkRuntimeContextProviderProps {
   value: string;
+  nodes: Node[];
+  edges: Edge[];
 }
 
 export const LinkRuntimeContextProvider: React.FC<
   LinkRuntimeContextProviderProps
 > = (props) => {
-  const { value, children } = props;
-  const [store, setStore] = useState<LogicStateStore>(new Map());
+  const { value, children, nodes, edges } = props;
+  const [store, setStore] = useState<RuntimeContextState['store']>({
+    exports: {},
+  });
 
   const contextValue = useMemo(
     () => ({
       store,
+      nodes,
+      edges,
     }),
-    [store],
+    [store, nodes, edges],
   );
 
   useEffect(() => {
@@ -63,27 +66,8 @@ export const LinkRuntimeContextProvider: React.FC<
   }, [value]);
 
   return (
-    <LinkRuntimeContext.Provider value={contextValue}>
+    <RuntimeContext.Provider value={contextValue}>
       {children}
-    </LinkRuntimeContext.Provider>
+    </RuntimeContext.Provider>
   );
 };
-
-export function useValue<T = any>(id: string) {
-  const { store } = useLinkRuntimeContext();
-  const targetSubject = useRef(new Rx.Subject());
-
-  useEffect(() => {
-    const subscription = store.get(id)?.subscribe((...args) => {
-      targetSubject.current.next(...args);
-    });
-
-    return () => {
-      subscription?.unsubscribe();
-      targetSubject.current.next(undefined);
-    };
-  }, [store, id]);
-
-  const output = useObservable(() => targetSubject.current);
-  return output as T;
-}

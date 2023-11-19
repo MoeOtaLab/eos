@@ -1,13 +1,23 @@
 import React, { useState } from 'react';
 import { useDiagramsState } from '../../State/DiagramsProvider';
-import { convertToGraph, compile } from '../../Compiler';
+import { complie, NodeGraph } from '../../Compiler';
 import { LinkRuntimeContextProvider } from '../../Compiler/runtime';
 import { Demo } from './Demo';
 import { Button } from 'antd';
+import { type Edge, type Node } from 'reactflow';
+import { cloneDeep } from 'lodash';
 
 export const ConsolePanel: React.FC = () => {
   const { nodes, edges } = useDiagramsState();
   const [output, setOutput] = useState('');
+  const [code, setCode] = useState('');
+  const [cacheData, setCacheData] = useState<{
+    nodes: Node[];
+    edges: Edge[];
+  }>({
+    nodes: [],
+    edges: [],
+  });
 
   return (
     <div>
@@ -24,7 +34,7 @@ export const ConsolePanel: React.FC = () => {
         <Button
           type="link"
           onClick={() => {
-            console.log(convertToGraph(nodes, edges));
+            console.log(new NodeGraph(nodes, edges));
             console.log({
               nodes,
               edges,
@@ -37,7 +47,19 @@ export const ConsolePanel: React.FC = () => {
         <Button
           type="link"
           onClick={() => {
-            setOutput(compile(nodes, edges));
+            setOutput(complie({ nodes, edges }));
+          }}
+        >
+          Compile
+        </Button>
+
+        <Button
+          type="link"
+          onClick={() => {
+            const code = complie({ nodes, edges });
+            setCacheData(cloneDeep({ nodes, edges }));
+            setOutput(code);
+            setCode(code);
           }}
         >
           Compile and Run
@@ -46,7 +68,11 @@ export const ConsolePanel: React.FC = () => {
 
       <div>
         <br />
-        <LinkRuntimeContextProvider value={output}>
+        <LinkRuntimeContextProvider
+          value={code}
+          nodes={cacheData.nodes}
+          edges={cacheData.edges}
+        >
           <Demo />
         </LinkRuntimeContextProvider>
       </div>

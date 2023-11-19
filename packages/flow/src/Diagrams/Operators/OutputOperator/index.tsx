@@ -1,5 +1,4 @@
 import { Operator } from '../Operator';
-import { type GraphNode } from '../../Compiler/flowGraph';
 import { NodeTypeEnum } from '../../Nodes/NodeTypeEnum';
 import { type Node } from 'reactflow';
 import {
@@ -7,6 +6,8 @@ import {
   NodePort,
   type IOutputNodeData,
 } from '../../Nodes/types';
+import { type IGenerationOption } from '../../Compiler/graph';
+import { EosCoreSymbol } from '../../Compiler/runtime';
 
 export class OutputOperator extends Operator<IOutputNodeData> {
   constructor(data?: Partial<Node<IOutputNodeData>>) {
@@ -45,8 +46,78 @@ export class OutputOperator extends Operator<IOutputNodeData> {
     return <div>empty</div>;
   }
 
-  static generateOperation(node: GraphNode) {
-    // todo
-    return '';
+  static generateBlockDeclarations?(
+    options: IGenerationOption<IOutputNodeData>,
+  ): string[] {
+    const { node, formatVariableName } = options;
+
+    const eventPorts = node.data.targetPorts.filter(
+      (port) => port.type === OutputNodePortTypeEnum.Event,
+    );
+
+    return [
+      ...eventPorts.map(
+        (port) =>
+          `const ${formatVariableName(
+            port.id,
+          )} = new ${EosCoreSymbol}.ModelEvent()`,
+      ),
+    ];
+  }
+
+  static generateBlockRelation?(
+    options: IGenerationOption<IOutputNodeData>,
+  ): string[] {
+    const { node, formatVariableName, nodeGraph } = options;
+
+    const eventPorts = node.data.targetPorts
+      .filter((port) => port.type === OutputNodePortTypeEnum.Event)
+      .map((port) => {
+        const sourceId = nodeGraph
+          .findSourceNodes(node.id)
+          ?.find((item) => item.handleId === port.id)?.relatedHandleId;
+        const targetId = port.id;
+
+        if (!sourceId || !targetId) {
+          return '';
+        }
+
+        return `${formatVariableName(
+          sourceId,
+        )}.subscribe((value, extraInfo) => {
+          ${formatVariableName(targetId)}.next(value, extraInfo.concat('${
+            node.id
+          }'))
+        })`;
+      });
+
+    return [...eventPorts];
+  }
+
+  static generateBlockOutput?(
+    options: IGenerationOption<IOutputNodeData>,
+  ): string[] {
+    const { node, formatVariableName, nodeGraph } = options;
+
+    const eventPorts = node.data.targetPorts.filter(
+      (port) => port.type === OutputNodePortTypeEnum.Event,
+    );
+
+    const statePorts = node.data.targetPorts.filter(
+      (port) => port.type === OutputNodePortTypeEnum.State,
+    );
+
+    return [
+      ...eventPorts.map((port) => formatVariableName(port.id)),
+      ...statePorts.map((port) => {
+        const sourceId = nodeGraph
+          .findSourceNodes(node.id)
+          ?.find((item) => item.handleId === port.id);
+        const handlerId = nodeGraph
+          .findTargetNodes(sourceId?.nodeId || '')
+          ?.find((item) => item.nodeId === node.id)?.handleId;
+        return handlerId ? formatVariableName(handlerId) : '';
+      }),
+    ];
   }
 }

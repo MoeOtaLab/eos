@@ -3,6 +3,7 @@ import { getRandomId } from '../utils';
 import { type GraphNode } from '../Compiler/flowGraph';
 import { type IBaseNodeData, NodePort } from '../Nodes/types';
 import { type IAttributeControlOption } from './types';
+import { type IGenerationOption } from '../Compiler/graph';
 
 export { NodePort };
 
@@ -14,11 +15,11 @@ export interface OperatorNodeData extends IBaseNodeData {
 export class Operator<T = any> implements Node<T> {
   unique?: boolean;
 
-  static generateOperatorIcon() {
+  static generateOperatorIcon?() {
     return <div>{this.name}</div>;
   }
 
-  static generateAttributeControl(
+  static generateAttributeControl?(
     options: IAttributeControlOption<Operator<any>>,
   ) {
     const { value, actions } = options;
@@ -40,8 +41,21 @@ export class Operator<T = any> implements Node<T> {
     );
   }
 
-  static generateOperation(node: GraphNode): string {
+  /** @deprecated  */
+  static generateOperation?(node: GraphNode): string {
     return '';
+  }
+
+  static generateBlockDeclarations?(options: IGenerationOption): string[] {
+    return [];
+  }
+
+  static generateBlockRelation?(options: IGenerationOption): string[] {
+    return [];
+  }
+
+  static generateBlockOutput?(options: IGenerationOption): string[] {
+    return [];
   }
 
   // 1. should generate the attributes that can modified by user

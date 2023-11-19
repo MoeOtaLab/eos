@@ -1,5 +1,4 @@
 import { Operator } from '../Operator';
-import { type GraphNode } from '../../Compiler/flowGraph';
 import { NodeTypeEnum } from '../../Nodes/NodeTypeEnum';
 import { type Node } from 'reactflow';
 import {
@@ -7,6 +6,11 @@ import {
   NodePort,
   type IInputNodeData,
 } from '../../Nodes/types';
+import {
+  formatVariableName,
+  type IGenerationOption,
+} from '../../Compiler/graph';
+import { EosCoreSymbol } from '../../Compiler/runtime';
 
 export class InputOperator extends Operator<IInputNodeData> {
   constructor(data?: Partial<Node<IInputNodeData>>) {
@@ -63,8 +67,72 @@ export class InputOperator extends Operator<IInputNodeData> {
     return <div>empty</div>;
   }
 
-  static generateOperation(node: GraphNode) {
-    // todo
-    return '';
+  static generateBlockDeclarations?(
+    options: IGenerationOption<IInputNodeData>,
+  ): string[] {
+    const { node } = options;
+
+    const eventPorts = node.data.sourcePorts.filter(
+      (port) => port.type === InputNodePortTypeEnum.Event,
+    );
+
+    const statePorts = node.data.sourcePorts.filter(
+      (port) => port.type === InputNodePortTypeEnum.State,
+    );
+
+    const lifecyclePorts = node.data.sourcePorts.filter(
+      (port) => port.type === InputNodePortTypeEnum.LifeCycle,
+    );
+
+    return [
+      ...eventPorts.map(
+        (port) =>
+          `const ${formatVariableName(
+            port.id,
+          )} = new ${EosCoreSymbol}.ModelEvent()`,
+      ),
+      ...statePorts.map(
+        (port) =>
+          `const ${formatVariableName(port.id)} = input['${port.label}']`,
+      ),
+      ...lifecyclePorts.map(
+        (port) =>
+          `const ${formatVariableName(
+            port.id,
+          )} = new ${EosCoreSymbol}.ModelEvent()`,
+      ),
+    ];
+  }
+
+  static generateBlockRelation?(
+    options: IGenerationOption<IInputNodeData>,
+  ): string[] {
+    const { node } = options;
+
+    const lifecyclePorts = node.data.sourcePorts.filter(
+      (port) => port.type === InputNodePortTypeEnum.LifeCycle,
+    );
+
+    return [
+      ...lifecyclePorts.map(
+        (port) => `
+      context.onLifecycle('${port.label}', () => {
+        ${formatVariableName(port.id)}.next();
+      })
+    `,
+      ),
+    ];
+  }
+
+  static generateBlockOutput?(
+    options: IGenerationOption<IInputNodeData>,
+  ): string[] {
+    const { node } = options;
+
+    const eventPorts = node.data.sourcePorts.filter(
+      (port) => port.type === InputNodePortTypeEnum.Event,
+    );
+
+    return eventPorts.map((port) => formatVariableName(port.id));
   }
 }

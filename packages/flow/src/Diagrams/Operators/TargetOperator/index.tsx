@@ -1,8 +1,10 @@
 import React from 'react';
 import { Operator } from '../Operator';
-import { GraphNode } from '../../Compiler/flowGraph';
+import { type GraphNode } from '../../Compiler/flowGraph';
 import { combineLogic, getState, exportValue } from '../../Compiler/utils';
+import { NodePort } from '../../Nodes/types';
 
+/** @deprecated */
 export class TargetOperator extends Operator {
   static generateAttributeControl(options: {
     value: TargetOperator;
@@ -23,7 +25,7 @@ export class TargetOperator extends Operator {
         <label>请选择输出位置</label>
         <input
           value={value.data?.dataSourceId || ''}
-          onChange={(e) => handleChange(e.target.value)}
+          onChange={(e) => { handleChange(e.target.value); }}
         />
       </div>
     );
@@ -36,10 +38,10 @@ export class TargetOperator extends Operator {
     this.data = {
       ...this.data,
       targetPorts: [
-        {
+        new NodePort({
           label: 'Target',
           id: 'Target',
-        },
+        }),
       ],
       dataSourceId: 'input8',
       ...data?.data,

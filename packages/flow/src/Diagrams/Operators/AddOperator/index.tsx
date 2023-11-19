@@ -1,4 +1,3 @@
-import React from 'react';
 import { Operator } from '../Operator';
 import css from './AddOperator.module.less';
 import { type GraphNode } from '../../Compiler/flowGraph';
@@ -9,7 +8,9 @@ import {
   generateFunction,
   exportValue,
 } from '../../Compiler/utils';
+import { NodePort } from '../../Nodes/types';
 
+/** @deprecated */
 export class AddOperator extends Operator {
   constructor(data?: Partial<AddOperator>) {
     super('AddOperator', data);
@@ -18,20 +19,20 @@ export class AddOperator extends Operator {
     this.data = {
       ...this.data,
       targetPorts: [
-        {
+        new NodePort({
           label: 'Input_1',
           id: 'Input_1',
-        },
-        {
+        }),
+        new NodePort({
           label: 'Input_2',
           id: 'Input_2',
-        },
+        }),
       ],
       sourcePorts: [
-        {
+        new NodePort({
           label: 'Result',
           id: 'Result',
-        },
+        }),
       ],
       ...data?.data,
     };
@@ -48,10 +49,10 @@ export class AddOperator extends Operator {
 
     const addInputPort = () => {
       const newInputPort: NonNullable<AddOperator['data']['sourcePorts']>['0'] =
-        {
+        new NodePort({
           label: `Input_${targetPorts.length + 1}`,
           id: `Input_${targetPorts.length + 1}`,
-        };
+        });
       instance.data.targetPorts = targetPorts.concat(newInputPort);
       actions.updateElement(instance.id, instance, true);
     };

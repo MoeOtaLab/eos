@@ -1,8 +1,9 @@
-import React from 'react';
 import { Operator } from '../Operator';
 import { type GraphNode } from '../../Compiler/flowGraph';
 import { combineLogic, exportValue } from '../../Compiler/utils';
+import { NodePort } from '../../Nodes/types';
 
+/** @deprecated */
 export class SourceOperator extends Operator {
   static generateAttributeControl(options: {
     value: SourceOperator;
@@ -36,10 +37,10 @@ export class SourceOperator extends Operator {
     this.data = {
       ...this.data,
       sourcePorts: [
-        {
+        new NodePort({
           label: 'Source',
           id: 'Source',
-        },
+        }),
       ],
       ...data?.data,
     };

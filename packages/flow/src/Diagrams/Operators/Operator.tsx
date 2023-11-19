@@ -1,7 +1,7 @@
-import React from 'react';
 import { type Node } from 'reactflow';
 import { getRandomId } from '../utils';
 import { type GraphNode } from '../Compiler/flowGraph';
+import { type IBaseNodeData } from '../Nodes/types';
 
 export interface NodePort {
   id: string;
@@ -10,10 +10,7 @@ export interface NodePort {
   children?: NodePort[];
 }
 
-export interface OperatorNodeData {
-  label?: string;
-  sourcePorts?: NodePort[];
-  targetPorts?: NodePort[];
+export interface OperatorNodeData extends IBaseNodeData {
   operatorType: string;
   [key: string]: any;
 }
@@ -71,7 +68,7 @@ export class Operator<T = OperatorNodeData> implements Node<T> {
   selectable?: boolean;
   connectable?: boolean;
 
-  constructor(operatorType: string = 'Operator', data?: Partial<Operator>) {
+  constructor(operatorType: string = 'Operator', data?: Partial<Node<T>>) {
     Object.assign(this, {
       ...data,
       data: {

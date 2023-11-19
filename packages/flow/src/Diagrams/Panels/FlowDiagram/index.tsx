@@ -1,17 +1,18 @@
-import React, { useRef, type DragEventHandler, useEffect, useCallback } from 'react';
+import React, { useRef, type DragEventHandler, useCallback } from 'react';
 import ReactFlow, {
   addEdge,
   type ReactFlowProps,
   useStore,
-  Background,
-  BackgroundVariant,
-  MiniMap,
-  Controls,
   isEdge,
   type Node,
   applyNodeChanges,
   applyEdgeChanges,
   type Edge,
+  // plugins
+  Background,
+  BackgroundVariant,
+  MiniMap,
+  Controls,
 } from 'reactflow';
 import { MODEL_FORMAT } from '../OperatorPanel';
 import { OperatorMap } from '../../Operators';
@@ -20,7 +21,7 @@ import { nodeTypes } from '../../Nodes';
 import { isSameSourceHandle, isSameTargetHandle } from '../../utils';
 import css from './FlowDiagram.module.less';
 
-const initialNodes: Node[] = [
+export const initialNodes: Node[] = [
   {
     id: '$flow_slgum',
     position: {
@@ -114,7 +115,7 @@ const initialNodes: Node[] = [
     },
   },
 ];
-const initialEdges = [
+export const initialEdges = [
   {
     source: '$flow_x3gaw',
     sourceHandle: 'Source',
@@ -138,13 +139,24 @@ const initialEdges = [
   },
 ];
 
+const nodeColor = (node: Node) => {
+  switch (node.type) {
+    case 'OperatorNode':
+      return '#6ede87';
+    case 'output':
+      return '#6865A5';
+    default:
+      return '#ff0072';
+  }
+};
+
 export const FlowDiagram: React.FC = () => {
   const { nodes, edges, setNodes, setEdges } = useDiagramsContext();
 
-  useEffect(() => {
-    setNodes(initialNodes);
-    setEdges(initialEdges);
-  }, []);
+  // useEffect(() => {
+  //   setNodes(initialNodes);
+  //   setEdges(initialEdges);
+  // }, []);
 
   console.log({
     nodes,
@@ -269,14 +281,15 @@ export const FlowDiagram: React.FC = () => {
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
         zoomOnScroll={false}
+        defaultEdgeOptions={{ animated: true }}
       >
         <Background
-          variant={BackgroundVariant.Lines}
-          gap={200}
-          color="rgba(255,255,255,0.1)"
-          size={1}
+          variant={BackgroundVariant.Dots}
+          gap={24}
+          color="rgba(255,255,255,0.4)"
+          size={2}
         />
-        <MiniMap />
+        <MiniMap nodeColor={nodeColor} nodeStrokeWidth={3} zoomable pannable />
         <Controls />
       </ReactFlow>
     </div>

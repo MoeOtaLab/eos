@@ -1,16 +1,13 @@
-import React from 'react';
+import { type PropsWithChildren } from 'react';
 import classnames from 'classnames';
 import { type NodeProps } from 'reactflow';
+import { type IBaseNodeData } from '../types';
 import { PortList } from './PortList';
-import { type OperatorNodeData, type Operator } from '../../Operators/Operator';
-import css from './OperatorNode.module.less';
+import css from './BaseNode.module.less';
 
-export type OperatorNodeProps = NodeProps<OperatorNodeData> & Operator;
-
-/** @deprecated */
-export const OperatorNode: React.FC<OperatorNodeProps> = (props) => {
-  const { data, selected } = props;
-  const operatorType = data?.operatorType;
+export function BaseNode(props: PropsWithChildren<NodeProps<IBaseNodeData> & { className?: string }>) {
+  const { data, selected, className } = props;
+  const operatorName = data?.operatorName;
 
   const ports = [
     {
@@ -27,9 +24,9 @@ export const OperatorNode: React.FC<OperatorNodeProps> = (props) => {
     <div
       className={classnames(css.node__container, {
         [css['is-selected']]: selected,
-      })}
+      }, className)}
     >
-      {operatorType}
+      <div className={css['node__operator-name']}>{operatorName}</div>
       <div className={css.node__content}>
         <div className={css.node__title}>{data.label}</div>
         {ports?.map(({ type, value }) => {

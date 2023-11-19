@@ -57,6 +57,7 @@ module.exports = {
     "function-call-argument-newline": ['error', "consistent"],
     'function-paren-newline': ['error', 'multiline'],
     'array-bracket-newline': ['error', { "multiline": true }],
-    '@typescript-eslint/array-type': 'off'
+    '@typescript-eslint/array-type': 'off',
+    'react/react-in-jsx-scope': 'off',
   }
 }

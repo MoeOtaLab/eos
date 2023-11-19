@@ -1,7 +1,8 @@
 import { type Edge, type Connection } from 'reactflow';
+import { v4 as uuid } from 'uuid';
 
 export function getRandomId() {
-  return `$flow_${Math.random().toString(36).substr(2, 5)}`;
+  return `$flow_${uuid()}`;
 }
 
 export function isSameTargetHandle(source: Edge, target: Edge | Connection) {

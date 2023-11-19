@@ -156,6 +156,8 @@ const nodeColor = (node: Node) => {
     case NodeTypeEnum.InputNode:
     case NodeTypeEnum.OutputNode:
       return '#5D9C59';
+    case NodeTypeEnum.StreamOperatorNode:
+      return '#FF0060';
     default:
       return '#ff0072';
   }

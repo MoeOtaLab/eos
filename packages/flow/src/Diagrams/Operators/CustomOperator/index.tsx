@@ -64,7 +64,33 @@ export class CustomOperator extends Operator<ICustomNodeData> {
   static generateBlockDeclarations?(
     options: IGenerationOption<ICustomNodeData>,
   ): string[] {
-    return [];
+    const { node, nodeGraph, formatVariableName, formatBlockVarName } = options;
+
+    return [
+      `const temp_${formatVariableName(
+        node.id,
+      )} = context.mount(${formatBlockVarName(node.data.layerId)}, {
+        ${node.data.targetPorts
+          .map((port) => {
+            const sourceId = nodeGraph
+              .findSourceNodes(node.id)
+              ?.find((item) => item.handleId === port.id)?.relatedHandleId;
+
+            if (!sourceId) {
+              return '';
+            }
+
+            return `['${port.label}']: ${formatVariableName(sourceId || '')}`;
+          })
+          .filter(Boolean)
+          .join(',\n')}
+      })`,
+      ...(node.data?.sourcePorts || [])?.map((port) => {
+        return `const ${formatVariableName(
+          port.id,
+        )} = temp_${formatVariableName(node.id)}.output['${port.label}']`;
+      }),
+    ];
   }
 
   static generateBlockRelation?(

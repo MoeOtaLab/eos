@@ -26,7 +26,7 @@ import { useDiagramsContext } from '../../State/DiagramsProvider';
 import { nodeTypes } from '../../Nodes';
 import { NodeTypeEnum } from '../../Nodes/NodeTypeEnum';
 import { isSameSourceHandle, isSameTargetHandle } from '../../utils';
-import { defaultDataWithOperator as defaultData } from './defaultData';
+import { defaultLayerData } from './defaultData';
 import css from './FlowDiagram.module.less';
 import { message } from 'antd';
 import { type Operator } from '../../Operators/Operator';
@@ -71,8 +71,8 @@ export const FlowDiagram: React.FC = () => {
   });
 
   useEffect(() => {
-    setNodes(defaultData.nodes);
-    setEdges(defaultData.edges);
+    setLayer(defaultLayerData);
+    setActiveLayerId(defaultLayerData.id);
   }, []);
 
   const addSelectedEdges = useStore((ctx) => ctx.addSelectedEdges);

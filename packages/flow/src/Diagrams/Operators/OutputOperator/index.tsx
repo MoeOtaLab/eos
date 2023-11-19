@@ -8,6 +8,7 @@ import {
 } from '../../Nodes/types';
 import { type IGenerationOption } from '../../Compiler/graph';
 import { EosCoreSymbol } from '../../Compiler/runtime';
+import { type IAttributeControlOption } from '../types';
 
 export class OutputOperator extends Operator<IOutputNodeData> {
   constructor(data?: Partial<Node<IOutputNodeData>>) {
@@ -28,7 +29,7 @@ export class OutputOperator extends Operator<IOutputNodeData> {
           type: OutputNodePortTypeEnum.State,
         }),
         new NodePort({
-          label: 'event',
+          label: 'output-event',
           type: OutputNodePortTypeEnum.Event,
         }),
       ],
@@ -37,12 +38,9 @@ export class OutputOperator extends Operator<IOutputNodeData> {
     } as IOutputNodeData;
   }
 
-  static generateAttributeControl(options: {
-    value: OutputOperator;
-    actions: {
-      updateElement: any;
-    };
-  }) {
+  static generateAttributeControl(
+    options: IAttributeControlOption<Operator<any>>,
+  ) {
     return <div>empty</div>;
   }
 
@@ -108,15 +106,16 @@ export class OutputOperator extends Operator<IOutputNodeData> {
     );
 
     return [
-      ...eventPorts.map((port) => formatVariableName(port.id)),
+      ...eventPorts.map(
+        (port) => `['${port.label}']: ${formatVariableName(port.id)}`,
+      ),
       ...statePorts.map((port) => {
         const sourceId = nodeGraph
           .findSourceNodes(node.id)
-          ?.find((item) => item.handleId === port.id);
-        const handlerId = nodeGraph
-          .findTargetNodes(sourceId?.nodeId || '')
-          ?.find((item) => item.nodeId === node.id)?.handleId;
-        return handlerId ? formatVariableName(handlerId) : '';
+          ?.find((item) => item.handleId === port.id)?.relatedHandleId;
+        return sourceId
+          ? `['${port.label}']: ${formatVariableName(sourceId)}`
+          : '';
       }),
     ];
   }

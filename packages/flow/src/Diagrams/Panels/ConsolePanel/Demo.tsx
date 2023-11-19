@@ -10,7 +10,6 @@ import {
   InputNodePortTypeEnum,
 } from '../../Nodes/types';
 import { useEffect, useState } from 'react';
-import { formatVariableName } from '../../Compiler/graph';
 
 export const Demo: React.FC = () => {
   const { store, nodes, edges } = useLinkRuntimeContext();
@@ -32,12 +31,12 @@ export const Demo: React.FC = () => {
     );
 
     outputPorts?.forEach((port) => {
-      store.exports.output.var_container.output[
-        formatVariableName(port.id)
-      ]?.subscribe((value: any, extraInfo: any) => {
-        message.info(`value: ${value}`);
-        console.log('events', port, value, extraInfo);
-      });
+      store.exports.output[port.label]?.subscribe(
+        (value: any, extraInfo: any) => {
+          message.info(`value: ${value}`);
+          console.log('events', port, value, extraInfo);
+        },
+      );
     });
   }, [store]);
 
@@ -50,15 +49,13 @@ export const Demo: React.FC = () => {
       const handleId = nodeGraph
         .findSourceNodes(outputNode.id)
         ?.find((con) => con.handleId === item.id)?.relatedHandleId;
-      return { port: item, handleId };
+      return { port: item, handleId, label: item.label };
     });
 
   useEffect(() => {
     outputValueIds
-      ?.map(({ handleId }) => {
-        return store.exports?.output?.var_container?.output?.[
-          formatVariableName(handleId || '')
-        ];
+      ?.map(({ handleId, label }) => {
+        return store.exports?.output?.[label || ''];
       })
       .forEach((value) => {
         value?.subscribe((value: any, extraInfo: any) => {
@@ -97,9 +94,9 @@ export const Demo: React.FC = () => {
                     <Button
                       key={item.id}
                       onClick={() => {
-                        store.exports?.output?.var_container?.output?.[
-                          formatVariableName(item.id || '')
-                        ]?.next(JSON.parse(inputValue));
+                        store.exports?.output?.[item.label || '']?.next(
+                          JSON.parse(inputValue),
+                        );
                       }}
                     >
                       {item.label}
@@ -110,14 +107,12 @@ export const Demo: React.FC = () => {
           </div>
           <div>
             <div>Output</div>
-            {outputValueIds?.map(({ port, handleId }) => {
+            {outputValueIds?.map(({ port, handleId, label }) => {
               return (
                 <div key={port.id}>
                   {port.label}:
                   {JSON.stringify(
-                    store.exports?.output?.var_container?.output?.[
-                      formatVariableName(handleId || '')
-                    ]?.current,
+                    store.exports?.output?.[label || '']?.current,
                   )}
                 </div>
               );

@@ -1,10 +1,10 @@
 import { EventEmitter } from '../EventEmitter';
 import { RelationHelper } from './RelationHelper';
+import { type SetupFn, type InputOutputInterface } from './ModelTemplate';
 import {
-  type SetupFn,
-  type InputOutputInterface,
-} from './ModelTemplate';
-import { ModelConstructor, type ModelConstructorOption } from './ModelConstructor';
+  ModelConstructor,
+  type ModelConstructorOption,
+} from './ModelConstructor';
 
 type LifecycleEventType =
   | 'start'
@@ -33,15 +33,15 @@ type SelfLifeCycleType =
   | 'unmountSelf';
 
 export type AtomLifecycleEventType = Exclude<
-LifecycleEventType,
-'start' | 'stop' | 'preInit'
+  LifecycleEventType,
+  'start' | 'stop' | 'preInit'
 >;
 
 export interface ModelBlockContextType {
   id: string;
   onLifecycle: <CallbackType extends () => any>(
     lifecycleType: AtomLifecycleEventType,
-    callback: CallbackType
+    callback: CallbackType,
   ) => any;
   mount: <I extends InputOutputInterface, O extends InputOutputInterface>(
     template: SetupFn<I, O>,
@@ -53,12 +53,12 @@ export interface ModelBlockContextType {
 export enum ModelBlockStatus {
   BeforeInited,
   Initing,
-  Done
+  Done,
 }
 
 export class ModelBlock<
   InputInterface extends InputOutputInterface = any,
-  OutputInterface extends InputOutputInterface = any
+  OutputInterface extends InputOutputInterface = any,
 > extends ModelConstructor<InputInterface, OutputInterface> {
   /**
    * @deprecated
@@ -89,7 +89,9 @@ export class ModelBlock<
 
   protected relationHelper: RelationHelper;
 
-  constructor(options: ModelConstructorOption<InputInterface, OutputInterface>) {
+  constructor(
+    options: ModelConstructorOption<InputInterface, OutputInterface>,
+  ) {
     super(options);
     this.relationHelper = new RelationHelper(this);
   }
@@ -98,7 +100,9 @@ export class ModelBlock<
     this.next = next;
   }
 
-  protected setNextSibling(nextSibling: ModelBlock<any, any> | null | undefined) {
+  protected setNextSibling(
+    nextSibling: ModelBlock<any, any> | null | undefined,
+  ) {
     this.nextSibling = nextSibling;
   }
 
@@ -127,10 +131,9 @@ export class ModelBlock<
 
   // =============== Utils Start =================== //
 
-  protected onLifecycle<CallbackType extends (
-  ) => any>(
+  protected onLifecycle<CallbackType extends () => any>(
     lifecycleType: AtomLifecycleEventType,
-    callback: CallbackType
+    callback: CallbackType,
   ) {
     this.eventEmitter.on(lifecycleType, callback);
     return {
@@ -143,7 +146,7 @@ export class ModelBlock<
   protected childrenAction(
     type: 'pre' | 'post',
     eventType: SelfLifeCycleType,
-    child: ModelBlock
+    child: ModelBlock,
   ) {
     this.relationHelper.action(type, child, (model) => {
       model[eventType]?.();
@@ -164,11 +167,8 @@ export class ModelBlock<
 
   protected mountTemplate<
     I extends InputOutputInterface,
-    O extends InputOutputInterface
-  >(
-    template: SetupFn<I, O>,
-    input?: I
-  ): ModelConstructor<I, O> {
+    O extends InputOutputInterface,
+  >(template: SetupFn<I, O>, input?: I): ModelConstructor<I, O> {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     /** @ts-expect-error */
     if (template === this.template) {
@@ -195,7 +195,7 @@ export class ModelBlock<
 
   protected mountChild<
     I extends InputOutputInterface,
-    O extends InputOutputInterface
+    O extends InputOutputInterface,
   >(block: ModelBlock<I, O>) {
     console.log('mount::status', this.status);
 
@@ -204,6 +204,8 @@ export class ModelBlock<
     } else if (this.status === ModelBlockStatus.Initing) {
       this.pendingChildren.push(block);
     } else if (this.status === ModelBlockStatus.BeforeInited) {
+      // 预先执行
+      block.preInitSelf();
       this.relationHelper.addNextChildren(block);
     }
   }
@@ -225,7 +227,9 @@ export class ModelBlock<
 
   protected preInitSelf() {
     this.log('preInitSelf');
-    this.output = this.template(this.input, this.getContext());
+    if (this.status === ModelBlockStatus.BeforeInited) {
+      this.output = this.template(this.input, this.getContext());
+    }
     this.status = ModelBlockStatus.Initing;
   }
 

@@ -4,19 +4,17 @@ import { complie, NodeGraph } from '../../Compiler';
 import { LinkRuntimeContextProvider } from '../../Compiler/runtime';
 import { Demo } from './Demo';
 import { Button } from 'antd';
-import { type Edge, type Node } from 'reactflow';
 import { cloneDeep } from 'lodash';
+import { type Layer } from '../../State/Layer';
 
 export const ConsolePanel: React.FC = () => {
-  const { nodes, edges } = useDiagramsState();
+  const { layer } = useDiagramsState();
   const [output, setOutput] = useState('');
   const [code, setCode] = useState('');
   const [cacheData, setCacheData] = useState<{
-    nodes: Node[];
-    edges: Edge[];
+    layer: Layer;
   }>({
-    nodes: [],
-    edges: [],
+    layer,
   });
 
   return (
@@ -34,10 +32,9 @@ export const ConsolePanel: React.FC = () => {
         <Button
           type="link"
           onClick={() => {
-            console.log(new NodeGraph(nodes, edges));
+            console.log(new NodeGraph(layer.nodes, layer.edges));
             console.log({
-              nodes,
-              edges,
+              layer,
             });
           }}
         >
@@ -47,7 +44,7 @@ export const ConsolePanel: React.FC = () => {
         <Button
           type="link"
           onClick={() => {
-            setOutput(complie({ nodes, edges }));
+            setOutput(complie({ layer }));
           }}
         >
           Compile
@@ -56,8 +53,8 @@ export const ConsolePanel: React.FC = () => {
         <Button
           type="link"
           onClick={() => {
-            const code = complie({ nodes, edges });
-            setCacheData(cloneDeep({ nodes, edges }));
+            const code = complie({ layer });
+            setCacheData(cloneDeep({ layer }));
             setOutput(code);
             setCode(code);
           }}
@@ -70,8 +67,8 @@ export const ConsolePanel: React.FC = () => {
         <br />
         <LinkRuntimeContextProvider
           value={code}
-          nodes={cacheData.nodes}
-          edges={cacheData.edges}
+          nodes={cacheData.layer.nodes}
+          edges={cacheData.layer.edges}
         >
           <Demo />
         </LinkRuntimeContextProvider>

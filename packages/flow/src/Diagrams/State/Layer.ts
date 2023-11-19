@@ -37,3 +37,22 @@ export function findLayer(layer: Layer, layerId: string): Layer | undefined {
 
   return undefined;
 }
+
+export function flatLayer(layer: Layer) {
+  const queue: Layer[] = [layer];
+  let currentLayer = queue.pop();
+  const result: Layer[] = [];
+
+  while (currentLayer) {
+    result.push(currentLayer);
+
+    if (currentLayer?.children?.length) {
+      queue.push(...currentLayer.children);
+    }
+
+    currentLayer = queue.pop();
+  }
+
+  result.reverse();
+  return result;
+}

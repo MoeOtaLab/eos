@@ -2,6 +2,7 @@ import { type Edge, type Node } from 'reactflow';
 import { OperatorMap } from '../Operators';
 import { type IBaseNodeData } from '../Nodes/types';
 import { EosCoreSymbol } from './runtime';
+import { type Layer, flatLayer } from '../State/Layer';
 
 export interface IConnection {
   nodeId: string;
@@ -99,6 +100,7 @@ export interface IGenerationOption<T = any> {
   node: Node<T>;
   nodeGraph: NodeGraph;
   formatVariableName: typeof formatVariableName;
+  formatBlockVarName: typeof formatBlockVarName;
 }
 
 export function formatVariableName(id: string) {
@@ -122,6 +124,7 @@ function generateBlock(
         node,
         nodeGraph,
         formatVariableName,
+        formatBlockVarName,
       });
     })
     .flat()
@@ -134,6 +137,7 @@ function generateBlock(
         node,
         nodeGraph,
         formatVariableName,
+        formatBlockVarName,
       });
     })
     .flat()
@@ -146,6 +150,7 @@ function generateBlock(
         node,
         nodeGraph,
         formatVariableName,
+        formatBlockVarName,
       });
     })
     .flat()
@@ -163,40 +168,27 @@ function generateBlock(
 
   return output;
 }
-function generateApp(
-  appContainerId: string,
-  data: { nodes: Node[]; edges: Edge[] },
-) {
-  const containers = ['container'];
-  const blockOutput = containers.map((containerId) =>
-    generateBlock(containerId, data),
-  );
-  const blockInstanceVars = containers.map((containerId) =>
-    formatVariableName(containerId),
-  );
-  const blockDeclaration = containers.map(
-    (containerId) =>
-      `const ${formatVariableName(
-        containerId,
-      )} = context.mount(${formatBlockVarName(containerId)}, {})`,
-  );
 
+function generateContainer(appContainerId: string, data: { layer: Layer }) {
+  const { layer } = data;
+  const containers = flatLayer(data.layer);
+  const blockOutput = containers.map((containerLayer) =>
+    generateBlock(containerLayer.id, {
+      nodes: containerLayer.nodes,
+      edges: containerLayer.edges,
+    }),
+  );
   const output = `
     ${blockOutput.join(';\n')}
-    function ${formatBlockVarName(appContainerId)}(input, context) {
-      ${blockDeclaration.join(';\n')}
-      return {
-        ${blockInstanceVars.join(',\n')}
-      }
-    }
-  `;
-
+    const ${formatBlockVarName(appContainerId)} = ${formatBlockVarName(
+      layer.id,
+    )}`;
   return output;
 }
 
-export function complie(data: { nodes: Node[]; edges: Edge[] }) {
+export function complie(data: { layer: Layer }) {
   const appContainerId = 'App';
-  const appCode = generateApp(appContainerId, data);
+  const appCode = generateContainer(appContainerId, data);
 
   const output = `
     const {

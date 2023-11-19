@@ -60,9 +60,11 @@ export function useDiagramsContextSelector<T>(
 export function useDiagramsState() {
   const nodes = useDiagramsContextSelector((ctx) => ctx.nodes);
   const edges = useDiagramsContextSelector((ctx) => ctx.edges);
+  const layer = useDiagramsContextSelector((ctx) => ctx.layer);
   return {
     nodes,
     edges,
+    layer,
   };
 }
 

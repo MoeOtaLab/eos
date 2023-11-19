@@ -11,6 +11,7 @@ import {
   type IGenerationOption,
 } from '../../Compiler/graph';
 import { EosCoreSymbol } from '../../Compiler/runtime';
+import { type IAttributeControlOption } from '../types';
 
 export class InputOperator extends Operator<IInputNodeData> {
   constructor(data?: Partial<Node<IInputNodeData>>) {
@@ -31,7 +32,7 @@ export class InputOperator extends Operator<IInputNodeData> {
         }),
 
         new NodePort({
-          label: 'event',
+          label: 'input-event',
           type: InputNodePortTypeEnum.Event,
         }),
 
@@ -58,12 +59,9 @@ export class InputOperator extends Operator<IInputNodeData> {
     } as IInputNodeData;
   }
 
-  static generateAttributeControl(options: {
-    value: InputOperator;
-    actions: {
-      updateElement: any;
-    };
-  }) {
+  static generateAttributeControl(
+    options: IAttributeControlOption<Operator<any>>,
+  ) {
     return <div>empty</div>;
   }
 
@@ -133,6 +131,8 @@ export class InputOperator extends Operator<IInputNodeData> {
       (port) => port.type === InputNodePortTypeEnum.Event,
     );
 
-    return eventPorts.map((port) => formatVariableName(port.id));
+    return eventPorts.map(
+      (port) => `['${port.label}']: ${formatVariableName(port.id)}`,
+    );
   }
 }

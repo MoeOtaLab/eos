@@ -83,10 +83,4 @@ export class SumOperator extends Operator<IStreamOperatorNodeData> {
       )}.current, new ${EosCoreSymbol}.ExtraInfo('[sum] init'))`,
     ];
   }
-
-  static generateBlockOutput?(
-    options: IGenerationOption<IStreamOperatorNodeData>,
-  ): string[] {
-    return [];
-  }
 }

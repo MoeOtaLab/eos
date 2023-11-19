@@ -2,6 +2,7 @@ import { type NodeProps } from 'reactflow';
 import { BaseNode } from '../components/BaseNode';
 import { type IStateNodeData, StateNodeValueTypeEnum } from '../types';
 import css from './StateNode.module.less';
+import { message } from 'antd';
 
 export function StateNode(props: NodeProps<IStateNodeData>) {
   const {
@@ -15,7 +16,7 @@ export function StateNode(props: NodeProps<IStateNodeData>) {
           className={css['value-container']}
           onClick={() => {
             if (valueType === StateNodeValueTypeEnum.Object) {
-              alert(value);
+              message.info(value);
             }
           }}
         >

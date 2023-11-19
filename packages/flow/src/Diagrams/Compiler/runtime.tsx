@@ -1,8 +1,10 @@
 import { type Edge, type Node } from 'reactflow';
 import React, { useState, useMemo, useEffect, useContext } from 'react';
 import * as EosCore from '@eos/core/src';
+import * as EosOperators from '@eos/core/src/operators';
 
 export const EosCoreSymbol = 'EosCore';
+export const EosOperatorsSymbol = 'EosOperators';
 
 export interface RuntimeContextState {
   store: { exports: any };
@@ -23,8 +25,13 @@ export function useLinkRuntimeContext() {
 export function runCode(code: string) {
   const moduleData = { exports: {} };
   // eslint-disable-next-line no-new-func, @typescript-eslint/no-implied-eval
-  const runLinkLogic = new Function(EosCoreSymbol, 'module', code);
-  runLinkLogic(EosCore, moduleData);
+  const runLinkLogic = new Function(
+    'module',
+    EosCoreSymbol,
+    EosOperatorsSymbol,
+    code,
+  );
+  runLinkLogic(moduleData, EosCore, EosOperators);
   return moduleData;
 }
 

@@ -4,6 +4,7 @@
 import { StateOperator } from './StateOperator';
 import { InputOperator } from './InputOperator';
 import { OutputOperator } from './OutputOperator';
+import { SumOperator } from './SumOperator';
 import { type Operator } from './Operator';
 
 export const OperatorRecord: Record<string, typeof Operator> = {
@@ -13,6 +14,7 @@ export const OperatorRecord: Record<string, typeof Operator> = {
   InputOperator,
   OutputOperator,
   StateOperator,
+  SumOperator,
 } as any;
 
 export const OperatorMap = new Map<string, typeof Operator>(

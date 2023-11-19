@@ -8,10 +8,11 @@ export interface PortListProps {
   value?: NodePort[];
   type: HandleProps['type'];
   nestLevel?: number;
+  onPortAdd?: () => void;
 }
 
 export const PortList: React.FC<PortListProps> = (props) => {
-  const { value = [], type, nestLevel = 0 } = props;
+  const { value = [], type, nestLevel = 0, onPortAdd } = props;
   const [hideChildrenIds, setHideChildren] = useState<string[]>([]);
 
   function checkIsHideChildren(id: string) {
@@ -100,6 +101,18 @@ export const PortList: React.FC<PortListProps> = (props) => {
           </React.Fragment>
         );
       })}
+      {onPortAdd && (
+        <li>
+          <span
+            className={css['add-button']}
+            onClick={() => {
+              onPortAdd?.();
+            }}
+          >
+            add port
+          </span>
+        </li>
+      )}
     </ul>
   );
 };

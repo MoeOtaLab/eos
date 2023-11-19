@@ -9,15 +9,18 @@ export function SimpleDemoApp(input: any, context: ModelBlockContextType) {
 
   const result = sum(sum(state1, state2), constValue(6));
 
-  sum(event.pipe(item => {
-    const value = new ModelState<number>(0);
+  sum(
+    event.pipe((item) => {
+      const value = new ModelState<number>(0);
 
-    item.subscribe((val, extraInfo) => {
-      value.update(val, extraInfo);
-    });
+      item.subscribe((val, extraInfo) => {
+        value.update(val, extraInfo);
+      });
 
-    return value;
-  }), constValue(1)).subscribe((res, extraInfo) => {
+      return value;
+    }),
+    constValue(1),
+  ).subscribe((res, extraInfo) => {
     state2.update(res, extraInfo);
   });
 

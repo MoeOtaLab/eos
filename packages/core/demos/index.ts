@@ -5,7 +5,7 @@ import { TodoListDemoApp } from './todo-list-demo';
 
 function main() {
   const logs: TrackRecord[] = [];
-  tracker.onTrack(record => {
+  tracker.onTrack((record) => {
     logs.push(record);
   });
 

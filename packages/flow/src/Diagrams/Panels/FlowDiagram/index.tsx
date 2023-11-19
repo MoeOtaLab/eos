@@ -25,8 +25,9 @@ import { useDiagramsContext } from '../../State/DiagramsProvider';
 import { nodeTypes } from '../../Nodes';
 import { NodeTypeEnum } from '../../Nodes/NodeTypeEnum';
 import { isSameSourceHandle, isSameTargetHandle } from '../../utils';
-import { defaultData } from './defaultData';
+import { defaultDataWithOperator as defaultData } from './defaultData';
 import css from './FlowDiagram.module.less';
+import { message } from 'antd';
 
 export const initialNodes: Node[] = [
   {
@@ -224,7 +225,7 @@ export const FlowDiagram: React.FC = () => {
       const operatorInstance = new Operator();
       if (operatorInstance.unique) {
         if (nodes.find((item) => item.type === operatorInstance.type)) {
-          alert('只允许存在一个');
+          message.warning('只允许存在一个');
           return;
         }
       }

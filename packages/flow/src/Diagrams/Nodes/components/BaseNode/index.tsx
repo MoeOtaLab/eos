@@ -7,10 +7,16 @@ import css from './BaseNode.module.less';
 
 export function BaseNode(
   props: PropsWithChildren<
-    NodeProps<IBaseNodeData> & { className?: string; title?: React.ReactNode }
+    NodeProps<IBaseNodeData> & {
+      className?: string;
+      title?: React.ReactNode;
+      onSourcePortAdd?: () => void;
+      onTargetPortAdd?: () => void;
+    }
   >,
 ) {
-  const { data, selected, className, title } = props;
+  const { data, selected, className, title, onSourcePortAdd, onTargetPortAdd } =
+    props;
   const operatorName = data?.operatorName;
 
   const ports = [
@@ -44,7 +50,14 @@ export function BaseNode(
           if (!value?.length) {
             return null;
           }
-          return <PortList key={type} type={type} value={value} />;
+          return (
+            <PortList
+              onPortAdd={type === 'source' ? onSourcePortAdd : onTargetPortAdd}
+              key={type}
+              type={type}
+              value={value}
+            />
+          );
         })}
       </div>
     </div>

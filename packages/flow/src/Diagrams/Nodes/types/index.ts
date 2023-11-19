@@ -37,6 +37,10 @@ export type IInputNodeData = IBaseNodeData;
 
 export type IOutputNodeData = IBaseNodeData;
 
+export type IStreamOperatorNodeData = IBaseNodeData & {
+  allowAddTargetPort?: boolean;
+};
+
 export enum StateNodePortTypeEnum {
   State = 'State',
   UpdateHanlder = 'UpdateHanlder',

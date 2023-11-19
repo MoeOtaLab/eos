@@ -36,6 +36,12 @@
       "node": "./src/index.ts",
       "default": "./src/index.ts",
       "require": "./src/index.ts"
+    },
+    "./src/operators": {
+      "import": "./src/operators/index.ts",
+      "node": "./src/operators/index.ts",
+      "default": "./src/operators/index.ts",
+      "require": "./src/operators/index.ts"
     }
   },
   "dependencies": {

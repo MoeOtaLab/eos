@@ -1,16 +1,21 @@
 import { type Atom } from '../../ModelState/State';
 import { ExtraInfo, ModelState } from '../..';
 
-export function sum<ObservableSubjectList extends Array<Atom<number>>>(...inputs: ObservableSubjectList) {
+export function sum<ObservableSubjectList extends Array<Atom<number>>>(
+  ...inputs: ObservableSubjectList
+) {
   const result = new ModelState<number>(0);
 
   function computed(extraInfo: ExtraInfo) {
-    result.update(inputs.map(input => input.current).reduce((acc, cur) => acc + cur, 0), extraInfo);
+    result.update(
+      inputs.map((input) => input.current).reduce((acc, cur) => acc + cur, 0),
+      extraInfo,
+    );
   }
 
   computed(new ExtraInfo('[sum]: init'));
 
-  inputs.forEach(input => {
+  inputs.forEach((input) => {
     input.subscribe((_value, extraInfo) => {
       computed(extraInfo.concat('sum'));
     });

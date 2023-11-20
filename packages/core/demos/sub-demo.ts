@@ -51,8 +51,8 @@ function Test(_input: any, context: ModelBlockContextType) {
   const state2 = new ModelState(1);
 
   onLifecycle('mount', () => {
-    state1.update(c => c + 2, new ExtraInfo());
-    state2.update(c => c * 5, new ExtraInfo());
+    state1.update((c) => c + 2, new ExtraInfo());
+    state2.update((c) => c * 5, new ExtraInfo());
   });
 
   return {

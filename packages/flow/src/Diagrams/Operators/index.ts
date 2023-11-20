@@ -3,7 +3,7 @@ import { InputOperator } from './InputOperator';
 import { OutputOperator } from './OutputOperator';
 import { SumOperator } from './SumOperator';
 import { ConstStateOperator } from './ConstStateOperator';
-import { type Operator } from './Operator';
+import { Operator } from './Operator';
 import { CustomOperator } from './CustomOperator';
 
 export const OperatorMap = new Map<string, typeof Operator>(

@@ -51,5 +51,7 @@ module.exports = {
     'react/react-in-jsx-scope': 'off',
     'prettier/prettier': 'error',
     '@typescript-eslint/no-floating-promises': 'off',
+    'generator-star-spacing': 'off',
+    '@typescript-eslint/brace-style': 'off',
   }
 }

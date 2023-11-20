@@ -85,9 +85,9 @@ export class InputOperator extends Operator<IInputNodeData> {
     return [
       ...eventPorts.map(
         (port) =>
-          `const ${formatVariableName(
-            port.id,
-          )} = new ${EosCoreSymbol}.ModelEvent()`,
+          `const ${formatVariableName(port.id)} = input['${
+            port.label
+          }'] || new ${EosCoreSymbol}.ModelEvent()`,
       ),
       ...statePorts.map(
         (port) =>

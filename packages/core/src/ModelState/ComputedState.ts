@@ -5,13 +5,15 @@ import { Atom } from './State';
 type GetObservableValue<ObservableType extends Atom<any>> =
   ObservableType extends Atom<infer ValueType> ? ValueType : unknown;
 
-export type GetObservableValueList<ObservableListType extends Array<Atom<any>>> = {
+export type GetObservableValueList<
+  ObservableListType extends Array<Atom<any>>,
+> = {
   [K in keyof ObservableListType]: GetObservableValue<ObservableListType[K]>;
 };
 
 /** @deprecated */
 export class ComputedState<ComputedValueType> extends Atom<
-ComputedValueType | undefined
+  ComputedValueType | undefined
 > {
   #subjects: Array<Atom<any>> = [];
   #subscriptions = new Set<Subscription>();
@@ -29,7 +31,7 @@ ComputedValueType | undefined
     subjects: [...ObservableSubjectList],
     computeFn: (
       ...subjectValueList: GetObservableValueList<ObservableSubjectList>
-    ) => ComputedValueType
+    ) => ComputedValueType,
   ) {
     this.cleanup();
     this.#subjects = subjects;
@@ -38,7 +40,7 @@ ComputedValueType | undefined
     this.update(
       () =>
         this.#computeFn?.(...this.#subjects.map((subject) => subject.current)),
-      new ExtraInfo()
+      new ExtraInfo(),
     );
 
     // setup subscription
@@ -46,13 +48,15 @@ ComputedValueType | undefined
       const subscription = subject.subscribe((value, extraInfo) => {
         this.update(
           () =>
-            this.#computeFn?.(...this.#subjects.map((currentSubject) => {
-              if (subject === currentSubject) {
-                return value;
-              }
-              return currentSubject.current;
-            })),
-          new ExtraInfo(extraInfo)
+            this.#computeFn?.(
+              ...this.#subjects.map((currentSubject) => {
+                if (subject === currentSubject) {
+                  return value;
+                }
+                return currentSubject.current;
+              }),
+            ),
+          new ExtraInfo(extraInfo),
         );
       });
 

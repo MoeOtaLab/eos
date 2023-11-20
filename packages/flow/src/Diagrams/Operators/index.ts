@@ -7,12 +7,12 @@ import { type Operator } from './Operator';
 import { CustomOperator } from './CustomOperator';
 
 export const OperatorRecord: Record<string, typeof Operator> = {
-  InputOperator,
-  OutputOperator,
-  StateOperator,
-  SumOperator,
-  ConstStateOperator,
-  CustomOperator,
+  ['CustomOperator']: InputOperator,
+  ['OutputOperator']: OutputOperator,
+  ['StateOperator']: StateOperator,
+  ['SumOperator']: SumOperator,
+  ['ConstStateOperator']: ConstStateOperator,
+  ['CustomOperator']: CustomOperator,
 } as any;
 
 export const OperatorMap = new Map<string, typeof Operator>(

@@ -6,15 +6,13 @@ import { ConstStateOperator } from './ConstStateOperator';
 import { type Operator } from './Operator';
 import { CustomOperator } from './CustomOperator';
 
-export const OperatorRecord: Record<string, typeof Operator> = {
-  ['CustomOperator']: InputOperator,
-  ['OutputOperator']: OutputOperator,
-  ['StateOperator']: StateOperator,
-  ['SumOperator']: SumOperator,
-  ['ConstStateOperator']: ConstStateOperator,
-  ['CustomOperator']: CustomOperator,
-} as any;
-
 export const OperatorMap = new Map<string, typeof Operator>(
-  Object.entries(OperatorRecord),
+  [
+    ['InputOperator', InputOperator]
+    ['OutputOperator', OutputOperator]
+    ['StateOperator', StateOperator]
+    ['SumOperator', SumOperator]
+    ['ConstStateOperator', ConstStateOperator]
+    ['CustomOperator', CustomOperator]
+  ] as any,
 );

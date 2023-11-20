@@ -65,8 +65,8 @@ export function InputNode(props: Node<IInputNodeData>) {
                         ...node.data,
                         sourcePorts: node.data?.sourcePorts.concat(
                           new NodePort({
-                            label: `${type}-${
-                              sourcePortTypeMap[type]?.length || 0
+                            label: `Input${type}-${
+                              (sourcePortTypeMap[type]?.length || 0) + 1
                             }`,
                             type,
                           }),

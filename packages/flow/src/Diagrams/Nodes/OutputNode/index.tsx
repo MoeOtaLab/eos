@@ -66,8 +66,8 @@ export function OutputNode(props: Node<IOutputNodeData>) {
                         ...node.data,
                         targetPorts: node.data?.targetPorts.concat(
                           new NodePort({
-                            label: `${type}-${
-                              targetPortTypeMap[type]?.length || 0
+                            label: `Output${type}-${
+                              (targetPortTypeMap[type]?.length || 0) + 1
                             }`,
                             type,
                           }),

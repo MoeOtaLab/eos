@@ -4,6 +4,7 @@ import { type Node } from 'reactflow';
 import {
   OutputNodePortTypeEnum,
   type IOutputNodeData,
+  NodePort,
 } from '../../Nodes/types';
 import { type IGenerationOption } from '../../Compiler/graph';
 import { EosCoreSymbol } from '../../Compiler/runtime';
@@ -23,10 +24,10 @@ export class OutputOperator extends Operator<IOutputNodeData> {
       ...this.data,
       sourcePorts: [],
       targetPorts: [
-        // new NodePort({
-        //   label: 'state',
-        //   type: OutputNodePortTypeEnum.State,
-        // }),
+        new NodePort({
+          label: 'OutputState-1',
+          type: OutputNodePortTypeEnum.State,
+        }),
         // new NodePort({
         //   label: 'output-event',
         //   type: OutputNodePortTypeEnum.Event,

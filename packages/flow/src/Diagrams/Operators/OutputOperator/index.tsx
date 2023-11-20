@@ -3,7 +3,6 @@ import { NodeTypeEnum } from '../../Nodes/NodeTypeEnum';
 import { type Node } from 'reactflow';
 import {
   OutputNodePortTypeEnum,
-  NodePort,
   type IOutputNodeData,
 } from '../../Nodes/types';
 import { type IGenerationOption } from '../../Compiler/graph';
@@ -24,14 +23,14 @@ export class OutputOperator extends Operator<IOutputNodeData> {
       ...this.data,
       sourcePorts: [],
       targetPorts: [
-        new NodePort({
-          label: 'state',
-          type: OutputNodePortTypeEnum.State,
-        }),
-        new NodePort({
-          label: 'output-event',
-          type: OutputNodePortTypeEnum.Event,
-        }),
+        // new NodePort({
+        //   label: 'state',
+        //   type: OutputNodePortTypeEnum.State,
+        // }),
+        // new NodePort({
+        //   label: 'output-event',
+        //   type: OutputNodePortTypeEnum.Event,
+        // }),
       ],
       operatorName: 'OutputOperator',
       ...data?.data,

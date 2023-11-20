@@ -26,16 +26,15 @@ export class InputOperator extends Operator<IInputNodeData> {
     this.data = {
       ...this.data,
       sourcePorts: [
-        new NodePort({
-          label: 'state',
-          type: InputNodePortTypeEnum.State,
-        }),
+        // new NodePort({
+        //   label: 'state',
+        //   type: InputNodePortTypeEnum.State,
+        // }),
 
-        new NodePort({
-          label: 'input-event',
-          type: InputNodePortTypeEnum.Event,
-        }),
-
+        // new NodePort({
+        //   label: 'input-event',
+        //   type: InputNodePortTypeEnum.Event,
+        // }),
         new NodePort({
           label: 'beforeMount',
           type: InputNodePortTypeEnum.LifeCycle,

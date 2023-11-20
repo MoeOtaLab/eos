@@ -8,11 +8,11 @@ import { CustomOperator } from './CustomOperator';
 
 export const OperatorMap = new Map<string, typeof Operator>(
   [
-    ['InputOperator', InputOperator]
-    ['OutputOperator', OutputOperator]
-    ['StateOperator', StateOperator]
-    ['SumOperator', SumOperator]
-    ['ConstStateOperator', ConstStateOperator]
-    ['CustomOperator', CustomOperator]
+    ['InputOperator', InputOperator],
+    ['OutputOperator', OutputOperator],
+    ['StateOperator', StateOperator],
+    ['SumOperator', SumOperator],
+    ['ConstStateOperator', ConstStateOperator],
+    ['CustomOperator', CustomOperator],
   ] as any,
 );

@@ -3,7 +3,7 @@ import {
   useContextSelector,
   useContext,
 } from 'use-context-selector';
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import {
   ReactFlowProvider,
   type Node,
@@ -12,6 +12,9 @@ import {
 } from 'reactflow';
 import { Layer, findLayer } from './Layer';
 import { useMemoizedFn } from 'ahooks';
+import { OperatorMap } from '../Operators';
+import { type ICustomNodeData } from '../Nodes/types';
+import { type CustomOperator } from '../Operators/CustomOperator';
 
 export interface DiagramsContextType<T = any> {
   /** ====== current ====== */
@@ -27,7 +30,7 @@ export interface DiagramsContextType<T = any> {
   layer: Layer;
   activeLayerId: string;
   setLayer: React.Dispatch<React.SetStateAction<Layer>>;
-  setActiveLayerId: React.Dispatch<React.SetStateAction<Layer['id']>>;
+  setActiveLayerId: (id: Layer['id']) => void;
 }
 
 const defaultLayer = new Layer('App');
@@ -91,11 +94,22 @@ export function useDiagramsActions() {
 export const DiagramsContextInnerProvider: React.FC = (props) => {
   const { children } = props;
 
-  const [layer, setLayer] = useState(() => new Layer('App'));
-  const [activeLayerId, setActiveLayerId] = useState(layer.id);
+  const [_layer, _setLayer] = useState(() => new Layer('App'));
+  const layerRef = useRef(_layer);
+  const layer = layerRef.current;
+
+  const [activeLayerId, _setActiveLayerId] = useState(layer.id);
   const activeLayer = findLayer(layer, activeLayerId);
   const nodes = activeLayer?.nodes || [];
   const edges = activeLayer?.edges || [];
+
+  const setLayer = useMemoizedFn(function setLayer(
+    action: React.SetStateAction<Layer>,
+  ) {
+    layerRef.current =
+      typeof action === 'function' ? action(layerRef.current) : action;
+    _setLayer(layerRef.current);
+  });
 
   const setNodes = useMemoizedFn(function setNodes(
     action: React.SetStateAction<Node[]>,
@@ -193,6 +207,33 @@ export const DiagramsContextInnerProvider: React.FC = (props) => {
         updateNodeInternals(id);
       }, 0);
     }
+  });
+
+  const setActiveLayerId = useMemoizedFn((activeId: string) => {
+    const prevActiveId = activeLayerId;
+    _setActiveLayerId(activeId);
+
+    setTimeout(() => {
+      const prevLayer = findLayer(layer, prevActiveId);
+
+      if (prevLayer?.parentLayerId) {
+        const parentLayer = findLayer(layer, prevLayer.parentLayerId);
+        const targetNode = parentLayer?.nodes.find(
+          (item) => item.id === prevLayer.relativeNodeId,
+        ) as Node<ICustomNodeData>;
+
+        if (targetNode) {
+          const Operator = OperatorMap.get(
+            targetNode.data?.operatorType,
+          ) as typeof CustomOperator;
+
+          Operator.refreshNode(targetNode, {
+            updateNode,
+            layer: layerRef.current,
+          });
+        }
+      }
+    });
   });
 
   return (

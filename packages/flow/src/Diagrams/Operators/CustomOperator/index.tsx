@@ -1,11 +1,17 @@
 import { Operator } from '../Operator';
 import { type Node } from 'reactflow';
 import { NodeTypeEnum } from '../../Nodes/NodeTypeEnum';
-import { type ICustomNodeData } from '../../Nodes/types';
+import {
+  type IInputNodeData,
+  type ICustomNodeData,
+  type IOutputNodeData,
+  InputNodePortTypeEnum,
+} from '../../Nodes/types';
 import { type IHookOption, type IAttributeControlOption } from '../types';
 import { type IGenerationOption } from '../../Compiler/graph';
 import { Layer, findLayer } from '../../State/Layer';
 import { AttributeControl } from './AttributeControl';
+import { type DiagramsContextType } from '../../State/DiagramsProvider';
 
 export class CustomOperator extends Operator<ICustomNodeData> {
   constructor(data?: Partial<Node<Partial<ICustomNodeData>>>) {
@@ -97,5 +103,43 @@ export class CustomOperator extends Operator<ICustomNodeData> {
     options: IGenerationOption<ICustomNodeData>,
   ): string[] {
     return [];
+  }
+
+  static refreshNode(
+    node: Pick<Node<ICustomNodeData>, 'id' | 'data'>,
+    options: Pick<DiagramsContextType<ICustomNodeData>, 'layer' | 'updateNode'>,
+  ) {
+    const { layer, updateNode } = options;
+
+    const targetLayer = findLayer(layer, node.data.layerId);
+
+    if (targetLayer) {
+      const inputNode = targetLayer.nodes.find(
+        (item): item is Node<IInputNodeData> =>
+          item.type === NodeTypeEnum.InputNode,
+      );
+      const outputNode = targetLayer.nodes.find(
+        (item): item is Node<IOutputNodeData> =>
+          item.type === NodeTypeEnum.OutputNode,
+      );
+      const sourcePorts =
+        inputNode?.data?.sourcePorts?.filter((item) =>
+          [InputNodePortTypeEnum.State, InputNodePortTypeEnum.Event].includes(
+            item.type as InputNodePortTypeEnum,
+          ),
+        ) || [];
+
+      const targetPorts = outputNode?.data?.targetPorts || [];
+
+      updateNode(node.id, (v) => ({
+        ...v,
+        data: {
+          ...v.data,
+          // 攻守互换
+          sourcePorts: targetPorts,
+          targetPorts: sourcePorts,
+        } as ICustomNodeData,
+      }));
+    }
   }
 }

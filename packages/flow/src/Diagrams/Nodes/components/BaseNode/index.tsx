@@ -14,6 +14,7 @@ export function BaseNode(
       onTargetPortAdd?: () => void;
       onDoubleClick?: () => void;
       description?: string;
+      onFocus?: () => void;
     }
   >,
 ) {
@@ -26,6 +27,7 @@ export function BaseNode(
     onTargetPortAdd,
     onDoubleClick,
     description,
+    onFocus,
   } = props;
   const operatorName = data?.operatorName;
 
@@ -49,6 +51,9 @@ export function BaseNode(
         },
         className,
       )}
+      onClick={() => {
+        onFocus?.();
+      }}
     >
       <div className={css['node__operator-name']}>{operatorName}</div>
       <div className={css.node__content} onDoubleClick={onDoubleClick}>

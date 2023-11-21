@@ -4,7 +4,7 @@ import { type Node } from 'reactflow';
 import { NodePort, type IStreamOperatorNodeData } from '../../Nodes/types';
 import { type IGenerationOption } from '../../Compiler/graph';
 import { type IAttributeControlOption } from '../types';
-import { EosCoreSymbol, EosOperatorsSymbol } from '../../Compiler/runtime';
+import { EosOperatorsSymbol } from '../../Compiler/runtime';
 
 export class SumOperator extends Operator<IStreamOperatorNodeData> {
   constructor(data?: Partial<Node<IStreamOperatorNodeData>>) {
@@ -44,43 +44,25 @@ export class SumOperator extends Operator<IStreamOperatorNodeData> {
   static generateBlockDeclarations?(
     options: IGenerationOption<IStreamOperatorNodeData>,
   ): string[] {
-    const { node, formatVariableName } = options;
+    const { node, formatVariableName, nodeGraph } = options;
     const handleId = node.data.sourcePorts[0].id;
+
+    const sourceIds =
+      nodeGraph.findSourceNodes(node.id)?.map((item) => item.relatedHandleId) ||
+      [];
 
     return [
       `const ${formatVariableName(
         handleId,
-      )} = new ${EosCoreSymbol}.ModelState()`,
+      )} = ${EosOperatorsSymbol}.sum(${sourceIds
+        .map((id) => formatVariableName(id))
+        .join(',')})`,
     ];
   }
 
   static generateBlockRelation?(
     options: IGenerationOption<IStreamOperatorNodeData>,
   ): string[] {
-    const { node, nodeGraph, formatVariableName } = options;
-    const handleId = node.data.sourcePorts[0].id;
-    const sourceIds = nodeGraph
-      .findSourceNodes(node.id)
-      ?.map((item) => item.relatedHandleId);
-
-    if (!sourceIds?.length) {
-      return [];
-    }
-
-    return [
-      `let temp_${formatVariableName(
-        handleId,
-      )} = ${EosOperatorsSymbol}.sum(${sourceIds
-        .map((id) => formatVariableName(id))
-        .join(',')})`,
-      `temp_${formatVariableName(handleId)}.subscribe((value, extraInfo) => {
-          ${formatVariableName(handleId)}.update(value, extraInfo.concat('${
-            node.id
-          }'))
-        })`,
-      `${formatVariableName(handleId)}.update(temp_${formatVariableName(
-        handleId,
-      )}.current, new ${EosCoreSymbol}.ExtraInfo('[sum] init'))`,
-    ];
+    return [];
   }
 }

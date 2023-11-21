@@ -1,4 +1,4 @@
-import { Button, Input, message } from 'antd';
+import { Button, Form, Input, message } from 'antd';
 import { type Node } from 'reactflow';
 import { useLinkRuntimeContext } from '../../Compiler/runtime';
 import { NodeGraph } from '../../Compiler';
@@ -110,10 +110,11 @@ export const Demo: React.FC = () => {
             {outputValueIds?.map(({ port, handleId, label }) => {
               return (
                 <div key={port.id}>
-                  {port.label}:
-                  {JSON.stringify(
-                    store.exports?.output?.[label || '']?.current,
-                  )}
+                  <Form.Item label={port.label}>
+                    {JSON.stringify(
+                      store.exports?.output?.[label || '']?.current,
+                    )}
+                  </Form.Item>
                 </div>
               );
             })}

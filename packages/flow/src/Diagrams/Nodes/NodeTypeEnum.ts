@@ -18,4 +18,5 @@ export enum NodeTypeEnum {
    * */
   ContainerNode = 'ContainerNode',
   CustomNode = 'CustomNode',
+  DoNode = 'DoNode',
 }

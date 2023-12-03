@@ -40,6 +40,10 @@ const nodeColor = (node: Node) => {
       return '#FF0060';
     case NodeTypeEnum.CustomNode:
       return '#FBCB0A';
+    case NodeTypeEnum.ContainerNode:
+      return '#FF8080';
+    case NodeTypeEnum.DoNode:
+      return '#FFF5E0';
     default:
       return '#ff0072';
   }

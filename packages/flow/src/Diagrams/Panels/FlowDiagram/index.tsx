@@ -44,10 +44,8 @@ const nodeColor = (node: Node) => {
       return '#ff0072';
   }
 };
-
-const g = new Dagre.graphlib.Graph().setDefaultEdgeLabel(() => ({}));
-
 const getLayoutedElements = (nodes: Node[], edges: Edge[]) => {
+  const g = new Dagre.graphlib.Graph().setDefaultEdgeLabel(() => ({}));
   g.setGraph({ rankdir: 'LR' });
 
   edges.forEach((edge) => g.setEdge(edge.source, edge.target));

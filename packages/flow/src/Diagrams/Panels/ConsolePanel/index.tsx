@@ -6,6 +6,7 @@ import { Demo } from './Demo';
 import { Button } from 'antd';
 import { cloneDeep } from 'lodash';
 import { type Layer } from '../../State/Layer';
+import { Editor } from './Editor';
 
 export const ConsolePanel: React.FC = () => {
   const { layer } = useDiagramsState();
@@ -74,7 +75,7 @@ export const ConsolePanel: React.FC = () => {
         </LinkRuntimeContextProvider>
       </div>
 
-      <pre>{output}</pre>
+      <Editor code={output} />
     </div>
   );
 };

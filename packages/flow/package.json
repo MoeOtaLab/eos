@@ -16,6 +16,7 @@
     "classnames": "^2.3.1",
     "less": "^4.1.2",
     "lodash": "^4.17.21",
+    "monaco-editor": "^0.44.0",
     "react": "^17.0.0",
     "react-dom": "^17.0.0",
     "reactflow": "^11.10.1",

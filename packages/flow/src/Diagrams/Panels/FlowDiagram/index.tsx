@@ -1,4 +1,6 @@
 import React, { useRef, type DragEventHandler, useCallback } from 'react';
+import Dagre from '@dagrejs/dagre';
+import { Button, message } from 'antd';
 import ReactFlow, {
   addEdge,
   type ReactFlowProps,
@@ -23,7 +25,6 @@ import { NodeTypeEnum } from '../../Nodes/NodeTypeEnum';
 import { isSameSourceHandle, isSameTargetHandle } from '../../utils';
 // import { defaultLayerData } from './defaultData';
 import css from './FlowDiagram.module.less';
-import { message } from 'antd';
 import { type Operator } from '../../Operators/Operator';
 import { useLatest } from 'ahooks';
 import { BackToLayer } from '../LayerPanel/BackToLayer';
@@ -42,6 +43,32 @@ const nodeColor = (node: Node) => {
     default:
       return '#ff0072';
   }
+};
+
+const g = new Dagre.graphlib.Graph().setDefaultEdgeLabel(() => ({}));
+
+const getLayoutedElements = (nodes: Node[], edges: Edge[]) => {
+  g.setGraph({ rankdir: 'LR' });
+
+  edges.forEach((edge) => g.setEdge(edge.source, edge.target));
+  nodes.forEach((node) =>
+    g.setNode(node.id, {
+      ...node,
+      width: node.width || undefined,
+      height: node.height || undefined,
+    }),
+  );
+
+  Dagre.layout(g);
+
+  return {
+    nodes: nodes.map((node) => {
+      const { x, y } = g.node(node.id);
+
+      return { ...node, position: { x, y } };
+    }),
+    edges,
+  };
 };
 
 export const FlowDiagram: React.FC = () => {
@@ -64,11 +91,6 @@ export const FlowDiagram: React.FC = () => {
     layer,
     activeLayerId,
   });
-
-  // useEffect(() => {
-  //   setLayer(defaultLayerData);
-  //   setActiveLayerId(defaultLayerData.id);
-  // }, []);
 
   const addSelectedEdges = useStore((ctx) => ctx.addSelectedEdges);
 
@@ -193,6 +215,13 @@ export const FlowDiagram: React.FC = () => {
     setEdges((es) => applyEdgeChanges(changes, es));
   }, []);
 
+  const onLayout = useCallback(() => {
+    const layouted = getLayoutedElements(nodes, edges);
+
+    setNodes([...layouted.nodes]);
+    setEdges([...layouted.edges]);
+  }, [nodes, edges]);
+
   return (
     <div
       className={css['main-flow']}
@@ -221,6 +250,17 @@ export const FlowDiagram: React.FC = () => {
         <Controls />
         <Panel position="top-left">
           <BackToLayer />
+        </Panel>
+        <Panel position="top-right">
+          <Button
+            type="text"
+            style={{ color: 'white' }}
+            onClick={() => {
+              onLayout();
+            }}
+          >
+            layout
+          </Button>
         </Panel>
       </ReactFlow>
     </div>

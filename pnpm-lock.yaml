@@ -109,6 +109,9 @@ importers:
       '@ant-design/icons':
         specifier: ^5.2.6
         version: 5.2.6(react-dom@17.0.2)(react@17.0.2)
+      '@dagrejs/dagre':
+        specifier: ^1.0.4
+        version: 1.0.4
       ahooks:
         specifier: ^3.7.8
         version: 3.7.8(react@17.0.2)
@@ -805,6 +808,17 @@ packages:
   /@ctrl/tinycolor@3.6.1:
     resolution: {integrity: sha512-SITSV6aIXsuVNV3f3O0f2n/cgyEDWoSqtZMYiAmcsYHydcKrOz3gUxB/iXd/Qf08+IZX4KpgNbvUdMBmWz+kcA==}
     engines: {node: '>=10'}
+    dev: false
+
+  /@dagrejs/dagre@1.0.4:
+    resolution: {integrity: sha512-jrEore+HhW1yg1Rsd9H1PPMcoEOD4bVh0WCXc6GqzyzubnJj4GaWGg8ETOrskTd/3n/g5LOzumGM4CCgpNLJNw==}
+    dependencies:
+      '@dagrejs/graphlib': 2.1.13
+    dev: false
+
+  /@dagrejs/graphlib@2.1.13:
+    resolution: {integrity: sha512-calbMa7Gcyo+/t23XBaqQqon8LlgE9regey4UVoikoenKBXvUnCUL3s9RP6USCxttfr0XWVICtYUuKMdehKqMw==}
+    engines: {node: '>17.0.0'}
     dev: false
 
   /@emotion/hash@0.8.0:

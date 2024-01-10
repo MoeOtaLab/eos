@@ -1,0 +1,39 @@
+.container {
+  --color-bg: #2e2e2e;
+  color: #e2e2e2;
+  display: grid;
+  grid-auto-flow: row;
+  gap: 4px;
+  font-size: 12px;
+}
+
+.label {
+  font-size: 12px;
+}
+
+.content {
+  min-width: 100px;
+  min-height: 100px;
+  background-color: var(--color-bg);
+  border: 1px solid var(--color-bg);
+  border-radius: 6px;
+  padding: 8px;
+
+  transition: border-color cubic-bezier(0.215, 0.610, 0.355, 1) .25s;
+
+  :global {
+    .react-flow__handle-right {
+      margin-right: -8px;
+    }
+
+    .react-flow__handle-left {
+      margin-left: -8px;
+    }
+  }
+}
+
+.selected {
+  .content {
+    border-color: var(--color-node-theme, #9a7844);
+  }
+}

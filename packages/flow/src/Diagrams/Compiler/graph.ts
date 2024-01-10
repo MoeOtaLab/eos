@@ -1,5 +1,5 @@
 import { type Edge, type Node } from 'reactflow';
-import { OperatorMap } from '../Operators';
+import { OperatorMap, getOperatorFromNode } from '../Operators';
 import { type IBaseNodeData } from '../Nodes/types';
 import { EosCoreSymbol } from './runtime';
 import { type Layer, flatLayer } from '../State/Layer';
@@ -169,7 +169,8 @@ function generateBlock(
 
   const declarations: string[] = sortedNode
     .map((node: Node<IBaseNodeData>) => {
-      const Operator = OperatorMap.get(node.data.operatorName);
+      const Operator =
+        getOperatorFromNode(node) || OperatorMap.get(node.data.operatorName);
       return Operator?.generateBlockDeclarations?.({
         node,
         nodeGraph,
@@ -182,7 +183,8 @@ function generateBlock(
 
   const relations: string[] = sortedNode
     .map((node: Node<IBaseNodeData>) => {
-      const Operator = OperatorMap.get(node.data.operatorName);
+      const Operator =
+        getOperatorFromNode(node) || OperatorMap.get(node.data.operatorName);
       return Operator?.generateBlockRelation?.({
         node,
         nodeGraph,
@@ -195,7 +197,8 @@ function generateBlock(
 
   const outputs: string[] = sortedNode
     .map((node: Node<IBaseNodeData>) => {
-      const Operator = OperatorMap.get(node.data.operatorName);
+      const Operator =
+        getOperatorFromNode(node) || OperatorMap.get(node.data.operatorName);
       return Operator?.generateBlockOutput?.({
         node,
         nodeGraph,

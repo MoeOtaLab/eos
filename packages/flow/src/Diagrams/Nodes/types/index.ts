@@ -37,8 +37,6 @@ export type IStateNodeData = IBaseNodeData & {
   value: string | number | boolean | undefined;
 };
 
-export type IInputNodeData = IBaseNodeData;
-
 export type IOutputNodeData = IBaseNodeData;
 
 export type IStreamOperatorNodeData = IBaseNodeData & {
@@ -53,13 +51,6 @@ export enum StateNodePortTypeEnum {
   State = 'State',
   UpdateHanlder = 'UpdateHanlder',
 }
-
-export enum InputNodePortTypeEnum {
-  Event = 'Event',
-  State = 'State',
-  LifeCycle = 'LifeCycle',
-}
-
 export enum OutputNodePortTypeEnum {
   State = 'State',
   Event = 'Event',

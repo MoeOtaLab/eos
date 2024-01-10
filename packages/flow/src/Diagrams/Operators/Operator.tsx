@@ -104,6 +104,16 @@ export abstract class MetaOperator<
   // ============ START: Instance Meta Data ============= //
   defaultOperatorData: IMetaOperatorData;
 
+  /** operator type, unique specifier */
+  get operatorType() {
+    return this.defaultOperatorData?.operatorType;
+  }
+
+  /** operator name, label for user */
+  get operatorName() {
+    return this.defaultOperatorData?.operatorName;
+  }
+
   // ============ START: Operator Meta Data(static) ============= //
   isUnique?: boolean;
   nodeColor?: string;
@@ -194,13 +204,9 @@ export abstract class MetaOperator<
   abstract generateBlockOutput?(options: IGenerationOption): string[];
 
   // ============ START: Hooks handler ============= //
-  abstract onAfterCreate?(options: IHookOption<Node<T>>): void;
+  onAfterCreate?(_options: IHookOption<Node<T>>): void {}
 
   // ============ START: Panel Relative ============= //
-  generateOperatorIcon(): React.ReactNode {
-    return <div>{this.defaultOperatorData.operatorName}</div>;
-  }
-
   generateAttributeControl(options: IAttributeControlOption<Node<T>>) {
     const { node, actions } = options;
     function handleChange(val: string) {
@@ -220,6 +226,5 @@ export abstract class MetaOperator<
       </>
     );
   }
-
   // ============ START: Node Render Relative ============= //
 }

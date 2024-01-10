@@ -8,9 +8,17 @@ import { CustomOperator } from './CustomOperator';
 import { WatchOperator } from './WatchOperator';
 import { DoOperator } from './DoOperator';
 
+import { registerOperator } from './OperatorMap';
+
+registerOperator(new InputOperator());
+
+export {
+  OperatorMap as NextOperatorMap,
+  getOperatorFromNode,
+} from './OperatorMap';
+
 export const OperatorMap = new Map<string, typeof Operator>(
   Object.entries({
-    InputOperator,
     OutputOperator,
     StateOperator,
     SumOperator,

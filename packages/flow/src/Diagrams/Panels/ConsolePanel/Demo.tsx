@@ -3,13 +3,13 @@ import { type Node } from 'reactflow';
 import { useLinkRuntimeContext } from '../../Compiler/runtime';
 import { NodeGraph } from '../../Compiler';
 import { NodeTypeEnum } from '../../Nodes/NodeTypeEnum';
+import { getOperatorFromNode } from '../../Operators';
 import {
-  type IInputNodeData,
   type IOutputNodeData,
   OutputNodePortTypeEnum,
-  InputNodePortTypeEnum,
 } from '../../Nodes/types';
 import { useEffect, useState } from 'react';
+import { type IInputOperatorData } from '../../Operators/types';
 
 export const Demo: React.FC = () => {
   const { store, nodes, edges } = useLinkRuntimeContext();
@@ -17,9 +17,10 @@ export const Demo: React.FC = () => {
   const nodeGraph = new NodeGraph(nodes, edges);
 
   const inputNode = nodes.find(
-    (item): item is Node<IInputNodeData> =>
-      item.type === NodeTypeEnum.InputNode,
+    (item): item is Node<IInputOperatorData> =>
+      getOperatorFromNode(item)?.operatorType === 'InputOperator',
   );
+
   const outputNode = nodes.find(
     (item): item is Node<IOutputNodeData> =>
       item.type === NodeTypeEnum.OutputNode,
@@ -88,18 +89,18 @@ export const Demo: React.FC = () => {
                 placeholder="发送事件的参数（请填写 JSON）"
               />
               <div style={{ display: 'grid', gap: 12 }}>
-                {inputNode?.data.sourcePorts
-                  .filter((item) => item.type === InputNodePortTypeEnum.Event)
-                  .map((item) => (
+                {inputNode?.data?.endPointOptions?.endPointList
+                  ?.find((item) => item.hint === 'event')
+                  ?.children?.map((item) => (
                     <Button
                       key={item.id}
                       onClick={() => {
-                        store.exports?.output?.[item.label || '']?.next(
+                        store.exports?.output?.[item.variableName || '']?.next(
                           JSON.parse(inputValue),
                         );
                       }}
                     >
-                      {item.label}
+                      {item.label || item.variableName}
                     </Button>
                   ))}
               </div>

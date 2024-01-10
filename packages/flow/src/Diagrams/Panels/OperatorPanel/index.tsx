@@ -1,14 +1,15 @@
 import React, { type DragEventHandler } from 'react';
-import { OperatorMap } from '../../Operators';
+import { OperatorMap, NextOperatorMap } from '../../Operators';
 import css from './OperatorPanel.module.less';
 
-export const MODEL_FORMAT = 'model';
+export const OPERATOR_TYPE_DATA = 'operator_type';
 
-type DragEventGenerator = (operatorName: string) => DragEventHandler;
+type DragEventGenerator = (key: string, value: string) => DragEventHandler;
 
 export const OperatorPanel: React.FC = () => {
-  const handleDragStart: DragEventGenerator = (operatorName) => (event) => {
-    event.dataTransfer.setData(MODEL_FORMAT, operatorName);
+  const handleDragStart: DragEventGenerator = (key, value) => (event) => {
+    console.log('233 handleDragStart', key, value);
+    event.dataTransfer.setData(key, value);
     event.dataTransfer.dropEffect = 'copy';
     event.dataTransfer.effectAllowed = 'all';
   };
@@ -23,9 +24,24 @@ export const OperatorPanel: React.FC = () => {
               key={name}
               className={css['operator-item']}
               draggable={true}
-              onDragStart={handleDragStart(name)}
+              onDragStart={handleDragStart(OPERATOR_TYPE_DATA, name)}
             >
               {name}
+            </div>
+          );
+        })}
+        {[...NextOperatorMap.entries()].map(([name, operator]) => {
+          return (
+            <div
+              key={name}
+              className={css['operator-item']}
+              draggable={true}
+              onDragStart={handleDragStart(
+                OPERATOR_TYPE_DATA,
+                operator.operatorType,
+              )}
+            >
+              {operator.operatorName}
             </div>
           );
         })}

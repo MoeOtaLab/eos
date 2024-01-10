@@ -1,6 +1,5 @@
 import classnames from 'classnames';
 import { type PropsWithChildren } from 'react';
-// import { InputNodePortTypeEnum, OutputNodePortTypeEnum } from '../../types';
 import css from './InputOutputBaseNode.module.less';
 
 interface InputOutputBaseNodeProps {

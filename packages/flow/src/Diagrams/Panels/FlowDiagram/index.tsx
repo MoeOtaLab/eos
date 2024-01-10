@@ -17,8 +17,12 @@ import ReactFlow, {
   Controls,
   Panel,
 } from 'reactflow';
-import { MODEL_FORMAT } from '../OperatorPanel';
-import { OperatorMap } from '../../Operators';
+import { OPERATOR_TYPE_DATA } from '../OperatorPanel';
+import {
+  OperatorMap,
+  NextOperatorMap,
+  getOperatorFromNode,
+} from '../../Operators';
 import { useDiagramsContext } from '../../State/DiagramsProvider';
 import { nodeTypes } from '../../Nodes';
 import { NodeTypeEnum } from '../../Nodes/NodeTypeEnum';
@@ -30,10 +34,14 @@ import { useLatest } from 'ahooks';
 import { BackToLayer } from '../LayerPanel/BackToLayer';
 
 const nodeColor = (node: Node) => {
+  const operator = getOperatorFromNode(node);
+  if (operator?.nodeColor) {
+    return operator?.nodeColor;
+  }
+
   switch (node.type) {
     case NodeTypeEnum.StateNode:
       return '#0079FF';
-    case NodeTypeEnum.InputNode:
     case NodeTypeEnum.OutputNode:
       return '#5D9C59';
     case NodeTypeEnum.StreamOperatorNode:
@@ -143,7 +151,74 @@ export const FlowDiagram: React.FC = () => {
   });
 
   const handleDrop: DragEventHandler = (event) => {
-    const operatorName = event.dataTransfer.getData(MODEL_FORMAT);
+    const operatorType = event.dataTransfer.getData(OPERATOR_TYPE_DATA);
+    if (operatorType) {
+      const operator = NextOperatorMap.get(operatorType);
+      if (operator) {
+        const operatorInstance = operator.create();
+        if (operator.isUnique) {
+          if (
+            nodes.find(
+              (item: typeof operatorInstance) =>
+                item.data?.operatorType === operator.operatorType,
+            )
+          ) {
+            message.warning('只允许存在一个');
+            return;
+          }
+        }
+        const { clientX, clientY } = event;
+        const rect = dropTarget.current?.getBoundingClientRect();
+        if (rect) {
+          operatorInstance.position = {
+            x: clientX - rect.left,
+            y: clientY - rect.y,
+          };
+        }
+
+        setNodes((eles) => [...eles, operatorInstance]);
+        setTimeout(() => {
+          const node = nodesRef.current.find(
+            (item) => item.id === operatorInstance.id,
+          );
+
+          if (node) {
+            const pos = {
+              x: node?.position?.x - (node?.width || 0) / 2,
+              y: node.position.y - Math.max((node?.height || 0) / 5, 30),
+            };
+
+            node.position = pos;
+            // TODO: zoom
+            updateNodePos([node], false, false);
+          }
+
+          setNodes((eles) => {
+            const target = eles.find((item) => item.id === operatorInstance.id);
+            if (target) {
+              operatorInstance.style = {
+                visibility: 'visible',
+              };
+            }
+            return [...eles];
+          });
+
+          operator?.onAfterCreate?.({
+            node: node as typeof operatorInstance,
+            currentState: latestState.current,
+            actions: {
+              updateEdge,
+              updateNode,
+              setActiveLayerId,
+              setLayer,
+            },
+          });
+        });
+        return;
+      }
+    }
+    // TODO: DELETE
+    const operatorName = operatorType;
     const Operator = OperatorMap.get(operatorName);
 
     if (Operator) {
@@ -205,7 +280,7 @@ export const FlowDiagram: React.FC = () => {
   };
 
   const handleDragOver: DragEventHandler = (event) => {
-    if (event.dataTransfer.types.includes(MODEL_FORMAT)) {
+    if (event.dataTransfer.types.includes(OPERATOR_TYPE_DATA)) {
       event.preventDefault();
     }
   };

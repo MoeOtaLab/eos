@@ -1,96 +1,120 @@
-import { Operator } from '../Operator';
+import { MetaOperator } from '../Operator';
 import { NodeTypeEnum } from '../../Nodes/NodeTypeEnum';
-import { type Node } from 'reactflow';
-import {
-  InputNodePortTypeEnum,
-  NodePort,
-  type IInputNodeData,
-} from '../../Nodes/types';
 import {
   formatVariableName,
   type IGenerationOption,
 } from '../../Compiler/graph';
 import { EosCoreSymbol } from '../../Compiler/runtime';
-import { type IAttributeControlOption } from '../types';
+import { type IInputOperatorData, EndPoint } from '../types';
 
-export class InputOperator extends Operator<IInputNodeData> {
-  constructor(data?: Partial<Node<IInputNodeData>>) {
-    super('InputOperator', {
-      ...data,
-      type: NodeTypeEnum.InputNode,
-    });
+export class InputOperator
+  extends MetaOperator<IInputOperatorData>
+  implements MetaOperator<IInputOperatorData>
+{
+  isUnique = true;
 
-    this.unique = true;
+  nodeColor = '#5D9C59';
 
-    // init ports
-    this.data = {
-      ...this.data,
-      sourcePorts: [
-        // new NodePort({
-        //   label: 'state',
-        //   type: InputNodePortTypeEnum.State,
-        // }),
-
-        // new NodePort({
-        //   label: 'input-event',
-        //   type: InputNodePortTypeEnum.Event,
-        // }),
-        new NodePort({
-          label: 'beforeMount',
-          type: InputNodePortTypeEnum.LifeCycle,
-        }),
-        new NodePort({
-          label: 'mount',
-          type: InputNodePortTypeEnum.LifeCycle,
-        }),
-        new NodePort({
-          label: 'beforeUnmount',
-          type: InputNodePortTypeEnum.LifeCycle,
-        }),
-        new NodePort({
-          label: 'unmount',
-          type: InputNodePortTypeEnum.LifeCycle,
-        }),
-      ],
-      targetPorts: [],
+  constructor() {
+    super({
       operatorName: 'InputOperator',
-      ...data?.data,
-    } as IInputNodeData;
+      operatorType: 'InputOperator',
+      nodeType: NodeTypeEnum.Node,
+      endPointOptions: {
+        endPointList: [
+          new EndPoint({
+            type: 'group',
+            label: 'State',
+            hint: 'state',
+            allowAddAndRemoveChildren: true,
+            defaultChildData: {
+              type: 'source',
+              hint: 'state',
+            },
+            children: [
+              new EndPoint({
+                type: 'source',
+                hint: 'state',
+              }),
+            ],
+          }),
+          new EndPoint({
+            type: 'group',
+            label: 'Event',
+            hint: 'event',
+            allowAddAndRemoveChildren: true,
+            defaultChildData: {
+              type: 'source',
+              hint: 'event',
+            },
+            children: [
+              new EndPoint({
+                type: 'source',
+                hint: 'event',
+              }),
+            ],
+          }),
+          new EndPoint({
+            type: 'group',
+            label: 'Lifecycle',
+            hint: 'lifecycle',
+            allowAddAndRemoveChildren: false,
+            children: [
+              new EndPoint({
+                type: 'source',
+                variableName: 'beforeMount',
+              }),
+              new EndPoint({
+                type: 'source',
+                variableName: 'mount',
+              }),
+              new EndPoint({
+                type: 'source',
+                variableName: 'beforeUnmount',
+              }),
+              new EndPoint({
+                type: 'source',
+                variableName: 'unmount',
+              }),
+            ],
+          }),
+        ],
+      },
+    });
   }
 
-  static generateAttributeControl(
-    options: IAttributeControlOption<Operator<any>>,
-  ) {
-    return <div>empty</div>;
-  }
-
-  static generateBlockDeclarations?(
-    options: IGenerationOption<IInputNodeData>,
+  generateBlockDeclarations?(
+    options: IGenerationOption<IInputOperatorData>,
   ): string[] {
     const { node } = options;
 
-    const eventPorts = node.data.sourcePorts.filter(
-      (port) => port.type === InputNodePortTypeEnum.Event,
-    );
+    const eventPorts =
+      node.data?.endPointOptions?.endPointList?.find(
+        (item) => item.type === 'group' && item.hint === 'event',
+      )?.children || [];
 
-    const statePorts = node.data.sourcePorts.filter(
-      (port) => port.type === InputNodePortTypeEnum.State,
-    );
+    const statePorts =
+      node.data?.endPointOptions?.endPointList?.find(
+        (item) => item.type === 'group' && item.hint === 'state',
+      )?.children || [];
 
-    const lifecyclePorts = node.data.sourcePorts.filter(
-      (port) => port.type === InputNodePortTypeEnum.LifeCycle,
-    );
+    const lifecyclePorts =
+      node.data?.endPointOptions?.endPointList?.find(
+        (item) => item.type === 'group' && item.hint === 'lifecycle',
+      )?.children || [];
 
     return [
       ...eventPorts.map(
         (port) =>
           `const ${formatVariableName(port.id)} = input['${
-            port.label
+            port.variableName
           }'] || new ${EosCoreSymbol}.ModelEvent()`,
       ),
       ...statePorts.map(
         (port) =>
-          `const ${formatVariableName(port.id)} = input['${port.label}']`,
+          `const ${formatVariableName(port.id)} = input['${
+            port.variableName
+          }']`,
       ),
       ...lifecyclePorts.map(
         (port) =>
@@ -101,37 +125,40 @@ export class InputOperator extends Operator<IInputNodeData> {
     ];
   }
 
-  static generateBlockRelation?(
-    options: IGenerationOption<IInputNodeData>,
+  generateBlockRelation?(
+    options: IGenerationOption<IInputOperatorData>,
   ): string[] {
     const { node } = options;
 
-    const lifecyclePorts = node.data.sourcePorts.filter(
-      (port) => port.type === InputNodePortTypeEnum.LifeCycle,
-    );
+    const lifecyclePorts =
+      node.data?.endPointOptions?.endPointList?.find(
+        (item) => item.type === 'group' && item.hint === 'lifecycle',
+      )?.children || [];
 
     return [
       ...lifecyclePorts.map(
         (port) => `
-      context.onLifecycle('${port.label}', () => {
-        ${formatVariableName(port.id)}.next();
+      context.onLifecycle('${port.variableName}', () => {
+        ${formatVariableName(port.id || '')}.next();
       })
     `,
       ),
     ];
   }
 
-  static generateBlockOutput?(
-    options: IGenerationOption<IInputNodeData>,
+  generateBlockOutput?(
+    options: IGenerationOption<IInputOperatorData>,
   ): string[] {
     const { node } = options;
 
-    const eventPorts = node.data.sourcePorts.filter(
-      (port) => port.type === InputNodePortTypeEnum.Event,
-    );
+    const eventPorts =
+      node.data?.endPointOptions?.endPointList?.find(
+        (item) => item.type === 'group' && item.hint === 'event',
+      )?.children || [];
 
     return eventPorts.map(
-      (port) => `['${port.label}']: ${formatVariableName(port.id)}`,
+      (port) =>
+        `['${port.variableName || ''}']: ${formatVariableName(port.id)}`,
     );
   }
 }

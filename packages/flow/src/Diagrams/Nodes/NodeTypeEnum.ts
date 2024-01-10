@@ -9,8 +9,6 @@ export enum NodeTypeEnum {
   ValueOperatorNode = 'ValueOperatorNode',
   /** 输出节点 */
   OutputNode = 'OutputNode',
-  /** 输入节点 */
-  InputNode = 'InputNode',
   /**
    * 容器
    * @see https://reactflow.dev/learn/layouting/sub-flows#adding-child-nodes
@@ -19,4 +17,5 @@ export enum NodeTypeEnum {
   ContainerNode = 'ContainerNode',
   CustomNode = 'CustomNode',
   DoNode = 'DoNode',
+  Node = 'Node',
 }

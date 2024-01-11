@@ -1,7 +1,12 @@
 import { Tabs } from 'antd';
-import { AndroidOutlined, AppleOutlined } from '@ant-design/icons';
+import {
+  ControlOutlined,
+  FileAddOutlined,
+  FunctionOutlined,
+} from '@ant-design/icons';
 import { OperatorPanel } from '../OperatorPanel';
 import { LayerPanel } from '../LayerPanel';
+import { CommandPanel } from '../CommandPanel';
 import css from './LeftSidePanel.module.less';
 
 export function LeftSidePanel() {
@@ -12,14 +17,19 @@ export function LeftSidePanel() {
         tabPosition={'left'}
         items={[
           {
-            label: <AppleOutlined rev="" />,
+            label: <FunctionOutlined rev="" />,
             key: 'Operators',
             children: <OperatorPanel />,
           },
           {
-            label: <AndroidOutlined rev="" />,
+            label: <FileAddOutlined rev="" />,
             key: 'Layers',
             children: <LayerPanel />,
+          },
+          {
+            label: <ControlOutlined rev="" />,
+            key: 'commands',
+            children: <CommandPanel />,
           },
         ]}
       />

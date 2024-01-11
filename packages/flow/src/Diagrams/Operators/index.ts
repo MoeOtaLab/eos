@@ -11,15 +11,16 @@ import { DoOperator } from './DoOperator';
 import { registerOperator } from './OperatorMap';
 
 registerOperator(new InputOperator());
+registerOperator(new OutputOperator());
 
 export {
   OperatorMap as NextOperatorMap,
   getOperatorFromNode,
+  getOperatorFromOperatorType,
 } from './OperatorMap';
 
 export const OperatorMap = new Map<string, typeof Operator>(
   Object.entries({
-    OutputOperator,
     StateOperator,
     SumOperator,
     ConstStateOperator,

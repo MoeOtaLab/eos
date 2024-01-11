@@ -22,19 +22,33 @@ export function NodePorts(props: { node: Partial<Node<IMetaOperatorData>> }) {
             <div key={item.id}>
               <div className={css['port-type-container']}>
                 <div className={css['port-type-label']}>{item.label}</div>
-                {item.children?.map((port) => (
-                  <div key={port.id} style={{ position: 'relative' }}>
-                    <div style={{ textAlign: 'right' }}>
-                      {port.label || port.variableName}
+                {item.children?.map((port) => {
+                  if (port.type !== 'source' && port.type !== 'target') {
+                    return <div key={port.id}>unknown type: {port.type}</div>;
+                  }
+
+                  return (
+                    <div key={port.id} style={{ position: 'relative' }}>
+                      <div
+                        style={{
+                          textAlign: port.type === 'source' ? 'right' : 'left',
+                        }}
+                      >
+                        {port.label || port.variableName}
+                      </div>
+                      <Handle
+                        type={port.type}
+                        position={
+                          port.type === 'source'
+                            ? Position.Right
+                            : Position.Left
+                        }
+                        id={port.id}
+                        isConnectable={true}
+                      />
                     </div>
-                    <Handle
-                      type={'source'}
-                      position={Position.Right}
-                      id={port.id}
-                      isConnectable={true}
-                    />
-                  </div>
-                ))}
+                  );
+                })}
               </div>
               {item.allowAddAndRemoveChildren && (
                 <span

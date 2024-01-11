@@ -111,12 +111,12 @@ export abstract class MetaOperator<
 
   /** operator name, label for user */
   get operatorName() {
-    return this.defaultOperatorData?.operatorName;
+    return this.defaultOperatorData?.operatorName || this.operatorType;
   }
 
   // ============ START: Operator Meta Data(static) ============= //
-  isUnique?: boolean;
-  nodeColor?: string;
+  abstract isUnique: boolean;
+  abstract nodeColor: string;
 
   constructor(defaultOperatorData: IMetaOperatorData) {
     this.defaultOperatorData = defaultOperatorData;
@@ -197,14 +197,14 @@ export abstract class MetaOperator<
   }
 
   // ============ START: Code Generation ============= //
-  abstract generateBlockDeclarations?(options: IGenerationOption): string[];
+  abstract generateBlockDeclarations(options: IGenerationOption): string[];
 
-  abstract generateBlockRelation?(options: IGenerationOption): string[];
+  abstract generateBlockRelation(options: IGenerationOption): string[];
 
-  abstract generateBlockOutput?(options: IGenerationOption): string[];
+  abstract generateBlockOutput(options: IGenerationOption): string[];
 
   // ============ START: Hooks handler ============= //
-  onAfterCreate?(_options: IHookOption<Node<T>>): void {}
+  onAfterCreate(_options: IHookOption<Node<T>>): void {}
 
   // ============ START: Panel Relative ============= //
   generateAttributeControl(options: IAttributeControlOption<Node<T>>) {

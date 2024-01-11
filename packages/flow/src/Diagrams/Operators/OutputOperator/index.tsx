@@ -1,57 +1,85 @@
-import { Operator } from '../Operator';
+import { MetaOperator } from '../Operator';
 import { NodeTypeEnum } from '../../Nodes/NodeTypeEnum';
 import { type Node } from 'reactflow';
-import {
-  OutputNodePortTypeEnum,
-  type IOutputNodeData,
-  NodePort,
-} from '../../Nodes/types';
 import { type IGenerationOption } from '../../Compiler/graph';
 import { EosCoreSymbol } from '../../Compiler/runtime';
-import { type IAttributeControlOption } from '../types';
+import { type IOutputOperatorData, EndPoint } from '../types';
+export class OutputOperator
+  extends MetaOperator<IOutputOperatorData>
+  implements MetaOperator<IOutputOperatorData>
+{
+  isUnique: boolean = true;
+  nodeColor: string = '#5D9C59';
 
-export class OutputOperator extends Operator<IOutputNodeData> {
-  constructor(data?: Partial<Node<IOutputNodeData>>) {
-    super('OutputOperator', {
-      ...data,
-      type: NodeTypeEnum.OutputNode,
-    });
-
-    this.unique = true;
-
-    // init ports
-    this.data = {
-      ...this.data,
-      sourcePorts: [],
-      targetPorts: [
-        new NodePort({
-          label: 'OutputState-1',
-          type: OutputNodePortTypeEnum.State,
-        }),
-        // new NodePort({
-        //   label: 'output-event',
-        //   type: OutputNodePortTypeEnum.Event,
-        // }),
-      ],
+  constructor() {
+    super({
       operatorName: 'OutputOperator',
-      ...data?.data,
-    } as IOutputNodeData;
+      operatorType: 'OutputOperator',
+      nodeType: NodeTypeEnum.Node,
+      endPointOptions: {
+        endPointList: [
+          new EndPoint({
+            type: 'group',
+            label: 'State',
+            hint: 'state',
+            allowAddAndRemoveChildren: true,
+            defaultChildData: {
+              type: 'target',
+              hint: 'state',
+            },
+            children: [
+              new EndPoint({
+                type: 'target',
+                hint: 'state',
+              }),
+            ],
+          }),
+
+          new EndPoint({
+            type: 'group',
+            label: 'Event',
+            hint: 'event',
+            allowAddAndRemoveChildren: true,
+            defaultChildData: {
+              type: 'target',
+              hint: 'event',
+            },
+            children: [
+              new EndPoint({
+                type: 'target',
+                hint: 'event',
+              }),
+            ],
+          }),
+        ],
+      },
+    });
   }
 
-  static generateAttributeControl(
-    options: IAttributeControlOption<Operator<any>>,
-  ) {
-    return <div>empty</div>;
+  public getEventPorts(node: Node<IOutputOperatorData>) {
+    const eventPorts =
+      node.data?.endPointOptions?.endPointList?.find(
+        (item) => item.type === 'group' && item.hint === 'event',
+      )?.children || [];
+
+    return eventPorts;
   }
 
-  static generateBlockDeclarations?(
-    options: IGenerationOption<IOutputNodeData>,
+  public getStatePort(node: Node<IOutputOperatorData>) {
+    const statePorts =
+      node.data?.endPointOptions?.endPointList?.find(
+        (item) => item.type === 'group' && item.hint === 'state',
+      )?.children || [];
+
+    return statePorts;
+  }
+
+  public generateBlockDeclarations(
+    options: IGenerationOption<IOutputOperatorData>,
   ): string[] {
     const { node, formatVariableName } = options;
 
-    const eventPorts = node.data.targetPorts.filter(
-      (port) => port.type === OutputNodePortTypeEnum.Event,
-    );
+    const eventPorts = this.getEventPorts(node);
 
     return [
       ...eventPorts.map(
@@ -63,58 +91,49 @@ export class OutputOperator extends Operator<IOutputNodeData> {
     ];
   }
 
-  static generateBlockRelation?(
-    options: IGenerationOption<IOutputNodeData>,
+  generateBlockRelation(
+    options: IGenerationOption<IOutputOperatorData>,
   ): string[] {
     const { node, formatVariableName, nodeGraph } = options;
 
-    const eventPorts = node.data.targetPorts
-      .filter((port) => port.type === OutputNodePortTypeEnum.Event)
-      .map((port) => {
-        const sourceId = nodeGraph
-          .findSourceNodes(node.id)
-          ?.find((item) => item.handleId === port.id)?.relatedHandleId;
-        const targetId = port.id;
+    const eventPorts = this.getEventPorts(node).map((port) => {
+      const sourceId = nodeGraph
+        .findSourceNodes(node.id)
+        ?.find((item) => item.handleId === port.id)?.relatedHandleId;
+      const targetId = port.id;
 
-        if (!sourceId || !targetId) {
-          return '';
-        }
+      if (!sourceId || !targetId) {
+        return '';
+      }
 
-        return `${formatVariableName(
-          sourceId,
-        )}.subscribe((value, extraInfo) => {
+      return `${formatVariableName(sourceId)}.subscribe((value, extraInfo) => {
           ${formatVariableName(targetId)}.next(value, extraInfo.concat('${
             node.id
           }'))
         })`;
-      });
+    });
 
     return [...eventPorts];
   }
 
-  static generateBlockOutput?(
-    options: IGenerationOption<IOutputNodeData>,
+  generateBlockOutput(
+    options: IGenerationOption<IOutputOperatorData>,
   ): string[] {
     const { node, formatVariableName, nodeGraph } = options;
 
-    const eventPorts = node.data.targetPorts.filter(
-      (port) => port.type === OutputNodePortTypeEnum.Event,
-    );
-
-    const statePorts = node.data.targetPorts.filter(
-      (port) => port.type === OutputNodePortTypeEnum.State,
-    );
+    const eventPorts = this.getEventPorts(node);
+    const statePorts = this.getStatePort(node);
 
     return [
       ...eventPorts.map(
-        (port) => `['${port.label}']: ${formatVariableName(port.id)}`,
+        (port) => `['${port.variableName}']: ${formatVariableName(port.id)}`,
       ),
       ...statePorts.map((port) => {
         const sourceId = nodeGraph
           .findSourceNodes(node.id)
           ?.find((item) => item.handleId === port.id)?.relatedHandleId;
         return sourceId
-          ? `['${port.label}']: ${formatVariableName(sourceId)}`
+          ? `['${port.variableName}']: ${formatVariableName(sourceId)}`
           : '';
       }),
     ];

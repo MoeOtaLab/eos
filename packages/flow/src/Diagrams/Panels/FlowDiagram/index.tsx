@@ -42,8 +42,6 @@ const nodeColor = (node: Node) => {
   switch (node.type) {
     case NodeTypeEnum.StateNode:
       return '#0079FF';
-    case NodeTypeEnum.OutputNode:
-      return '#5D9C59';
     case NodeTypeEnum.StreamOperatorNode:
       return '#FF0060';
     case NodeTypeEnum.CustomNode:
@@ -163,7 +161,7 @@ export const FlowDiagram: React.FC = () => {
                 item.data?.operatorType === operator.operatorType,
             )
           ) {
-            message.warning('只允许存在一个');
+            message.warning(`只允许存在一个${operator.operatorName}`);
             return;
           }
         }

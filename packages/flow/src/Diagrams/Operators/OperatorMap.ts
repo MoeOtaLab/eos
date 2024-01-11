@@ -28,6 +28,16 @@ export function registerOperator(operator: MetaOperator) {
   OperatorMap.set(operator.operatorType, operator);
 }
 
-export function getOperatorFromNode(node: Partial<Pick<Node<any>, 'data'>>) {
-  return OperatorMap.get((node?.data as IMetaOperatorData)?.operatorType || '');
+export function getOperatorFromOperatorType<T extends MetaOperator>(
+  operatorType: string,
+) {
+  return OperatorMap.get(operatorType) as T | undefined;
+}
+
+export function getOperatorFromNode<T extends MetaOperator>(
+  node?: Partial<Pick<Node<any>, 'data'>>,
+) {
+  return getOperatorFromOperatorType<T>(
+    (node?.data as IMetaOperatorData)?.operatorType || '',
+  );
 }

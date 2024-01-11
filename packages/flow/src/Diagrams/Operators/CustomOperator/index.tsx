@@ -1,17 +1,18 @@
 import { Operator } from '../Operator';
 import { type Node } from 'reactflow';
 import { NodeTypeEnum } from '../../Nodes/NodeTypeEnum';
-import { type ICustomNodeData, type IOutputNodeData } from '../../Nodes/types';
+import { type ICustomNodeData } from '../../Nodes/types';
 import {
   type IHookOption,
   type IAttributeControlOption,
-  // type IInputOperatorData,
+  type IInputOperatorData,
+  type IOutputOperatorData,
 } from '../types';
 import { type IGenerationOption } from '../../Compiler/graph';
 import { Layer, findLayer } from '../../State/Layer';
 import { AttributeControl } from './AttributeControl';
 import { type DiagramsContextType } from '../../State/DiagramsProvider';
-// import { getOperatorFromNode } from '../OperatorMap';
+import { getOperatorFromNode } from '../OperatorMap';
 
 export class CustomOperator extends Operator<ICustomNodeData> {
   constructor(data?: Partial<Node<Partial<ICustomNodeData>>>) {
@@ -114,24 +115,25 @@ export class CustomOperator extends Operator<ICustomNodeData> {
     const targetLayer = findLayer(layer, node.data.layerId);
 
     if (targetLayer) {
-      // const inputNode = targetLayer.nodes.find(
-      //   (item): item is Node<IInputOperatorData> =>
-      //     getOperatorFromNode(item)?.operatorType === 'InputOperator',
-      // );
+      const inputNode = targetLayer.nodes.find(
+        (item): item is Node<IInputOperatorData> =>
+          getOperatorFromNode(item)?.operatorType === 'InputOperator',
+      );
       const outputNode = targetLayer.nodes.find(
-        (item): item is Node<IOutputNodeData> =>
-          item.type === NodeTypeEnum.OutputNode,
+        (item): item is Node<IOutputOperatorData> =>
+          getOperatorFromNode(item)?.operatorType === 'OutputOperator',
       );
 
       // TODO: fix
-      const sourcePorts: any = [];
+      const sourcePorts: any = inputNode?.data?.endPointOptions?.endPointList;
       // inputNode?.data?.sourcePorts?.filter((item) =>
       //   [InputNodePortTypeEnum.State, InputNodePortTypeEnum.Event].includes(
       //     item.type as InputNodePortTypeEnum,
       //   ),
       // ) || [];
 
-      const targetPorts = outputNode?.data?.targetPorts || [];
+      const targetPorts = outputNode?.data?.endPointOptions?.endPointList;
+      // outputNode?.data?.targetPorts || [];
 
       updateNode(node.id, (v) => ({
         ...v,

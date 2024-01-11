@@ -1,5 +1,6 @@
 import { MetaOperator } from '../Operator';
 import { NodeTypeEnum } from '../../Nodes/NodeTypeEnum';
+import { type Node } from 'reactflow';
 import {
   formatVariableName,
   type IGenerationOption,
@@ -83,25 +84,40 @@ export class InputOperator
     });
   }
 
-  generateBlockDeclarations?(
-    options: IGenerationOption<IInputOperatorData>,
-  ): string[] {
-    const { node } = options;
-
+  getEventPorts(node: Node<IInputOperatorData>) {
     const eventPorts =
       node.data?.endPointOptions?.endPointList?.find(
         (item) => item.type === 'group' && item.hint === 'event',
       )?.children || [];
 
+    return eventPorts;
+  }
+
+  getStatePort(node: Node<IInputOperatorData>) {
     const statePorts =
       node.data?.endPointOptions?.endPointList?.find(
         (item) => item.type === 'group' && item.hint === 'state',
       )?.children || [];
 
+    return statePorts;
+  }
+
+  getLifecyclePorts(node: Node<IInputOperatorData>) {
     const lifecyclePorts =
       node.data?.endPointOptions?.endPointList?.find(
         (item) => item.type === 'group' && item.hint === 'lifecycle',
       )?.children || [];
+    return lifecyclePorts;
+  }
+
+  generateBlockDeclarations(
+    options: IGenerationOption<IInputOperatorData>,
+  ): string[] {
+    const { node } = options;
+
+    const eventPorts = this.getEventPorts(node);
+    const statePorts = this.getStatePort(node);
+    const lifecyclePorts = this.getLifecyclePorts(node);
 
     return [
       ...eventPorts.map(
@@ -114,7 +130,7 @@ export class InputOperator
         (port) =>
           `const ${formatVariableName(port.id)} = input['${
             port.variableName
-          }']`,
+          }'] || new ${EosCoreSymbol}.ModelState(undefined)`,
       ),
       ...lifecyclePorts.map(
         (port) =>
@@ -125,15 +141,12 @@ export class InputOperator
     ];
   }
 
-  generateBlockRelation?(
+  generateBlockRelation(
     options: IGenerationOption<IInputOperatorData>,
   ): string[] {
     const { node } = options;
 
-    const lifecyclePorts =
-      node.data?.endPointOptions?.endPointList?.find(
-        (item) => item.type === 'group' && item.hint === 'lifecycle',
-      )?.children || [];
+    const lifecyclePorts = this.getLifecyclePorts(node);
 
     return [
       ...lifecyclePorts.map(
@@ -146,15 +159,12 @@ export class InputOperator
     ];
   }
 
-  generateBlockOutput?(
+  generateBlockOutput(
     options: IGenerationOption<IInputOperatorData>,
   ): string[] {
     const { node } = options;
 
-    const eventPorts =
-      node.data?.endPointOptions?.endPointList?.find(
-        (item) => item.type === 'group' && item.hint === 'event',
-      )?.children || [];
+    const eventPorts = this.getEventPorts(node);
 
     return eventPorts.map(
       (port) =>

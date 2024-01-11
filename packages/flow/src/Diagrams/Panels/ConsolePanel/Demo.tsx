@@ -2,61 +2,94 @@ import { Button, Form, Input, message } from 'antd';
 import { type Node } from 'reactflow';
 import { useLinkRuntimeContext } from '../../Compiler/runtime';
 import { NodeGraph } from '../../Compiler';
-import { NodeTypeEnum } from '../../Nodes/NodeTypeEnum';
 import { getOperatorFromNode } from '../../Operators';
+import { useEffect, useRef, useState } from 'react';
 import {
-  type IOutputNodeData,
-  OutputNodePortTypeEnum,
-} from '../../Nodes/types';
-import { useEffect, useState } from 'react';
-import { type IInputOperatorData } from '../../Operators/types';
+  type IInputOperatorData,
+  type IOutputOperatorData,
+} from '../../Operators/types';
+import { type OutputOperator } from '../../Operators/OutputOperator';
+import { type InputOperator } from '../../Operators/InputOperator';
+import { type ModelBlock, ModelState, ExtraInfo } from '@eos/core/src';
 
 export const Demo: React.FC = () => {
   const { store, nodes, edges } = useLinkRuntimeContext();
 
+  const [instance, setInstance] = useState<ModelBlock>();
+  const inputStateMapRef = useRef<Record<string, ModelState<any>>>({});
   const nodeGraph = new NodeGraph(nodes, edges);
 
   const inputNode = nodes.find(
     (item): item is Node<IInputOperatorData> =>
       getOperatorFromNode(item)?.operatorType === 'InputOperator',
   );
+  const inputStatePorts = !inputNode
+    ? []
+    : getOperatorFromNode<InputOperator>(inputNode)?.getStatePort(inputNode);
+
+  const inputEventPorts = !inputNode
+    ? []
+    : getOperatorFromNode<InputOperator>(inputNode)?.getEventPorts(inputNode);
 
   const outputNode = nodes.find(
-    (item): item is Node<IOutputNodeData> =>
-      item.type === NodeTypeEnum.OutputNode,
+    (item): item is Node<IOutputOperatorData> =>
+      getOperatorFromNode(item)?.operatorType === 'OutputOperator',
   );
 
   useEffect(() => {
-    const outputPorts = outputNode?.data.targetPorts.filter(
-      (item) => item.type === OutputNodePortTypeEnum.Event,
+    console.log('store ==> ', store);
+    inputStateMapRef.current = Object.fromEntries(
+      inputStatePorts?.map((item) => [
+        item.variableName,
+        new ModelState(undefined),
+      ]) || [],
     );
+    const result = store?.(inputStateMapRef.current);
+    console.log('init ==> ', result);
+    setInstance(result);
+  }, [store]);
+
+  useEffect(() => {
+    if (!outputNode) {
+      return;
+    }
+
+    const outputPorts =
+      getOperatorFromNode<OutputOperator>(outputNode)?.getEventPorts(
+        outputNode,
+      );
 
     outputPorts?.forEach((port) => {
-      store.exports.output[port.label]?.subscribe(
+      instance?.output[port.variableName || '']?.subscribe(
         (value: any, extraInfo: any) => {
           message.info(`value: ${value}`);
           console.log('events', port, value, extraInfo);
         },
       );
     });
-  }, [store]);
+  }, [instance]);
 
   const [inputValue, setInputValue] = useState('');
   const [, forceUpdate] = useState([]);
 
-  const outputValueIds = outputNode?.data.targetPorts
-    .filter((item) => item.type === OutputNodePortTypeEnum.State)
-    .map((item) => {
-      const handleId = nodeGraph
-        .findSourceNodes(outputNode.id)
-        ?.find((con) => con.handleId === item.id)?.relatedHandleId;
-      return { port: item, handleId, label: item.label };
-    });
+  const outputValueIds = !outputNode
+    ? []
+    : getOperatorFromNode<OutputOperator>(outputNode)
+        ?.getStatePort(outputNode)
+        .map((item) => {
+          const handleId = nodeGraph
+            .findSourceNodes(outputNode.id)
+            ?.find((con) => con.handleId === item.id)?.relatedHandleId;
+          return {
+            port: item,
+            handleId,
+          };
+        });
 
   useEffect(() => {
     outputValueIds
-      ?.map(({ handleId, label }) => {
-        return store.exports?.output?.[label || ''];
+      ?.map(({ port }) => {
+        return instance?.output?.[port.variableName || ''];
       })
       .forEach((value) => {
         value?.subscribe((value: any, extraInfo: any) => {
@@ -64,7 +97,7 @@ export const Demo: React.FC = () => {
           forceUpdate([]);
         });
       });
-  }, [outputValueIds]);
+  }, [instance]);
 
   return (
     <div
@@ -73,47 +106,62 @@ export const Demo: React.FC = () => {
         gap: 16,
         gridAutoFlow: 'column',
         justifyContent: 'start',
+        marginBottom: 16,
       }}
     >
-      {store.exports.output && (
+      {instance?.output && (
         <>
           <div>
-            <div>Input</div>
             <div style={{ display: 'grid', gap: 12 }}>
-              <Input
-                value={inputValue}
-                onChange={(event) => {
-                  setInputValue(event.target.value);
-                }}
-                size="small"
-                placeholder="发送事件的参数（请填写 JSON）"
-              />
               <div style={{ display: 'grid', gap: 12 }}>
-                {inputNode?.data?.endPointOptions?.endPointList
-                  ?.find((item) => item.hint === 'event')
-                  ?.children?.map((item) => (
-                    <Button
-                      key={item.id}
-                      onClick={() => {
-                        store.exports?.output?.[item.variableName || '']?.next(
-                          JSON.parse(inputValue),
-                        );
+                {inputStatePorts?.map((item) => (
+                  <div key={item.id}>
+                    {item.label || item.variableName}:
+                    <Input
+                      onChange={(e) => {
+                        const value: string = e.target.value;
+                        console.log('instance', instance);
+                        inputStateMapRef.current?.[
+                          item.variableName || ''
+                        ]?.update(Number(value), new ExtraInfo());
                       }}
-                    >
-                      {item.label || item.variableName}
-                    </Button>
-                  ))}
+                    />
+                  </div>
+                ))}
+                <div>
+                  Event Value:
+                  <Input
+                    value={inputValue}
+                    onChange={(event) => {
+                      setInputValue(event.target.value);
+                    }}
+                    size="small"
+                    placeholder="发送事件的参数（请填写 JSON）"
+                  />
+                </div>
+                {inputEventPorts?.map((item) => (
+                  <Button
+                    key={item.id}
+                    onClick={() => {
+                      instance?.output?.[item.variableName || '']?.next(
+                        JSON.parse(inputValue),
+                      );
+                    }}
+                  >
+                    {item.label || item.variableName}
+                  </Button>
+                ))}
               </div>
             </div>
           </div>
           <div>
             <div>Output</div>
-            {outputValueIds?.map(({ port, handleId, label }) => {
+            {outputValueIds?.map(({ port }) => {
               return (
                 <div key={port.id}>
                   <Form.Item label={port.label}>
                     {JSON.stringify(
-                      store.exports?.output?.[label || '']?.current,
+                      instance?.output?.[port.variableName || '']?.current,
                     )}
                   </Form.Item>
                 </div>

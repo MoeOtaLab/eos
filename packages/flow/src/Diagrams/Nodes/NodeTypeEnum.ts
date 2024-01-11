@@ -7,8 +7,6 @@ export enum NodeTypeEnum {
   StreamOperatorNode = 'StreamOperatorNode',
   /** 值操作 */
   ValueOperatorNode = 'ValueOperatorNode',
-  /** 输出节点 */
-  OutputNode = 'OutputNode',
   /**
    * 容器
    * @see https://reactflow.dev/learn/layouting/sub-flows#adding-child-nodes

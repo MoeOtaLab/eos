@@ -84,3 +84,7 @@ export interface IMetaOperatorData {
 export interface IInputOperatorData extends IMetaOperatorData {
   // noop to add
 }
+
+export interface IOutputOperatorData extends IMetaOperatorData {
+  // noop to add
+}

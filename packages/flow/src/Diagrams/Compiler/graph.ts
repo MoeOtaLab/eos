@@ -249,17 +249,17 @@ export function complie(data: { layer: Layer }) {
       tracker
     } = ${EosCoreSymbol}
     ${appCode}
-    function main() {
+    function main(input) {
       window.logs = [];
       tracker.onTrack(record => {
         window.logs.push(record);
       });
-      const instance = start(${formatBlockVarName(appContainerId)})
+      const instance = start(${formatBlockVarName(appContainerId)}, input)
       console.log(\`${formatBlockVarName(appContainerId)}\`, instance)
       return instance
     }
 
-    module.exports = main();
+    module.exports = main;
 `;
 
   console.log(output);

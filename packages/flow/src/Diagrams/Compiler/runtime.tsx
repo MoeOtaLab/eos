@@ -7,13 +7,13 @@ export const EosCoreSymbol = 'EosCore';
 export const EosOperatorsSymbol = 'EosOperators';
 
 export interface RuntimeContextState {
-  store: { exports: any };
+  store?: (input: EosCore.InputOutputInterface) => EosCore.ModelBlock;
   nodes: Node[];
   edges: Edge[];
 }
 
 export const RuntimeContext = React.createContext<RuntimeContextState>({
-  store: { exports: {} },
+  store: undefined,
   nodes: [],
   edges: [],
 });
@@ -23,7 +23,7 @@ export function useLinkRuntimeContext() {
 }
 
 export function runCode(code: string) {
-  const moduleData = { exports: {} };
+  const moduleData = { exports: undefined };
   // eslint-disable-next-line no-new-func, @typescript-eslint/no-implied-eval
   const runLinkLogic = new Function(
     'module',
@@ -45,9 +45,7 @@ export const LinkRuntimeContextProvider: React.FC<
   LinkRuntimeContextProviderProps
 > = (props) => {
   const { value, children, nodes, edges } = props;
-  const [store, setStore] = useState<RuntimeContextState['store']>({
-    exports: {},
-  });
+  const [store, setStore] = useState<RuntimeContextState['store']>();
 
   const contextValue = useMemo(
     () => ({
@@ -66,9 +64,10 @@ export const LinkRuntimeContextProvider: React.FC<
     const result = runCode(value);
     console.log({
       result,
+      value,
     });
     if (result) {
-      setStore(result);
+      setStore(() => result.exports);
     }
   }, [value]);
 

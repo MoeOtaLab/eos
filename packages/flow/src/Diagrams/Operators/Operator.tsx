@@ -1,4 +1,4 @@
-import { type Node, type NodeProps } from 'reactflow';
+import { type Node } from 'reactflow';
 import { getRandomId } from '../utils';
 import { type IBaseNodeData, NodePort } from '../Nodes/types';
 import {

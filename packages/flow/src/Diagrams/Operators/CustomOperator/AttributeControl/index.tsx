@@ -1,18 +1,16 @@
 import { type Node } from 'reactflow';
-import { type ICustomNodeData } from '../../../Nodes/types';
 import { useDiagramsContext } from '../../../State/DiagramsProvider';
 import { Button, Form, Input } from 'antd';
 import { findLayer } from '../../../State/Layer';
-import { OperatorMap } from '../../index';
 import { type CustomOperator } from '..';
+import { type ICustomOperatorData } from '../../types';
+import { getOperatorFromNode } from '../../OperatorMap';
 
-export function AttributeControl(props: { node: Node<ICustomNodeData> }) {
+export function AttributeControl(props: { node: Node<ICustomOperatorData> }) {
   const { node } = props;
   const { updateNode, layer, setLayer } = useDiagramsContext();
 
-  const Operator = OperatorMap.get(
-    node.data.operatorType,
-  ) as typeof CustomOperator;
+  const operator = getOperatorFromNode<CustomOperator>(node);
 
   return (
     <div>
@@ -20,25 +18,27 @@ export function AttributeControl(props: { node: Node<ICustomNodeData> }) {
         <Input
           size="small"
           placeholder="name"
-          defaultValue={node.data.operatorName}
+          defaultValue={node.data?.nodeLabel}
           onBlur={(e) => {
-            const name = e.target.value;
-            updateNode(node.id, (v) => ({
-              ...v,
-              data: {
-                ...v?.data,
-                operatorName: name,
-              },
-            }));
-            setTimeout(() => {
-              setLayer((layer) => {
-                const targetLayer = findLayer(layer, node.data.layerId);
-                if (targetLayer) {
-                  targetLayer.name = name;
-                }
-                return { ...layer };
+            if (operator) {
+              const name = e.target.value;
+              updateNode(
+                node.id,
+                (v) =>
+                  operator?.updateData(v as Node<ICustomOperatorData>, {
+                    nodeLabel: name,
+                  }),
+              );
+              setTimeout(() => {
+                setLayer((layer) => {
+                  const targetLayer = findLayer(layer, node.data.layerId);
+                  if (targetLayer) {
+                    targetLayer.name = name;
+                  }
+                  return { ...layer };
+                });
               });
-            });
+            }
           }}
         />
       </Form.Item>
@@ -46,7 +46,7 @@ export function AttributeControl(props: { node: Node<ICustomNodeData> }) {
         <Button
           size="small"
           onClick={() => {
-            Operator.refreshNode(node, {
+            operator?.refreshNode(node, {
               layer,
               updateNode,
             });

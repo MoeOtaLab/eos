@@ -1,17 +1,17 @@
 import { Operator } from '../Operator';
 import { NodeTypeEnum } from '../../Nodes/NodeTypeEnum';
 import { type Node } from 'reactflow';
+import { NodePort, type IStreamOperatorNodeData } from '../../Nodes/types';
 import {
-  NodePort,
-  type IStreamOperatorNodeData,
-  type ICustomNodeData,
-} from '../../Nodes/types';
+  type ICustomOperatorData,
+  type IHookOption,
+  type IAttributeControlOption,
+} from '../types';
 import { type IGenerationOption } from '../../Compiler/graph';
-import { type IHookOption, type IAttributeControlOption } from '../types';
 import { Layer, findLayer } from '../../State/Layer';
 
-export class WatchOperator extends Operator<ICustomNodeData> {
-  constructor(data?: Partial<Node<ICustomNodeData>>) {
+export class WatchOperator extends Operator<ICustomOperatorData> {
+  constructor(data?: Partial<Node<ICustomOperatorData>>) {
     super('WatchOperator', {
       ...data,
       type: NodeTypeEnum.ContainerNode,
@@ -36,7 +36,7 @@ export class WatchOperator extends Operator<ICustomNodeData> {
       operatorName: 'WatchOperator',
       allowAddTargetPort: true,
       ...data?.data,
-    } as ICustomNodeData;
+    } as ICustomOperatorData;
   }
 
   static onAfterCreate(options: IHookOption<WatchOperator>) {

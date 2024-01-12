@@ -40,11 +40,6 @@ export type IStateNodeData = IBaseNodeData & {
 export type IStreamOperatorNodeData = IBaseNodeData & {
   allowAddTargetPort?: boolean;
 };
-
-export type ICustomNodeData = IBaseNodeData & {
-  layerId: string;
-};
-
 export enum StateNodePortTypeEnum {
   State = 'State',
   UpdateHanlder = 'UpdateHanlder',

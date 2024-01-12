@@ -21,6 +21,11 @@ export class InputOperator
       operatorName: 'InputOperator',
       operatorType: 'InputOperator',
       nodeType: NodeTypeEnum.Node,
+    });
+  }
+
+  create(): Node<IInputOperatorData> {
+    return super.create({
       endPointOptions: {
         endPointList: [
           new EndPoint({

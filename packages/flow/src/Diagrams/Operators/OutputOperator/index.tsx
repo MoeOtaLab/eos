@@ -16,6 +16,14 @@ export class OutputOperator
       operatorName: 'OutputOperator',
       operatorType: 'OutputOperator',
       nodeType: NodeTypeEnum.Node,
+    });
+  }
+
+  create(
+    data?: Partial<IOutputOperatorData> | undefined,
+    defaultProps?: Partial<Node<IOutputOperatorData>> | undefined,
+  ): Node<IOutputOperatorData> {
+    return super.create({
       endPointOptions: {
         endPointList: [
           new EndPoint({

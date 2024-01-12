@@ -88,3 +88,7 @@ export interface IInputOperatorData extends IMetaOperatorData {
 export interface IOutputOperatorData extends IMetaOperatorData {
   // noop to add
 }
+
+export interface ICustomOperatorData extends IMetaOperatorData {
+  layerId: string;
+}

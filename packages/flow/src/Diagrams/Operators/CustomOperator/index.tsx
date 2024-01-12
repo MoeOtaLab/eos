@@ -1,38 +1,114 @@
-import { Operator } from '../Operator';
+import { MetaOperator } from '../Operator';
+import { getOperatorFromNode } from '../OperatorMap';
 import { type Node } from 'reactflow';
 import { NodeTypeEnum } from '../../Nodes/NodeTypeEnum';
-import { type ICustomNodeData } from '../../Nodes/types';
 import {
   type IHookOption,
   type IAttributeControlOption,
   type IInputOperatorData,
   type IOutputOperatorData,
+  type ICustomOperatorData,
+  EndPoint,
 } from '../types';
 import { type IGenerationOption } from '../../Compiler/graph';
 import { Layer, findLayer } from '../../State/Layer';
 import { AttributeControl } from './AttributeControl';
 import { type DiagramsContextType } from '../../State/DiagramsProvider';
-import { getOperatorFromNode } from '../OperatorMap';
+import { type InputOperator } from '../InputOperator';
+import { type OutputOperator } from '../OutputOperator';
 
-export class CustomOperator extends Operator<ICustomNodeData> {
-  constructor(data?: Partial<Node<Partial<ICustomNodeData>>>) {
-    super('CustomOperator', {
-      ...data,
-      type: NodeTypeEnum.CustomNode,
-    });
+function generateEndPointList(data?: {
+  outputStateList: EndPoint[];
+  outputEventList: EndPoint[];
+  inputStateList: EndPoint[];
+  inputEventList: EndPoint[];
+}) {
+  return [
+    // output
+    new EndPoint({
+      type: 'group',
+      label: 'State',
+      children: data?.outputStateList || [],
+      allowAddAndRemoveChildren: false,
+      hint: 'outputState',
+    }),
+    new EndPoint({
+      type: 'group',
+      label: 'Event',
+      children: data?.outputEventList || [],
+      allowAddAndRemoveChildren: false,
+      hint: 'outputEvent',
+    }),
+    // input
+    new EndPoint({
+      type: 'group',
+      label: 'State',
+      children: data?.inputStateList || [],
+      allowAddAndRemoveChildren: false,
+      hint: 'inputState',
+    }),
+    new EndPoint({
+      type: 'group',
+      label: 'Event',
+      children: data?.inputEventList || [],
+      allowAddAndRemoveChildren: false,
+      hint: 'inputEvent',
+    }),
+  ];
+}
 
-    // init ports
-    this.data = {
-      ...this.data,
-      sourcePorts: [],
-      targetPorts: [],
+export class CustomOperator
+  extends MetaOperator<ICustomOperatorData>
+  implements MetaOperator<ICustomOperatorData>
+{
+  description: string = '双击编辑';
+
+  isUnique?: boolean | undefined = false;
+  nodeColor?: string | undefined = '#FBCB0A';
+
+  constructor() {
+    super({
       operatorName: 'CustomOperator',
-      description: '双击进入编辑',
-      ...data?.data,
-    } as ICustomNodeData;
+      operatorType: 'CustomOperator',
+      nodeType: NodeTypeEnum.Node,
+      endPointOptions: {
+        endPointList: generateEndPointList(),
+      },
+    });
   }
 
-  static onAfterCreate(options: IHookOption<CustomOperator>) {
+  getOutputPorts(node: Node<ICustomOperatorData>) {
+    const eventPorts =
+      node.data?.endPointOptions?.endPointList
+        ?.filter(
+          (item) =>
+            item.type === 'group' &&
+            ['outputState', 'outputEvent'].includes(item.hint || ''),
+        )
+        .map((item) => item?.children)
+        ?.flat()
+        .filter((x): x is EndPoint => !!x) || [];
+
+    return eventPorts;
+  }
+
+  getInputPorts(node: Node<ICustomOperatorData>) {
+    const eventPorts =
+      node.data?.endPointOptions?.endPointList
+        ?.filter(
+          (item) =>
+            item.type === 'group' &&
+            ['inputState', 'inputEvent'].includes(item.hint || ''),
+        )
+        .map((item) => item?.children)
+        .flat()
+        .filter((x): x is EndPoint => !!x) || [];
+
+    return eventPorts;
+  }
+
+  // todo
+  onAfterCreate(options: IHookOption<Node<ICustomOperatorData>>) {
     const { node, actions, currentState } = options;
     const { setLayer } = actions;
     const { activeLayerId, layer } = currentState;
@@ -57,8 +133,8 @@ export class CustomOperator extends Operator<ICustomNodeData> {
     // setActiveLayerId(newLayer.id);
   }
 
-  static generateAttributeControl(
-    options: IAttributeControlOption<CustomOperator>,
+  generateAttributeControl(
+    options: IAttributeControlOption<Node<ICustomOperatorData>>,
   ) {
     const { node } = options;
     return (
@@ -68,8 +144,8 @@ export class CustomOperator extends Operator<ICustomNodeData> {
     );
   }
 
-  static generateBlockDeclarations?(
-    options: IGenerationOption<ICustomNodeData>,
+  generateBlockDeclarations(
+    options: IGenerationOption<ICustomOperatorData>,
   ): string[] {
     const { node, nodeGraph, formatVariableName, formatBlockVarName } = options;
 
@@ -77,7 +153,7 @@ export class CustomOperator extends Operator<ICustomNodeData> {
       `const temp_${formatVariableName(
         node.id,
       )} = context.mount(${formatBlockVarName(node.data.layerId)}, {
-        ${node.data.targetPorts
+        ${this.getInputPorts(node)
           .map((port) => {
             const sourceId = nodeGraph
               .findSourceNodes(node.id)
@@ -87,28 +163,39 @@ export class CustomOperator extends Operator<ICustomNodeData> {
               return '';
             }
 
-            return `['${port.label}']: ${formatVariableName(sourceId || '')}`;
+            return `['${port.variableName}']: ${formatVariableName(
+              sourceId || '',
+            )}`;
           })
           .filter(Boolean)
           .join(',\n')}
       })`,
-      ...(node.data?.sourcePorts || [])?.map((port) => {
+      ...(this.getOutputPorts(node) || [])?.map((port) => {
         return `const ${formatVariableName(
           port.id,
-        )} = temp_${formatVariableName(node.id)}.output['${port.label}']`;
+        )} = temp_${formatVariableName(node.id)}.output['${
+          port.variableName
+        }']`;
       }),
     ];
   }
 
-  static generateBlockRelation?(
-    options: IGenerationOption<ICustomNodeData>,
+  generateBlockOutput(options: IGenerationOption<any>): string[] {
+    return [];
+  }
+
+  generateBlockRelation(
+    _options: IGenerationOption<ICustomOperatorData>,
   ): string[] {
     return [];
   }
 
-  static refreshNode(
-    node: Pick<Node<ICustomNodeData>, 'id' | 'data'>,
-    options: Pick<DiagramsContextType<ICustomNodeData>, 'layer' | 'updateNode'>,
+  refreshNode(
+    node: Node<ICustomOperatorData>,
+    options: Pick<
+      DiagramsContextType<ICustomOperatorData>,
+      'layer' | 'updateNode'
+    >,
   ) {
     const { layer, updateNode } = options;
 
@@ -124,26 +211,81 @@ export class CustomOperator extends Operator<ICustomNodeData> {
           getOperatorFromNode(item)?.operatorType === 'OutputOperator',
       );
 
+      const inputOperator = getOperatorFromNode<InputOperator>(inputNode);
+      const outputOperator = getOperatorFromNode<OutputOperator>(outputNode);
+
       // TODO: fix
-      const sourcePorts: any = inputNode?.data?.endPointOptions?.endPointList;
-      // inputNode?.data?.sourcePorts?.filter((item) =>
-      //   [InputNodePortTypeEnum.State, InputNodePortTypeEnum.Event].includes(
-      //     item.type as InputNodePortTypeEnum,
-      //   ),
-      // ) || [];
+      const inputStatePorts = !inputNode
+        ? []
+        : inputOperator?.getStatePort(inputNode)?.map(
+            (item) =>
+              new EndPoint({
+                ...item,
+                id: '',
+                type: 'target',
+              }),
+          );
+      const inputEventPorts = !inputNode
+        ? []
+        : inputOperator?.getEventPorts(inputNode)?.map(
+            (item) =>
+              new EndPoint({
+                ...item,
+                id: '',
+                type: 'target',
+              }),
+          );
 
-      const targetPorts = outputNode?.data?.endPointOptions?.endPointList;
-      // outputNode?.data?.targetPorts || [];
+      const outputStatePort = !outputNode
+        ? []
+        : outputOperator?.getStatePort(outputNode)?.map(
+            (item) =>
+              new EndPoint({
+                ...item,
+                id: '',
+                type: 'source',
+              }),
+          );
 
-      updateNode(node.id, (v) => ({
-        ...v,
-        data: {
-          ...v.data,
-          // 攻守互换
-          sourcePorts: targetPorts,
-          targetPorts: sourcePorts,
-        } as ICustomNodeData,
-      }));
+      const outputEventPort = !outputNode
+        ? []
+        : outputOperator?.getEventPorts(outputNode)?.map(
+            (item) =>
+              new EndPoint({
+                ...item,
+                id: '',
+                type: 'source',
+              }),
+          );
+
+      // TODO: FIX TYPE ERROR
+      updateNode(
+        node.id,
+        (v: any) =>
+          this.updateData(v, {
+            endPointOptions: {
+              endPointList: generateEndPointList({
+                inputEventList: inputEventPorts || [],
+                inputStateList: inputStatePorts || [],
+                outputEventList: outputEventPort || [],
+                outputStateList: outputStatePort || [],
+              }),
+            },
+          }) as any,
+      );
     }
+  }
+
+  onNodeDoubleClick(option: IHookOption<Node<ICustomOperatorData>>): void {
+    const { node, actions } = option;
+    actions?.setActiveLayerId(node?.data?.layerId);
+  }
+
+  onNodeFocus(options: IHookOption<Node<ICustomOperatorData>>): void {
+    const { node, currentState, actions } = options;
+    this?.refreshNode(node, {
+      layer: currentState.layer,
+      updateNode: actions.updateNode as any,
+    });
   }
 }

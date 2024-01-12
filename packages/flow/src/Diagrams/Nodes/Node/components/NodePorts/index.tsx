@@ -18,6 +18,10 @@ export function NodePorts(props: { node: Partial<Node<IMetaOperatorData>> }) {
     <div className={css.container}>
       {endPointOptions.endPointList.map((item) => {
         if (item.type === 'group') {
+          if (!item.children?.length && !item.allowAddAndRemoveChildren) {
+            return null;
+          }
+
           return (
             <div key={item.id}>
               <div className={css['port-type-container']}>

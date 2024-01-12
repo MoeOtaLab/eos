@@ -13,7 +13,6 @@ export enum NodeTypeEnum {
    * @see https://reactflow.dev/examples/layout/sub-flows
    * */
   ContainerNode = 'ContainerNode',
-  CustomNode = 'CustomNode',
   DoNode = 'DoNode',
   Node = 'Node',
 }

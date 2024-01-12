@@ -3,7 +3,7 @@ import {
   useDiagramsContextSelector,
   useDiagramsActions,
 } from '../../State/DiagramsProvider';
-import { OperatorMap } from '../../Operators';
+import { OperatorMap, getOperatorFromNode } from '../../Operators';
 import { type Operator } from '../../Operators/Operator';
 
 export const AttributePanel: React.FC = () => {
@@ -19,7 +19,9 @@ export const AttributePanel: React.FC = () => {
   );
 
   const operatorType = selectedElementNode?.data?.operatorType;
-  const Operator = OperatorMap.get(operatorType);
+  // TODO
+  const operator =
+    getOperatorFromNode(selectedElementNode) || OperatorMap.get(operatorType);
   const showConfig = !!selectedElement && operatorType;
 
   const { updateEdge, updateNode, setLayer } = useDiagramsActions();
@@ -28,7 +30,7 @@ export const AttributePanel: React.FC = () => {
     <div>
       <div>Attributes</div>
       {showConfig &&
-        Operator?.generateAttributeControl?.({
+        operator?.generateAttributeControl?.({
           node: selectedElementNode,
           actions: {
             updateEdge,

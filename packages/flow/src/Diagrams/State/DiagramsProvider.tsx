@@ -11,9 +11,9 @@ import {
   useUpdateNodeInternals,
 } from 'reactflow';
 import { Layer, findLayer } from './Layer';
-import { useMemoizedFn } from 'ahooks';
-import { OperatorMap } from '../Operators';
-import { type ICustomNodeData } from '../Nodes/types';
+import { useLatest, useMemoizedFn } from 'ahooks';
+import { getOperatorFromNode } from '../Operators';
+import { type ICustomOperatorData } from '../Operators/types';
 import { type CustomOperator } from '../Operators/CustomOperator';
 
 export interface DiagramsContextType<T = any> {
@@ -58,6 +58,37 @@ export function useDiagramsContextSelector<T>(
   selector: (ctx: DiagramsContextType) => T,
 ) {
   return useContextSelector(DiagramsContext, selector);
+}
+
+export function useDiagramsHookOption() {
+  const {
+    nodes,
+    edges,
+    updateEdge,
+    updateNode,
+    setActiveLayerId,
+    setLayer,
+    layer,
+    activeLayerId,
+  } = useDiagramsContext();
+
+  const currentStateRef = useLatest({
+    nodes,
+    edges,
+    layer,
+    activeLayerId,
+  });
+  const actionsRef = useLatest({
+    updateEdge,
+    updateNode,
+    setActiveLayerId,
+    setLayer,
+  });
+
+  return {
+    currentStateRef,
+    actionsRef,
+  };
 }
 
 export function useDiagramsState() {
@@ -220,14 +251,12 @@ export const DiagramsContextInnerProvider: React.FC = (props) => {
         const parentLayer = findLayer(layer, prevLayer.parentLayerId);
         const targetNode = parentLayer?.nodes.find(
           (item) => item.id === prevLayer.relativeNodeId,
-        ) as Node<ICustomNodeData>;
+        ) as Node<ICustomOperatorData>;
 
         if (targetNode) {
-          const Operator = OperatorMap.get(
-            targetNode.data?.operatorType,
-          ) as typeof CustomOperator;
+          const operator = getOperatorFromNode<CustomOperator>(targetNode);
 
-          Operator.refreshNode(targetNode, {
+          operator?.refreshNode(targetNode as any, {
             updateNode,
             layer: layerRef.current,
           });

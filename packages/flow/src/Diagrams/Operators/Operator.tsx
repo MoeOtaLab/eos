@@ -1,4 +1,4 @@
-import { type Node } from 'reactflow';
+import { type Node, type NodeProps } from 'reactflow';
 import { getRandomId } from '../utils';
 import { type IBaseNodeData, NodePort } from '../Nodes/types';
 import {
@@ -115,15 +115,16 @@ export abstract class MetaOperator<
   }
 
   // ============ START: Operator Meta Data(static) ============= //
-  abstract isUnique: boolean;
-  abstract nodeColor: string;
+  abstract isUnique?: boolean;
+  abstract nodeColor?: string;
+  description?: string;
 
   constructor(defaultOperatorData: IMetaOperatorData) {
     this.defaultOperatorData = defaultOperatorData;
   }
 
   // ============ START: Instance Operations ============= //
-  create(data?: T, defaultProps?: Partial<Node<T>>): Node<T> {
+  create(data?: Partial<T>, defaultProps?: Partial<Node<T>>): Node<T> {
     return {
       // 1. should generate the attributes that can modified by user
       // 2. should generate the nodes
@@ -161,7 +162,12 @@ export abstract class MetaOperator<
 
   updateData(
     currentNode: Node<T>,
-    patch: Partial<Omit<Node<T>['data'], keyof IMetaOperatorData>>,
+    patch: Partial<
+      Omit<
+        Node<T>['data'],
+        'nodeOptions' | 'nodeType' | 'operatorName' | 'operatorType'
+      >
+    >,
   ): Node<T> {
     const metaDataPropList: (keyof IMetaOperatorData)[] = [
       'nodeOptions',
@@ -204,7 +210,11 @@ export abstract class MetaOperator<
   abstract generateBlockOutput(options: IGenerationOption): string[];
 
   // ============ START: Hooks handler ============= //
-  onAfterCreate(_options: IHookOption<Node<T>>): void {}
+  onAfterCreate(options: IHookOption<Node<T>>): void {}
+
+  onNodeFocus(options: IHookOption<Node<T>>) {}
+
+  onNodeDoubleClick(options: IHookOption<Node<T>>) {}
 
   // ============ START: Panel Relative ============= //
   generateAttributeControl(options: IAttributeControlOption<Node<T>>) {

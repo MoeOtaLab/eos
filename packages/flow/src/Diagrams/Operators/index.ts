@@ -12,6 +12,7 @@ import { registerOperator } from './OperatorMap';
 
 registerOperator(new InputOperator());
 registerOperator(new OutputOperator());
+registerOperator(new CustomOperator());
 
 export {
   OperatorMap as NextOperatorMap,
@@ -24,7 +25,6 @@ export const OperatorMap = new Map<string, typeof Operator>(
     StateOperator,
     SumOperator,
     ConstStateOperator,
-    CustomOperator,
     WatchOperator,
     DoOperator,
   }) as any,

@@ -19,10 +19,7 @@ export class OutputOperator
     });
   }
 
-  create(
-    data?: Partial<IOutputOperatorData> | undefined,
-    defaultProps?: Partial<Node<IOutputOperatorData>> | undefined,
-  ): Node<IOutputOperatorData> {
+  create(): Node<IOutputOperatorData> {
     return super.create({
       endPointOptions: {
         endPointList: [
@@ -36,10 +33,10 @@ export class OutputOperator
               hint: 'state',
             },
             children: [
-              new EndPoint({
-                type: 'target',
-                hint: 'state',
-              }),
+              // new EndPoint({
+              //   type: 'target',
+              //   hint: 'state',
+              // }),
             ],
           }),
 
@@ -53,10 +50,10 @@ export class OutputOperator
               hint: 'event',
             },
             children: [
-              new EndPoint({
-                type: 'target',
-                hint: 'event',
-              }),
+              // new EndPoint({
+              //   type: 'target',
+              //   hint: 'event',
+              // }),
             ],
           }),
         ],

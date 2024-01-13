@@ -159,7 +159,7 @@ export const Demo: React.FC = () => {
             {outputValueIds?.map(({ port }) => {
               return (
                 <div key={port.id}>
-                  <Form.Item label={port.label}>
+                  <Form.Item label={port.label || port.variableName}>
                     {JSON.stringify(
                       instance?.output?.[port.variableName || '']?.current,
                     )}

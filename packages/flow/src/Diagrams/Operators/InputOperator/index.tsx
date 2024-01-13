@@ -38,10 +38,10 @@ export class InputOperator
               hint: 'state',
             },
             children: [
-              new EndPoint({
-                type: 'source',
-                hint: 'state',
-              }),
+              // new EndPoint({
+              //   type: 'source',
+              //   hint: 'state',
+              // }),
             ],
           }),
           new EndPoint({
@@ -54,10 +54,10 @@ export class InputOperator
               hint: 'event',
             },
             children: [
-              new EndPoint({
-                type: 'source',
-                hint: 'event',
-              }),
+              // new EndPoint({
+              //   type: 'source',
+              //   hint: 'event',
+              // }),
             ],
           }),
           new EndPoint({

@@ -2,7 +2,7 @@ import classnames from 'classnames';
 import { useDiagramsContext } from '../../State/DiagramsProvider';
 import { Button, Input, Modal } from 'antd';
 import { type Layer } from '../../State/Layer';
-import { CustomOperator } from '../../Operators/CustomOperator';
+import { getOperatorFromOperatorType } from '../../Operators';
 import css from './LayerPanel.module.less';
 
 export function LayerPanel() {
@@ -63,12 +63,16 @@ export function LayerPanel() {
             ),
             onOk() {
               if (name) {
-                const newNode = new CustomOperator({
-                  data: { operatorName: name },
-                });
+                const customOperator =
+                  getOperatorFromOperatorType('CustomOperator');
+                if (!customOperator) {
+                  return;
+                }
+
+                const newNode = customOperator?.create();
 
                 // add nodes
-                CustomOperator.onAfterCreate({
+                customOperator.onAfterCreate({
                   node: newNode,
                   currentState: {
                     layer,

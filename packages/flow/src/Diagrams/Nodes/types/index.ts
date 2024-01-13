@@ -25,22 +25,6 @@ export interface IBaseNodeData {
   targetPorts: NodePort[];
 }
 
-export enum StateNodeValueTypeEnum {
-  String = 'string',
-  Number = 'number',
-  Boolean = 'boolean',
-  Object = 'object',
-}
-
-export type IStateNodeData = IBaseNodeData & {
-  valueType: StateNodeValueTypeEnum;
-  value: string | number | boolean | undefined;
-};
-
 export type IStreamOperatorNodeData = IBaseNodeData & {
   allowAddTargetPort?: boolean;
 };
-export enum StateNodePortTypeEnum {
-  State = 'State',
-  UpdateHanlder = 'UpdateHanlder',
-}

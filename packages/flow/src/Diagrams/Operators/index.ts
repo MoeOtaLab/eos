@@ -1,8 +1,7 @@
-import { StateOperator } from './StateOperator';
+import { StateOperator, ConstStateOperator } from './StateOperator';
 import { InputOperator } from './InputOperator';
 import { OutputOperator } from './OutputOperator';
 import { SumOperator } from './SumOperator';
-import { ConstStateOperator } from './ConstStateOperator';
 import { type Operator } from './Operator';
 import { CustomOperator } from './CustomOperator';
 import { WatchOperator } from './WatchOperator';
@@ -13,6 +12,8 @@ import { registerOperator } from './OperatorMap';
 registerOperator(new InputOperator());
 registerOperator(new OutputOperator());
 registerOperator(new CustomOperator());
+registerOperator(new StateOperator());
+registerOperator(new ConstStateOperator());
 
 export {
   OperatorMap as NextOperatorMap,
@@ -22,9 +23,7 @@ export {
 
 export const OperatorMap = new Map<string, typeof Operator>(
   Object.entries({
-    StateOperator,
     SumOperator,
-    ConstStateOperator,
     WatchOperator,
     DoOperator,
   }) as any,

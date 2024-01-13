@@ -1,6 +1,4 @@
 export enum NodeTypeEnum {
-  /** 状态节点 */
-  StateNode = 'StateNode',
   /** 组合节点 */
   CompositionNode = 'CompositionNode',
   /** 流操作 */

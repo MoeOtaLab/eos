@@ -40,8 +40,6 @@ const nodeColor = (node: Node) => {
   }
 
   switch (node.type) {
-    case NodeTypeEnum.StateNode:
-      return '#0079FF';
     case NodeTypeEnum.StreamOperatorNode:
       return '#FF0060';
     case NodeTypeEnum.ContainerNode:

@@ -1,4 +1,4 @@
-import { type Node } from 'reactflow';
+import { type NodeProps, type Node } from 'reactflow';
 import { getRandomId } from '../utils';
 import { type IBaseNodeData, NodePort } from '../Nodes/types';
 import {
@@ -115,8 +115,8 @@ export abstract class MetaOperator<
   }
 
   // ============ START: Operator Meta Data(static) ============= //
-  abstract isUnique?: boolean;
-  abstract nodeColor?: string;
+  isUnique?: boolean;
+  nodeColor?: string;
   description?: string;
 
   constructor(defaultOperatorData: IMetaOperatorData) {
@@ -236,5 +236,9 @@ export abstract class MetaOperator<
       </>
     );
   }
+
   // ============ START: Node Render Relative ============= //
+  getNodeProps(currentNode: NodeProps<T>): Record<any, any> {
+    return {};
+  }
 }

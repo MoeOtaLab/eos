@@ -61,7 +61,9 @@ export class EndPoint {
 
 type IEndPointOption = EndPoint;
 
-export interface IMetaOperatorData {
+export interface IMetaOperatorData<
+  NodeOptions extends Record<string, any> = Record<string, any>,
+> {
   /** operator type, unique specifier */
   operatorType: string;
   /** operator name, label for user */
@@ -69,7 +71,7 @@ export interface IMetaOperatorData {
   /** node type for render */
   nodeType: NodeTypeEnum;
   /** options for rendering node */
-  nodeOptions?: Record<string, any>;
+  nodeOptions?: NodeOptions;
   /** custom label/name for user */
   nodeLabel?: string;
   /** description for node writtern by user */
@@ -81,14 +83,35 @@ export interface IMetaOperatorData {
   };
 }
 
-export interface IInputOperatorData extends IMetaOperatorData {
+export interface IInputOperatorData<
+  NodeOptions extends Record<string, any> = Record<string, any>,
+> extends IMetaOperatorData<NodeOptions> {
   // noop to add
 }
 
-export interface IOutputOperatorData extends IMetaOperatorData {
+export interface IOutputOperatorData<
+  NodeOptions extends Record<string, any> = Record<string, any>,
+> extends IMetaOperatorData<NodeOptions> {
   // noop to add
 }
 
-export interface ICustomOperatorData extends IMetaOperatorData {
+export interface ICustomOperatorData<
+  NodeOptions extends Record<string, any> = Record<string, any>,
+> extends IMetaOperatorData<NodeOptions> {
   layerId: string;
+}
+
+export enum StateOperatorValueTypeEnum {
+  String = 'string',
+  Number = 'number',
+  Boolean = 'boolean',
+  Object = 'object',
+}
+
+export interface IStateOperatorData<
+  NodeOptions extends Record<string, any> = Record<string, any>,
+> extends IMetaOperatorData<NodeOptions> {
+  layerId: string;
+  valueType: StateOperatorValueTypeEnum;
+  value: string | number | boolean | undefined;
 }

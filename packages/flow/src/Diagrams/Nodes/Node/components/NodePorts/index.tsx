@@ -10,6 +10,30 @@ export function NodePorts(props: { node: Partial<Node<IMetaOperatorData>> }) {
   const { updateNode } = useDiagramsActions();
   const operator = getOperatorFromNode(node);
 
+  function renderSinglePort(port: EndPoint) {
+    if (port.type !== 'source' && port.type !== 'target') {
+      return <div key={port.id}>unknown type: {port.type}</div>;
+    }
+
+    return (
+      <div key={port.id} style={{ position: 'relative' }}>
+        <div
+          style={{
+            textAlign: port.type === 'source' ? 'right' : 'left',
+          }}
+        >
+          {port.label || port.variableName}
+        </div>
+        <Handle
+          type={port.type}
+          position={port.type === 'source' ? Position.Right : Position.Left}
+          id={port.id}
+          isConnectable={true}
+        />
+      </div>
+    );
+  }
+
   if (!endPointOptions?.endPointList?.length || !operator) {
     return null;
   }
@@ -27,31 +51,7 @@ export function NodePorts(props: { node: Partial<Node<IMetaOperatorData>> }) {
               <div className={css['port-type-container']}>
                 <div className={css['port-type-label']}>{item.label}</div>
                 {item.children?.map((port) => {
-                  if (port.type !== 'source' && port.type !== 'target') {
-                    return <div key={port.id}>unknown type: {port.type}</div>;
-                  }
-
-                  return (
-                    <div key={port.id} style={{ position: 'relative' }}>
-                      <div
-                        style={{
-                          textAlign: port.type === 'source' ? 'right' : 'left',
-                        }}
-                      >
-                        {port.label || port.variableName}
-                      </div>
-                      <Handle
-                        type={port.type}
-                        position={
-                          port.type === 'source'
-                            ? Position.Right
-                            : Position.Left
-                        }
-                        id={port.id}
-                        isConnectable={true}
-                      />
-                    </div>
-                  );
+                  return renderSinglePort(port);
                 })}
               </div>
               {item.allowAddAndRemoveChildren && (
@@ -75,7 +75,7 @@ export function NodePorts(props: { node: Partial<Node<IMetaOperatorData>> }) {
             </div>
           );
         } else {
-          return null;
+          return renderSinglePort(item);
         }
       })}
     </div>

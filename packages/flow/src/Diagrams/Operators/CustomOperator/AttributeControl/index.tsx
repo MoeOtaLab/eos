@@ -1,5 +1,8 @@
 import { type Node } from 'reactflow';
-import { useDiagramsContext } from '../../../State/DiagramsProvider';
+import {
+  useDiagramsContext,
+  useDiagramsHookOption,
+} from '../../../State/DiagramsProvider';
 import { Button, Form, Input } from 'antd';
 import { findLayer } from '../../../State/Layer';
 import { type CustomOperator } from '..';
@@ -8,7 +11,8 @@ import { getOperatorFromNode } from '../../OperatorMap';
 
 export function AttributeControl(props: { node: Node<ICustomOperatorData> }) {
   const { node } = props;
-  const { updateNode, layer, setLayer } = useDiagramsContext();
+  const { updateNode, setLayer } = useDiagramsContext();
+  const { currentStateRef, actionsRef } = useDiagramsHookOption();
 
   const operator = getOperatorFromNode<CustomOperator>(node);
 
@@ -46,9 +50,10 @@ export function AttributeControl(props: { node: Node<ICustomOperatorData> }) {
         <Button
           size="small"
           onClick={() => {
-            operator?.refreshNode(node, {
-              layer,
-              updateNode,
+            operator?.refreshNode({
+              currentState: currentStateRef.current,
+              actions: actionsRef.current,
+              node,
             });
           }}
         >

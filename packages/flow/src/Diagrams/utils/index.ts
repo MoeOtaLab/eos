@@ -18,3 +18,7 @@ export function isSameSourceHandle(source: Edge, target: Edge | Connection) {
     source.sourceHandle === target.sourceHandle
   );
 }
+
+export async function sleepMs(milSec: number) {
+  return await new Promise((resolve) => setTimeout(resolve, milSec));
+}

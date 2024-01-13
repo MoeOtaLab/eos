@@ -1,6 +1,6 @@
 import { type Edge, type Node } from 'reactflow';
-import { OperatorMap, getOperatorFromNode } from '../Operators';
-import { type IBaseNodeData } from '../Nodes/types';
+import { getOperatorFromNode } from '../Operators';
+import { type IMetaOperatorData } from '../Operators/types';
 import { EosCoreSymbol } from './runtime';
 import { type Layer, flatLayer } from '../State/Layer';
 import { message } from 'antd';
@@ -168,10 +168,9 @@ function generateBlock(
   const sortedNode = nodeGraph.getSortedNodes();
 
   const declarations: string[] = sortedNode
-    .map((node: Node<IBaseNodeData>) => {
-      const Operator =
-        getOperatorFromNode(node) || OperatorMap.get(node.data.operatorName);
-      return Operator?.generateBlockDeclarations?.({
+    .map((node: Node<IMetaOperatorData>) => {
+      const operator = getOperatorFromNode(node);
+      return operator?.generateBlockDeclarations?.({
         node,
         nodeGraph,
         formatVariableName,
@@ -182,10 +181,9 @@ function generateBlock(
     .filter((x): x is string => Boolean(x));
 
   const relations: string[] = sortedNode
-    .map((node: Node<IBaseNodeData>) => {
-      const Operator =
-        getOperatorFromNode(node) || OperatorMap.get(node.data.operatorName);
-      return Operator?.generateBlockRelation?.({
+    .map((node: Node<IMetaOperatorData>) => {
+      const operator = getOperatorFromNode(node);
+      return operator?.generateBlockRelation?.({
         node,
         nodeGraph,
         formatVariableName,
@@ -196,10 +194,9 @@ function generateBlock(
     .filter((x): x is string => Boolean(x));
 
   const outputs: string[] = sortedNode
-    .map((node: Node<IBaseNodeData>) => {
-      const Operator =
-        getOperatorFromNode(node) || OperatorMap.get(node.data.operatorName);
-      return Operator?.generateBlockOutput?.({
+    .map((node: Node<IMetaOperatorData>) => {
+      const operator = getOperatorFromNode(node);
+      return operator?.generateBlockOutput?.({
         node,
         nodeGraph,
         formatVariableName,

@@ -3,25 +3,25 @@ import { type NodeTypeEnum } from '../../Nodes/NodeTypeEnum';
 import { type Node } from 'reactflow';
 import { v4 as uuid } from 'uuid';
 
-type GetOperatorType<T> = T extends Node<infer P> ? P : any;
+type GetOperatorStateType<T> = T extends Node<infer P> ? P : any;
 
-export interface IAttributeControlOption<Op extends Node<any>> {
-  node: Op;
+export interface IAttributeControlOption<OpNode extends Node<any>> {
+  node: OpNode;
   actions: Pick<
-    DiagramsContextType<GetOperatorType<Op>>,
+    DiagramsContextType<GetOperatorStateType<OpNode>>,
     'updateEdge' | 'updateNode' | 'setLayer'
   >;
 }
 
-export interface IHookOption<Op extends Node<any>> {
-  node: Op;
+export interface IHookOption<OpNode extends Node<any>> {
+  node: OpNode;
   currentState: Pick<
-    DiagramsContextType<GetOperatorType<Op>>,
+    DiagramsContextType<GetOperatorStateType<OpNode>>,
     'activeLayerId' | 'layer' | 'nodes' | 'edges'
   >;
   actions: Pick<
-    DiagramsContextType<GetOperatorType<Op>>,
-    'updateEdge' | 'updateNode' | 'setLayer' | 'setActiveLayerId'
+    DiagramsContextType<GetOperatorStateType<OpNode>>,
+    'updateEdge' | 'updateNode' | 'setLayer' | 'setActiveLayerId' | 'setEdges'
   >;
 }
 
@@ -61,7 +61,9 @@ export class EndPoint {
 
 type IEndPointOption = EndPoint;
 
-export interface IMetaOperatorData {
+export interface IMetaOperatorData<
+  NodeOptions extends Record<string, any> = Record<string, any>,
+> {
   /** operator type, unique specifier */
   operatorType: string;
   /** operator name, label for user */
@@ -69,7 +71,7 @@ export interface IMetaOperatorData {
   /** node type for render */
   nodeType: NodeTypeEnum;
   /** options for rendering node */
-  nodeOptions?: Record<string, any>;
+  nodeOptions?: NodeOptions;
   /** custom label/name for user */
   nodeLabel?: string;
   /** description for node writtern by user */
@@ -81,14 +83,40 @@ export interface IMetaOperatorData {
   };
 }
 
-export interface IInputOperatorData extends IMetaOperatorData {
+export interface IInputOperatorData<
+  NodeOptions extends Record<string, any> = Record<string, any>,
+> extends IMetaOperatorData<NodeOptions> {
   // noop to add
 }
 
-export interface IOutputOperatorData extends IMetaOperatorData {
+export interface IOutputOperatorData<
+  NodeOptions extends Record<string, any> = Record<string, any>,
+> extends IMetaOperatorData<NodeOptions> {
   // noop to add
 }
 
-export interface ICustomOperatorData extends IMetaOperatorData {
+export interface ICustomOperatorData<
+  NodeOptions extends Record<string, any> = Record<string, any>,
+> extends IMetaOperatorData<NodeOptions> {
   layerId: string;
+}
+
+export enum StateOperatorValueTypeEnum {
+  String = 'string',
+  Number = 'number',
+  Boolean = 'boolean',
+  Object = 'object',
+}
+
+export interface IStateOperatorData<
+  NodeOptions extends Record<string, any> = Record<string, any>,
+> extends IMetaOperatorData<NodeOptions> {
+  layerId: string;
+  valueType: StateOperatorValueTypeEnum;
+  value: string | number | boolean | undefined;
+}
+export interface ISumOperatorData<
+  NodeOptions extends Record<string, any> = Record<string, any>,
+> extends IMetaOperatorData<NodeOptions> {
+  // noop
 }

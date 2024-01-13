@@ -21,7 +21,7 @@ export interface IHookOption<OpNode extends Node<any>> {
   >;
   actions: Pick<
     DiagramsContextType<GetOperatorStateType<OpNode>>,
-    'updateEdge' | 'updateNode' | 'setLayer' | 'setActiveLayerId'
+    'updateEdge' | 'updateNode' | 'setLayer' | 'setActiveLayerId' | 'setEdges'
   >;
 }
 

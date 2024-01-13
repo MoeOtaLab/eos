@@ -13,7 +13,6 @@ import {
 import { type IGenerationOption } from '../../Compiler/graph';
 import { Layer, findLayer } from '../../State/Layer';
 import { AttributeControl } from './AttributeControl';
-import { type DiagramsContextType } from '../../State/DiagramsProvider';
 import { type InputOperator } from '../InputOperator';
 import { type OutputOperator } from '../OutputOperator';
 
@@ -190,14 +189,9 @@ export class CustomOperator
     return [];
   }
 
-  refreshNode(
-    node: Node<ICustomOperatorData>,
-    options: Pick<
-      DiagramsContextType<ICustomOperatorData>,
-      'layer' | 'updateNode'
-    >,
-  ) {
-    const { layer, updateNode } = options;
+  getFreshNodeData(options: IHookOption<Node<ICustomOperatorData>>) {
+    const { node, currentState } = options;
+    const { layer } = currentState;
 
     const targetLayer = findLayer(layer, node.data.layerId);
 
@@ -214,14 +208,17 @@ export class CustomOperator
       const inputOperator = getOperatorFromNode<InputOperator>(inputNode);
       const outputOperator = getOperatorFromNode<OutputOperator>(outputNode);
 
-      // TODO: fix
+      function getNewEndPortId(id: string) {
+        return `${id}__${node.id.slice(-5)}`;
+      }
+
       const inputStatePorts = !inputNode
         ? []
         : inputOperator?.getStatePort(inputNode)?.map(
             (item) =>
               new EndPoint({
                 ...item,
-                id: '',
+                id: getNewEndPortId(item.id),
                 type: 'target',
               }),
           );
@@ -231,7 +228,7 @@ export class CustomOperator
             (item) =>
               new EndPoint({
                 ...item,
-                id: '',
+                id: getNewEndPortId(item.id),
                 type: 'target',
               }),
           );
@@ -242,7 +239,7 @@ export class CustomOperator
             (item) =>
               new EndPoint({
                 ...item,
-                id: '',
+                id: getNewEndPortId(item.id),
                 type: 'source',
               }),
           );
@@ -253,25 +250,35 @@ export class CustomOperator
             (item) =>
               new EndPoint({
                 ...item,
-                id: '',
+                id: getNewEndPortId(item.id),
                 type: 'source',
               }),
           );
 
-      // TODO: FIX TYPE ERROR
-      updateNode(
+      return {
+        targetLayer,
+        updatedNodeData: {
+          endPointOptions: {
+            endPointList: generateEndPointList({
+              inputEventList: inputEventPorts || [],
+              inputStateList: inputStatePorts || [],
+              outputEventList: outputEventPort || [],
+              outputStateList: outputStatePort || [],
+            }),
+          },
+        },
+      };
+    }
+  }
+
+  refreshNode(options: IHookOption<Node<ICustomOperatorData>>) {
+    const { node } = options;
+    const data = this.getFreshNodeData(options);
+    if (data?.updatedNodeData) {
+      options.actions.updateNode(
         node.id,
-        (v: any) =>
-          this.updateData(v, {
-            endPointOptions: {
-              endPointList: generateEndPointList({
-                inputEventList: inputEventPorts || [],
-                inputStateList: inputStatePorts || [],
-                outputEventList: outputEventPort || [],
-                outputStateList: outputStatePort || [],
-              }),
-            },
-          }) as any,
+        (v) => this.updateData(v, data.updatedNodeData),
+        { updateInternal: true, layerId: data.targetLayer?.parentLayerId },
       );
     }
   }
@@ -282,10 +289,6 @@ export class CustomOperator
   }
 
   onNodeFocus(options: IHookOption<Node<ICustomOperatorData>>): void {
-    const { node, currentState, actions } = options;
-    this?.refreshNode(node, {
-      layer: currentState.layer,
-      updateNode: actions.updateNode as any,
-    });
+    this?.refreshNode(options);
   }
 }

@@ -46,21 +46,12 @@ export function Node(props: NodeProps<IMetaOperatorData>) {
   }
 
   const valueSection = renderValueSection();
-
-  const headerInfo = [
-    operator?.description && (
-      <div className={css['node__operator-description']}>
-        {operator?.description}
-      </div>
-    ),
-    valueSection && <div>{valueSection}</div>,
-  ].filter(Boolean);
-
   return (
     <div
       className={classnames(css.container, {
         [css.selected]: selected,
       })}
+      key={props.id}
       style={
         {
           '--color-node-theme': operator?.nodeColor || undefined,
@@ -86,7 +77,12 @@ export function Node(props: NodeProps<IMetaOperatorData>) {
         }}
       >
         <div className={css.node__title}>
-          {headerInfo}
+          {operator?.description && (
+            <div className={css['node__operator-description']}>
+              {operator?.description}
+            </div>
+          )}
+          {valueSection && <div>{valueSection}</div>}
           {/* <div>{data.label}</div> */}
         </div>
         <NodePorts node={props} />

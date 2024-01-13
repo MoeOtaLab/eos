@@ -69,7 +69,7 @@ export function NodePorts(props: { node: Partial<Node<IMetaOperatorData>> }) {
                     });
                   }}
                 >
-                  add port
+                  add
                 </span>
               )}
             </div>

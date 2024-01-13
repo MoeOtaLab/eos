@@ -18,18 +18,11 @@ import ReactFlow, {
   Panel,
 } from 'reactflow';
 import { OPERATOR_TYPE_DATA } from '../OperatorPanel';
-import {
-  OperatorMap,
-  NextOperatorMap,
-  getOperatorFromNode,
-} from '../../Operators';
+import { OperatorMap, getOperatorFromNode } from '../../Operators';
 import { useDiagramsContext } from '../../State/DiagramsProvider';
 import { nodeTypes } from '../../Nodes';
-import { NodeTypeEnum } from '../../Nodes/NodeTypeEnum';
 import { isSameSourceHandle, isSameTargetHandle } from '../../utils';
-// import { defaultLayerData } from './defaultData';
 import css from './FlowDiagram.module.less';
-import { type Operator } from '../../Operators/Operator';
 import { useLatest } from 'ahooks';
 import { BackToLayer } from '../LayerPanel/BackToLayer';
 
@@ -38,17 +31,7 @@ const nodeColor = (node: Node) => {
   if (operator?.nodeColor) {
     return operator?.nodeColor;
   }
-
-  switch (node.type) {
-    case NodeTypeEnum.StreamOperatorNode:
-      return '#FF0060';
-    case NodeTypeEnum.ContainerNode:
-      return '#FF8080';
-    case NodeTypeEnum.DoNode:
-      return '#FFF5E0';
-    default:
-      return '#ff0072';
-  }
+  return '#ff0072';
 };
 const getLayoutedElements = (nodes: Node[], edges: Edge[]) => {
   const g = new Dagre.graphlib.Graph().setDefaultEdgeLabel(() => ({}));
@@ -147,7 +130,7 @@ export const FlowDiagram: React.FC = () => {
   const handleDrop: DragEventHandler = (event) => {
     const operatorType = event.dataTransfer.getData(OPERATOR_TYPE_DATA);
     if (operatorType) {
-      const operator = NextOperatorMap.get(operatorType);
+      const operator = OperatorMap.get(operatorType);
       if (operator) {
         const operatorInstance = operator.create();
         if (operator.isUnique) {
@@ -208,68 +191,7 @@ export const FlowDiagram: React.FC = () => {
             },
           });
         });
-        return;
       }
-    }
-    // TODO: DELETE
-    const operatorName = operatorType;
-    const Operator = OperatorMap.get(operatorName);
-
-    if (Operator) {
-      const operatorInstance = new Operator();
-      if (operatorInstance.unique) {
-        if (nodes.find((item) => item.type === operatorInstance.type)) {
-          message.warning('只允许存在一个');
-          return;
-        }
-      }
-      const { clientX, clientY } = event;
-      const rect = dropTarget.current?.getBoundingClientRect();
-      if (rect) {
-        operatorInstance.position = {
-          x: clientX - rect.left,
-          y: clientY - rect.y,
-        };
-      }
-
-      setNodes((eles) => [...eles, operatorInstance]);
-      setTimeout(() => {
-        const node = nodesRef.current.find(
-          (item) => item.id === operatorInstance.id,
-        );
-
-        if (node) {
-          const pos = {
-            x: node?.position?.x - (node?.width || 0) / 2,
-            y: node.position.y - Math.max((node?.height || 0) / 5, 30),
-          };
-
-          node.position = pos;
-          // TODO: zoom
-          updateNodePos([node], false, false);
-        }
-
-        setNodes((eles) => {
-          const target = eles.find((item) => item.id === operatorInstance.id);
-          if (target) {
-            operatorInstance.style = {
-              visibility: 'visible',
-            };
-          }
-          return [...eles];
-        });
-
-        Operator?.onAfterCreate?.({
-          node: node as Operator,
-          currentState: latestState.current,
-          actions: {
-            updateEdge,
-            updateNode,
-            setActiveLayerId,
-            setLayer,
-          },
-        });
-      });
     }
   };
 

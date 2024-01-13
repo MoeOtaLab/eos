@@ -1,51 +1,68 @@
-import { Operator } from '../Operator';
+import { MetaOperator } from '../Operator';
 import { NodeTypeEnum } from '../../Nodes/NodeTypeEnum';
 import { type Node } from 'reactflow';
-import { NodePort, type IStreamOperatorNodeData } from '../../Nodes/types';
 import { type IGenerationOption } from '../../Compiler/graph';
-import { type IAttributeControlOption } from '../types';
+import { type ISumOperatorData, EndPoint } from '../types';
 import { EosOperatorsSymbol } from '../../Compiler/runtime';
 
-export class SumOperator extends Operator<IStreamOperatorNodeData> {
-  constructor(data?: Partial<Node<IStreamOperatorNodeData>>) {
-    super('SumOperator', {
-      ...data,
-      type: NodeTypeEnum.StreamOperatorNode,
-    });
+export class SumOperator
+  extends MetaOperator<ISumOperatorData>
+  implements MetaOperator<ISumOperatorData>
+{
+  nodeColor?: string | undefined = '#FF0060';
 
-    // init ports
-    this.data = {
-      ...this.data,
-      sourcePorts: [
-        new NodePort({
-          label: 'output',
-        }),
-      ],
-      targetPorts: [
-        new NodePort({
-          label: 'input-1',
-        }),
-        new NodePort({
-          label: 'input-2',
-        }),
-      ],
+  constructor() {
+    super({
       operatorName: 'SumOperator',
-      allowAddTargetPort: true,
-      ...data?.data,
-    } as IStreamOperatorNodeData;
+      operatorType: 'SumOperator',
+      nodeType: NodeTypeEnum.Node,
+    });
   }
 
-  static generateAttributeControl(
-    options: IAttributeControlOption<SumOperator>,
-  ) {
-    return <div>empty</div>;
+  create(): Node<ISumOperatorData<Record<string, any>>> {
+    return super.create({
+      endPointOptions: {
+        endPointList: [
+          new EndPoint({
+            type: 'source',
+            label: 'output',
+            hint: 'output',
+          }),
+          new EndPoint({
+            type: 'group',
+            allowAddAndRemoveChildren: true,
+            hint: 'input',
+            defaultChildData: {
+              type: 'target',
+              label: 'input',
+              hint: 'input',
+            },
+            children: [
+              new EndPoint({
+                type: 'target',
+                label: 'input',
+                hint: 'input',
+              }),
+              new EndPoint({
+                type: 'target',
+                label: 'input',
+                hint: 'input',
+              }),
+            ],
+          }),
+        ],
+      },
+    });
   }
 
-  static generateBlockDeclarations?(
-    options: IGenerationOption<IStreamOperatorNodeData>,
+  generateBlockDeclarations(
+    options: IGenerationOption<ISumOperatorData>,
   ): string[] {
     const { node, formatVariableName, nodeGraph } = options;
-    const handleId = node.data.sourcePorts[0].id;
+    const handleId =
+      node.data.endPointOptions?.endPointList?.find(
+        (item) => item.hint === 'output',
+      )?.id || '';
 
     const sourceIds =
       nodeGraph.findSourceNodes(node.id)?.map((item) => item.relatedHandleId) ||
@@ -60,9 +77,13 @@ export class SumOperator extends Operator<IStreamOperatorNodeData> {
     ];
   }
 
-  static generateBlockRelation?(
-    options: IGenerationOption<IStreamOperatorNodeData>,
+  generateBlockRelation(
+    options: IGenerationOption<ISumOperatorData>,
   ): string[] {
+    return [];
+  }
+
+  generateBlockOutput(options: IGenerationOption<any>): string[] {
     return [];
   }
 }

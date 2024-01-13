@@ -85,12 +85,10 @@ export function Node(props: NodeProps<IMetaOperatorData>) {
           });
         }}
       >
-        {headerInfo?.length ? (
-          <div className={css.node__title}>
-            {headerInfo}
-            {/* <div>{data.label}</div> */}
-          </div>
-        ) : null}
+        <div className={css.node__title}>
+          {headerInfo}
+          {/* <div>{data.label}</div> */}
+        </div>
         <NodePorts node={props} />
       </div>
     </div>

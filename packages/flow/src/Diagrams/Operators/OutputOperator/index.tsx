@@ -33,10 +33,10 @@ export class OutputOperator
               hint: 'state',
             },
             children: [
-              // new EndPoint({
-              //   type: 'target',
-              //   hint: 'state',
-              // }),
+              new EndPoint({
+                type: 'target',
+                hint: 'state',
+              }),
             ],
           }),
 

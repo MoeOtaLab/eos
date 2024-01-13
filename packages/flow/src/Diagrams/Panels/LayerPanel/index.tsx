@@ -1,21 +1,16 @@
 import classnames from 'classnames';
-import { useDiagramsContext } from '../../State/DiagramsProvider';
+import {
+  useDiagramsContext,
+  useDiagramsHookOption,
+} from '../../State/DiagramsProvider';
 import { Button, Input, Modal } from 'antd';
 import { type Layer } from '../../State/Layer';
 import { getOperatorFromOperatorType } from '../../Operators';
 import css from './LayerPanel.module.less';
 
 export function LayerPanel() {
-  const {
-    layer,
-    activeLayerId,
-    setActiveLayerId,
-    setLayer,
-    nodes,
-    edges,
-    updateEdge,
-    updateNode,
-  } = useDiagramsContext();
+  const { layer, activeLayerId, setActiveLayerId } = useDiagramsContext();
+  const { currentStateRef, actionsRef } = useDiagramsHookOption();
 
   function renderLayers(layers: Layer[], index: number = 0) {
     return (
@@ -74,18 +69,8 @@ export function LayerPanel() {
                 // add nodes
                 customOperator.onAfterCreate({
                   node: newNode,
-                  currentState: {
-                    layer,
-                    activeLayerId,
-                    nodes,
-                    edges,
-                  },
-                  actions: {
-                    setActiveLayerId,
-                    setLayer,
-                    updateEdge,
-                    updateNode,
-                  },
+                  currentState: currentStateRef.current,
+                  actions: actionsRef.current,
                 });
               }
             },

@@ -19,11 +19,13 @@ import ReactFlow, {
 } from 'reactflow';
 import { OPERATOR_TYPE_DATA } from '../OperatorPanel';
 import { OperatorMap, getOperatorFromNode } from '../../Operators';
-import { useDiagramsContext } from '../../State/DiagramsProvider';
+import {
+  useDiagramsContext,
+  useDiagramsHookOption,
+} from '../../State/DiagramsProvider';
 import { nodeTypes } from '../../Nodes';
 import { isSameSourceHandle, isSameTargetHandle } from '../../utils';
 import css from './FlowDiagram.module.less';
-import { useLatest } from 'ahooks';
 import { BackToLayer } from '../LayerPanel/BackToLayer';
 
 const nodeColor = (node: Node) => {
@@ -59,25 +61,8 @@ const getLayoutedElements = (nodes: Node[], edges: Edge[]) => {
 };
 
 export const FlowDiagram: React.FC = () => {
-  const {
-    nodes,
-    edges,
-    setNodes,
-    setEdges,
-    updateEdge,
-    updateNode,
-    setActiveLayerId,
-    setLayer,
-    layer,
-    activeLayerId,
-  } = useDiagramsContext();
-
-  const latestState = useLatest({
-    nodes,
-    edges,
-    layer,
-    activeLayerId,
-  });
+  const { nodes, edges, setNodes, setEdges } = useDiagramsContext();
+  const { actionsRef, currentStateRef } = useDiagramsHookOption();
 
   const addSelectedEdges = useStore((ctx) => ctx.addSelectedEdges);
 
@@ -182,13 +167,8 @@ export const FlowDiagram: React.FC = () => {
 
           operator?.onAfterCreate?.({
             node: node as typeof operatorInstance,
-            currentState: latestState.current,
-            actions: {
-              updateEdge,
-              updateNode,
-              setActiveLayerId,
-              setLayer,
-            },
+            currentState: currentStateRef.current,
+            actions: actionsRef.current,
           });
         });
       }

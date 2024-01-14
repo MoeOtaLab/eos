@@ -115,7 +115,26 @@ export interface IStateOperatorData<
   valueType: StateOperatorValueTypeEnum;
   value: string | number | boolean | undefined;
 }
+
 export interface ISumOperatorData<
+  NodeOptions extends Record<string, any> = Record<string, any>,
+> extends IMetaOperatorData<NodeOptions> {
+  // noop
+}
+
+export interface ICombineOperatorData<
+  NodeOptions extends Record<string, any> = Record<string, any>,
+> extends IMetaOperatorData<NodeOptions> {
+  // noop
+}
+
+export interface ITranformOperatorData<
+  NodeOptions extends Record<string, any> = Record<string, any>,
+> extends IMetaOperatorData<NodeOptions> {
+  // noop
+}
+
+export interface IEffectOperatorData<
   NodeOptions extends Record<string, any> = Record<string, any>,
 > extends IMetaOperatorData<NodeOptions> {
   // noop

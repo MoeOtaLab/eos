@@ -67,7 +67,7 @@ export class CustomOperator
 
   constructor() {
     super({
-      operatorName: 'CustomOperator',
+      operatorName: 'Custom',
       operatorType: 'CustomOperator',
       nodeType: NodeTypeEnum.Node,
       endPointOptions: {

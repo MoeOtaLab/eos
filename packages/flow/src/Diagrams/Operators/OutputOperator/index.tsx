@@ -13,7 +13,7 @@ export class OutputOperator
 
   constructor() {
     super({
-      operatorName: 'OutputOperator',
+      operatorName: 'Output',
       operatorType: 'OutputOperator',
       nodeType: NodeTypeEnum.Node,
     });

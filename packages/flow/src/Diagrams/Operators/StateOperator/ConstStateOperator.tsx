@@ -8,7 +8,7 @@ import { type Node } from 'reactflow';
 export class ConstStateOperator extends StateOperator implements MetaOperator {
   constructor() {
     super();
-    this.defaultOperatorData.operatorName = 'ConstStateOperator';
+    this.defaultOperatorData.operatorName = 'ConstState';
     this.defaultOperatorData.operatorType = 'ConstStateOperator';
   }
 

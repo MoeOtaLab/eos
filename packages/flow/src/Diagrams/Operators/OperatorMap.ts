@@ -28,6 +28,10 @@ export function registerOperator(operator: MetaOperator) {
   OperatorMap.set(operator.operatorType, operator);
 }
 
+export function registerOperators(operators: MetaOperator[]) {
+  Object.values(operators).forEach(registerOperator);
+}
+
 export function getOperatorFromOperatorType<T extends MetaOperator>(
   operatorType: string,
 ) {

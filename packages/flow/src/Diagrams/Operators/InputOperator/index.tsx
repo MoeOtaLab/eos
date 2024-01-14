@@ -18,7 +18,7 @@ export class InputOperator
 
   constructor() {
     super({
-      operatorName: 'InputOperator',
+      operatorName: 'Input',
       operatorType: 'InputOperator',
       nodeType: NodeTypeEnum.Node,
     });

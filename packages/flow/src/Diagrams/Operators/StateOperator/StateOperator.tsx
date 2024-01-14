@@ -35,7 +35,7 @@ export class StateOperator
 
   constructor() {
     super({
-      operatorName: 'StateOperator',
+      operatorName: 'State',
       operatorType: 'StateOperator',
       nodeType: NodeTypeEnum.Node,
     });

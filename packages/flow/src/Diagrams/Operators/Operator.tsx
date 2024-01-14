@@ -6,6 +6,7 @@ import {
   type IMetaOperatorData,
 } from './types';
 import { type IGenerationOption } from '../Compiler/graph';
+import { Input } from 'antd';
 import { pick } from 'lodash';
 
 export abstract class MetaOperator<
@@ -135,7 +136,7 @@ export abstract class MetaOperator<
     }
     return (
       <>
-        <input
+        <Input
           placeholder="input label"
           style={{ width: '100%', maxWidth: 'none' }}
           value={node.data.nodeLabel}

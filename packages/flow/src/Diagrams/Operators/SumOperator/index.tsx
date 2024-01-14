@@ -13,7 +13,7 @@ export class SumOperator
 
   constructor() {
     super({
-      operatorName: 'SumOperator',
+      operatorName: 'Sum',
       operatorType: 'SumOperator',
       nodeType: NodeTypeEnum.Node,
     });

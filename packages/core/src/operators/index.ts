@@ -3,7 +3,7 @@
 // 之后可以区分为操作流和数据流
 
 // ================ streams operators ================= //
-export { constValue, sum, proxyData } from './streams';
+export { constValue, sum, proxyData, combine, transform } from './streams';
 
 // ================ values operators ================= //
 export { sumValue } from './values';

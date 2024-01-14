@@ -140,6 +140,6 @@ export interface ITranformOperatorData<
 
 export interface IEffectOperatorData<
   NodeOptions extends Record<string, any> = Record<string, any>,
-> extends IMetaOperatorData<NodeOptions> {
+> extends ITranformOperatorData<NodeOptions> {
   // noop
 }

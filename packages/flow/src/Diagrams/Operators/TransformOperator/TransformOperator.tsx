@@ -88,7 +88,7 @@ export class TransformOperator
   }
 
   getInitCustomCode() {
-    return 'module.exports = function main(input) {\n\treturn input;\n}';
+    return 'module.exports = function transform(input) {\n\treturn input;\n}';
   }
 
   renderCustomLabel(currentNode: NodeProps<ITranformOperatorData>) {

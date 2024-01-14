@@ -4,8 +4,7 @@ import { OutputOperator } from './OutputOperator';
 import { SumOperator } from './SumOperator';
 import { CustomOperator } from './CustomOperator';
 import { CombineOperator } from './CombineOperator';
-import { TransformOperator } from './TransformOperator';
-import { EffectOperator } from './EffectOperator';
+import { TransformOperator, EffectOperator } from './TransformOperator';
 
 import { registerOperators } from './OperatorMap';
 

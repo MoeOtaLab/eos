@@ -6,7 +6,7 @@ import { Editor, type IEditorRefType } from '../../../components/Editor';
 import { type ITranformOperatorData } from '../../types';
 import { useDiagramsActions } from '../../../State/DiagramsProvider';
 import { getOperatorFromNode } from '../../OperatorMap';
-import { type TransformOperator } from '..';
+import { type TransformOperator } from '../TransformOperator';
 
 export function CustomLabel(props: { node: NodeProps<ITranformOperatorData> }) {
   const { node } = props;

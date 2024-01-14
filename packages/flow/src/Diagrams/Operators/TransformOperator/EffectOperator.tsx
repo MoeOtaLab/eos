@@ -31,7 +31,7 @@ export class EffectOperator
   }
 
   getInitCustomCode(): string {
-    return 'module.exports = function transform(input) {\n\t\n}';
+    return 'module.exports = function effect(input) {\n\t\n}';
   }
 
   nodeColor?: string | undefined = '#F3F8FF';

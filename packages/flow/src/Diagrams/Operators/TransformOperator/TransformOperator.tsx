@@ -62,7 +62,9 @@ export class TransformOperator
         ?.find((item) => item.handleId === inputPortId)?.relatedHandleId || '';
 
     return [
-      `const ${formatVariableName(handleId)} = ${EosOperatorsSymbol}.transform(
+      `${
+        handleId ? `const ${formatVariableName(handleId)} = ` : ''
+      }${EosOperatorsSymbol}.transform(
         ${formatVariableName(sourceId)},
         (...args) => {
           const module = { exports: {} };

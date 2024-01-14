@@ -122,7 +122,9 @@ export class CustomOperator
       const currentActiveLayer = findLayer(layer, activeLayerId);
       if (currentActiveLayer) {
         if (!currentActiveLayer.nodes.find((item) => item.id === node.id)) {
-          currentActiveLayer.nodes = currentActiveLayer.nodes.concat(node);
+          currentActiveLayer.nodes = currentActiveLayer.nodes.concat(
+            node as Node<ICustomOperatorData>,
+          );
         }
         currentActiveLayer.children.push(newLayer);
       }

@@ -94,26 +94,33 @@ export class CombineOperator
       this.getHintPorts(node, 'output')?.find((item) => item.hint === 'output')
         ?.id || '';
 
-    const mainInputSet = new Set(
-      this.getMainInputPorts(node)?.map((item) => item.id),
-    );
-    const appendInputSet = new Set(
-      this.getAppendInputPorts(node)?.map((item) => item.id),
-    );
+    const mainInputList =
+      this.getMainInputPorts(node)?.map((item) => item.id) || [];
+
+    const appendInputList =
+      this.getAppendInputPorts(node)?.map((item) => item.id) || [];
 
     const sourceItems = nodeGraph.findSourceNodes(node.id) || [];
-    const mainInputSourceIds = sourceItems
-      .filter((item) => mainInputSet.has(item.handleId))
-      .map((item) => item.relatedHandleId);
+    const sourceItemMap = new Map(
+      sourceItems.map((item) => [item.handleId, item]),
+    );
 
-    const appendInputSourceIds = sourceItems
-      .filter((item) => appendInputSet.has(item.handleId))
-      .map((item) => item.relatedHandleId);
+    const mainInputSourceIds = mainInputList
+      .map((id) => sourceItemMap.get(id))
+      .map((item) => item?.relatedHandleId);
+
+    const appendInputSourceIds = appendInputList
+      .map((id) => sourceItemMap.get(id))
+      .map((item) => item?.relatedHandleId);
 
     return [
       `const ${formatVariableName(handleId)} = ${EosOperatorsSymbol}.combine(
-        [${mainInputSourceIds.map((id) => formatVariableName(id)).join(',')}],
-        [${appendInputSourceIds.map((id) => formatVariableName(id)).join(',')}]
+        [${mainInputSourceIds
+          .map((id) => (id ? formatVariableName(id) : 'undefined'))
+          .join(',')}],
+        [${appendInputSourceIds
+          .map((id) => (id ? formatVariableName(id) : 'undefined'))
+          .join(',')}]
       )`,
     ];
   }

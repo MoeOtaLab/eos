@@ -115,11 +115,15 @@ export abstract class MetaOperator<
   }
 
   // ============ START: Code Generation ============= //
-  abstract generateBlockDeclarations(options: IGenerationOption): string[];
+  abstract generateBlockDeclarations(options: IGenerationOption<T>): string[];
 
-  abstract generateBlockRelation(options: IGenerationOption): string[];
+  abstract generateBlockRelation(options: IGenerationOption<T>): string[];
 
-  abstract generateBlockOutput(options: IGenerationOption): string[];
+  abstract generateBlockOutput(options: IGenerationOption<T>): string[];
+
+  getIgnoreDegreeIds(node: Node<T>): string[] {
+    return [];
+  }
 
   // ============ START: Hooks handler ============= //
   onAfterCreate(options: IHookOption<Node<T>>): void {}

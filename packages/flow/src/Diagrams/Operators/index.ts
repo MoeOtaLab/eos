@@ -5,6 +5,7 @@ import { SumOperator } from './SumOperator';
 import { CustomOperator } from './CustomOperator';
 import { CombineOperator } from './CombineOperator';
 import { TransformOperator, EffectOperator } from './TransformOperator';
+import { MergeOperator } from './MergeOperator';
 
 import { registerOperators } from './OperatorMap';
 
@@ -18,6 +19,7 @@ registerOperators([
   new CombineOperator(),
   new TransformOperator(),
   new EffectOperator(),
+  new MergeOperator(),
 ]);
 
 export {

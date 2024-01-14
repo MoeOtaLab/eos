@@ -3,3 +3,4 @@ export { proxyData } from './proxyData';
 export { sum } from './sum';
 export { combine } from './combine';
 export { transform } from './transform';
+export { merge } from './merge';

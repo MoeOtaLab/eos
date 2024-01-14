@@ -54,6 +54,7 @@ export class EndPoint {
   allowAddAndRemoveChildren?: boolean;
   variableType?: 'array' | 'object' | 'primary';
   defaultChildData?: Partial<EndPoint>;
+  ignoreDegree?: boolean;
 
   constructor(data: Partial<EndPoint>) {
     Object.assign(this, data);
@@ -141,5 +142,11 @@ export interface ITranformOperatorData<
 export interface IEffectOperatorData<
   NodeOptions extends Record<string, any> = Record<string, any>,
 > extends ITranformOperatorData<NodeOptions> {
+  // noop
+}
+
+export interface IMergeOperatorData<
+  NodeOptions extends Record<string, any> = Record<string, any>,
+> extends IMetaOperatorData<NodeOptions> {
   // noop
 }

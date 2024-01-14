@@ -106,7 +106,14 @@ export class NodeGraph {
     for (const edge of this.edges) {
       if (edge.source && edge.target) {
         const currentDegree = degreeMap.get(edge.target) || 0;
-        degreeMap.set(edge.target, currentDegree + 1);
+        const targetNode = this.nodeMap.get(edge.target);
+        const ignoreDegreeIds = targetNode
+          ? getOperatorFromNode(targetNode)?.getIgnoreDegreeIds?.(targetNode) ||
+            []
+          : [];
+        if (!ignoreDegreeIds.includes(edge.targetHandle || '')) {
+          degreeMap.set(edge.target, currentDegree + 1);
+        }
       }
     }
 

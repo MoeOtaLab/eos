@@ -10,7 +10,7 @@ export function combine<
 ) {
   const result = new ModelState<any[]>([]);
 
-  streamSource.forEach((input, index) => {
+  streamSource.forEach((input) => {
     input.subscribe((_value, extraInfo) => {
       const allValue = [...streamSource, ...appendSource].map(
         (item) => item.current,

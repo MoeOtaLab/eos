@@ -8,8 +8,13 @@ export function transform<StreamValue, ResultValue>(
   return steam.pipe((observer) => {
     const result = new ModelState<ResultValue | undefined>(undefined);
 
-    observer.subscribe((value, extra) => {
-      result.update(action(value), extra.concat('transform'));
+    observer.subscribe(async (value, extra) => {
+      const actionResult = action(value);
+      let resultValue = actionResult;
+      if (actionResult instanceof Promise) {
+        resultValue = await actionResult;
+      }
+      result.update(resultValue, extra.concat('transform'));
     });
 
     return result;

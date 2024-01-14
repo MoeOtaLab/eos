@@ -7,6 +7,7 @@ import { Layer, findLayer } from '../../State/Layer';
 import { getOperatorFromNode } from '../../Operators';
 import { type CustomOperator } from '../../Operators/CustomOperator';
 import { sleepMs } from '../../utils';
+import { loopDemoData, sumDemoData } from './defaultData';
 
 const STORAGE_KEY = 'layer_storage';
 
@@ -92,6 +93,36 @@ export function CommandPanel() {
         }}
       >
         Log
+      </Button>
+
+      <Button
+        type="text"
+        onClick={() => {
+          try {
+            setLayer(loopDemoData);
+            setActiveLayerId(loopDemoData.id);
+            message.success('success');
+          } catch (error: any) {
+            message.error(error?.message);
+          }
+        }}
+      >
+        Load Loop Demo
+      </Button>
+
+      <Button
+        type="text"
+        onClick={() => {
+          try {
+            setLayer(sumDemoData);
+            setActiveLayerId(sumDemoData.id);
+            message.success('success');
+          } catch (error: any) {
+            message.error(error?.message);
+          }
+        }}
+      >
+        Load Sum Demo
       </Button>
     </div>
   );

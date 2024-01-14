@@ -59,7 +59,7 @@ export function Node(props: NodeProps<IMetaOperatorData>) {
       }
       onClick={() => {
         operator?.onNodeFocus({
-          node: props as any,
+          node: props,
           currentState: currentStateRef.current,
           actions: actionsRef.current,
         });
@@ -70,7 +70,7 @@ export function Node(props: NodeProps<IMetaOperatorData>) {
         className={css.content}
         onDoubleClick={() => {
           operator?.onNodeDoubleClick({
-            node: props as any,
+            node: props,
             currentState: currentStateRef.current,
             actions: actionsRef.current,
           });
@@ -83,7 +83,7 @@ export function Node(props: NodeProps<IMetaOperatorData>) {
             </div>
           )}
           {valueSection && <div>{valueSection}</div>}
-          {/* <div>{data.label}</div> */}
+          {operator?.renderCustomLabel?.(props) || null}
         </div>
         <NodePorts node={props} />
       </div>

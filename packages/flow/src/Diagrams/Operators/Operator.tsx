@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { type NodeProps, type Node } from 'reactflow';
 import { getRandomId } from '../utils';
 import {
@@ -151,5 +152,9 @@ export abstract class MetaOperator<
   // ============ START: Node Render Relative ============= //
   getNodeProps(currentNode: NodeProps<T>): Record<any, any> {
     return {};
+  }
+
+  renderCustomLabel(currentNode: NodeProps<T>): ReactNode {
+    return null;
   }
 }

@@ -1,9 +1,13 @@
 import { type DiagramsContextType } from '../../State/DiagramsProvider';
 import { type NodeTypeEnum } from '../../Nodes/NodeTypeEnum';
-import { type Node } from 'reactflow';
+import { type NodeProps, type Node } from 'reactflow';
 import { v4 as uuid } from 'uuid';
 
-type GetOperatorStateType<T> = T extends Node<infer P> ? P : any;
+type GetOperatorStateType<T> = T extends Node<infer P>
+  ? P
+  : T extends NodeProps<infer Y>
+    ? Y
+    : unknown;
 
 export interface IAttributeControlOption<OpNode extends Node<any>> {
   node: OpNode;
@@ -13,8 +17,8 @@ export interface IAttributeControlOption<OpNode extends Node<any>> {
   >;
 }
 
-export interface IHookOption<OpNode extends Node<any>> {
-  node: OpNode;
+export interface IHookOption<OpNode extends Node<any> | NodeProps<any>> {
+  node: Omit<OpNode, 'position'>;
   currentState: Pick<
     DiagramsContextType<GetOperatorStateType<OpNode>>,
     'activeLayerId' | 'layer' | 'nodes' | 'edges'
@@ -131,7 +135,7 @@ export interface ICombineOperatorData<
 export interface ITranformOperatorData<
   NodeOptions extends Record<string, any> = Record<string, any>,
 > extends IMetaOperatorData<NodeOptions> {
-  // noop
+  customCode?: string;
 }
 
 export interface IEffectOperatorData<

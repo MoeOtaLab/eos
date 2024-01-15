@@ -1,1 +1,1 @@
-export { complie, NodeGraph } from './graph';
+export { Complier, NodeGraph } from './graph';

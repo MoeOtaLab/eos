@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useDiagramsState } from '../../State/DiagramsProvider';
-import { complie, NodeGraph } from '../../Compiler';
+import { Complier, NodeGraph } from '../../Compiler';
 import { LinkRuntimeContextProvider } from '../../Compiler/runtime';
 import { Demo } from './Demo';
 import { Button } from 'antd';
@@ -46,7 +46,8 @@ export const ConsolePanel: React.FC = () => {
         <Button
           type="link"
           onClick={() => {
-            setOutput(complie({ layer }));
+            const complier = new Complier();
+            setOutput(complier.complie({ layer }));
           }}
         >
           Compile
@@ -55,7 +56,8 @@ export const ConsolePanel: React.FC = () => {
         <Button
           type="link"
           onClick={() => {
-            const code = complie({ layer });
+            const complier = new Complier();
+            const code = complier.complie({ layer });
             setCacheData(cloneDeep({ layer }));
             setOutput(code);
             setCode(code);

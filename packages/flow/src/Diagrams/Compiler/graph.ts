@@ -165,108 +165,111 @@ export function formatVariableName(id: string) {
 function formatBlockVarName(containerId: string) {
   return `block_${formatVariableName(containerId)}`;
 }
-function generateBlock(
-  containerId: string,
-  data: { nodes: Node[]; edges: Edge[] },
-) {
-  const { nodes, edges } = data;
-  const nodeGraph = new NodeGraph(nodes, edges);
 
-  const sortedNode = nodeGraph.getSortedNodes();
+export class Complier {
+  private generateBlock(
+    containerId: string,
+    data: { nodes: Node[]; edges: Edge[] },
+  ) {
+    const { nodes, edges } = data;
+    const nodeGraph = new NodeGraph(nodes, edges);
 
-  const declarations: string[] = sortedNode
-    .map((node: Node<IMetaOperatorData>) => {
-      const operator = getOperatorFromNode(node);
-      return operator?.generateBlockDeclarations?.({
-        node,
-        nodeGraph,
-        formatVariableName,
-        formatBlockVarName,
-      });
-    })
-    .flat()
-    .filter((x): x is string => Boolean(x));
+    const sortedNode = nodeGraph.getSortedNodes();
 
-  const relations: string[] = sortedNode
-    .map((node: Node<IMetaOperatorData>) => {
-      const operator = getOperatorFromNode(node);
-      return operator?.generateBlockRelation?.({
-        node,
-        nodeGraph,
-        formatVariableName,
-        formatBlockVarName,
-      });
-    })
-    .flat()
-    .filter((x): x is string => Boolean(x));
+    const declarations: string[] = sortedNode
+      .map((node: Node<IMetaOperatorData>) => {
+        const operator = getOperatorFromNode(node);
+        return operator?.generateBlockDeclarations?.({
+          node,
+          nodeGraph,
+          formatVariableName,
+          formatBlockVarName,
+        });
+      })
+      .flat()
+      .filter((x): x is string => Boolean(x));
 
-  const outputs: string[] = sortedNode
-    .map((node: Node<IMetaOperatorData>) => {
-      const operator = getOperatorFromNode(node);
-      return operator?.generateBlockOutput?.({
-        node,
-        nodeGraph,
-        formatVariableName,
-        formatBlockVarName,
-      });
-    })
-    .flat()
-    .filter((x): x is string => Boolean(x));
+    const relations: string[] = sortedNode
+      .map((node: Node<IMetaOperatorData>) => {
+        const operator = getOperatorFromNode(node);
+        return operator?.generateBlockRelation?.({
+          node,
+          nodeGraph,
+          formatVariableName,
+          formatBlockVarName,
+        });
+      })
+      .flat()
+      .filter((x): x is string => Boolean(x));
 
-  const output = `
-    function ${formatBlockVarName(containerId)}(input, context) {
-      ${declarations.join(';\n')}
-      ${relations.join(';\n')}
-      return {
-        ${outputs?.join(',\n')}
+    const outputs: string[] = sortedNode
+      .map((node: Node<IMetaOperatorData>) => {
+        const operator = getOperatorFromNode(node);
+        return operator?.generateBlockOutput?.({
+          node,
+          nodeGraph,
+          formatVariableName,
+          formatBlockVarName,
+        });
+      })
+      .flat()
+      .filter((x): x is string => Boolean(x));
+
+    const output = `
+      function ${formatBlockVarName(containerId)}(input, context) {
+        ${declarations.join(';\n')}
+        ${relations.join(';\n')}
+        return {
+          ${outputs?.join(',\n')}
+        }
       }
-    }
+    `;
+
+    return output;
+  }
+
+  private generateContainer(appContainerId: string, data: { layer: Layer }) {
+    const { layer } = data;
+    const containers = flatLayer(data.layer);
+    const blockOutput = containers.map((containerLayer) =>
+      this.generateBlock(containerLayer.id, {
+        nodes: containerLayer.nodes,
+        edges: containerLayer.edges,
+      }),
+    );
+    const output = `
+      ${blockOutput.join(';\n')}
+      const ${formatBlockVarName(appContainerId)} = ${formatBlockVarName(
+        layer.id,
+      )}`;
+    return output;
+  }
+
+  complie(data: { layer: Layer }) {
+    const appContainerId = 'App';
+    const appCode = this.generateContainer(appContainerId, data);
+
+    const output = `
+      const {
+        start,
+        tracker
+      } = ${EosCoreSymbol}
+      ${appCode}
+      function main(input) {
+        window.logs = [];
+        tracker.onTrack(record => {
+          window.logs.push(record);
+        });
+        const instance = start(${formatBlockVarName(appContainerId)}, input)
+        console.log(\`${formatBlockVarName(appContainerId)}\`, instance)
+        return instance
+      }
+  
+      module.exports = main;
   `;
 
-  return output;
-}
+    console.log(output);
 
-function generateContainer(appContainerId: string, data: { layer: Layer }) {
-  const { layer } = data;
-  const containers = flatLayer(data.layer);
-  const blockOutput = containers.map((containerLayer) =>
-    generateBlock(containerLayer.id, {
-      nodes: containerLayer.nodes,
-      edges: containerLayer.edges,
-    }),
-  );
-  const output = `
-    ${blockOutput.join(';\n')}
-    const ${formatBlockVarName(appContainerId)} = ${formatBlockVarName(
-      layer.id,
-    )}`;
-  return output;
-}
-
-export function complie(data: { layer: Layer }) {
-  const appContainerId = 'App';
-  const appCode = generateContainer(appContainerId, data);
-
-  const output = `
-    const {
-      start,
-      tracker
-    } = ${EosCoreSymbol}
-    ${appCode}
-    function main(input) {
-      window.logs = [];
-      tracker.onTrack(record => {
-        window.logs.push(record);
-      });
-      const instance = start(${formatBlockVarName(appContainerId)}, input)
-      console.log(\`${formatBlockVarName(appContainerId)}\`, instance)
-      return instance
-    }
-
-    module.exports = main;
-`;
-
-  console.log(output);
-
-  return output;
+    return output;
+  }
 }

@@ -1,4 +1,4 @@
-import { type IGenerationOption } from '../../Compiler/graph';
+import { type IGenerationOption } from '../../Compiler';
 import { EosOperatorsSymbol } from '../../Compiler/runtime';
 import { StateOperator } from '.';
 import { type MetaOperator } from '../Operator';

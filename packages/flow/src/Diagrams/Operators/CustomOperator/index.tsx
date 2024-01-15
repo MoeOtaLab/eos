@@ -10,7 +10,7 @@ import {
   type ICustomOperatorData,
   EndPoint,
 } from '../types';
-import { type IGenerationOption } from '../../Compiler/graph';
+import { type IGenerationOption } from '../../Compiler';
 import { Layer, findLayer } from '../../State/Layer';
 import { AttributeControl } from './AttributeControl';
 import { type InputOperator } from '../InputOperator';

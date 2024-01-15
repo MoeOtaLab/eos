@@ -6,7 +6,7 @@ import {
   type IAttributeControlOption,
   type IMetaOperatorData,
 } from './types';
-import { type IGenerationOption } from '../Compiler/graph';
+import { type IGenerationOption } from '../Compiler';
 import { Input } from 'antd';
 import { pick } from 'lodash';
 

@@ -7,7 +7,7 @@ import {
   StateOperatorValueTypeEnum,
   EndPoint,
 } from '../types';
-import { type IGenerationOption } from '../../Compiler/graph';
+import { type IGenerationOption } from '../../Compiler';
 import { EosCoreSymbol } from '../../Compiler/runtime';
 import { type NodeProps, type Node } from 'reactflow';
 import { type INodeProps } from '../../Nodes/Node';

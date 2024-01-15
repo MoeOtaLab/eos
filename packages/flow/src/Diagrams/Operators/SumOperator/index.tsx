@@ -1,7 +1,7 @@
 import { MetaOperator } from '../Operator';
 import { NodeTypeEnum } from '../../Nodes/NodeTypeEnum';
 import { type Node } from 'reactflow';
-import { type IGenerationOption } from '../../Compiler/graph';
+import { type IGenerationOption } from '../../Compiler';
 import { type ISumOperatorData, EndPoint } from '../types';
 import { EosOperatorsSymbol } from '../../Compiler/runtime';
 

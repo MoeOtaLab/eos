@@ -1,8 +1,5 @@
 import { type NodeProps, type Node } from 'reactflow';
-import {
-  formatVariableName,
-  type IGenerationOption,
-} from '../../Compiler/graph';
+import { formatVariableName, type IGenerationOption } from '../../Compiler';
 import { NodeTypeEnum } from '../../Nodes/NodeTypeEnum';
 import { MetaOperator } from '../Operator';
 import { EndPoint, type ITranformOperatorData } from '../types';

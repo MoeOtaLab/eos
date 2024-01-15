@@ -2,7 +2,7 @@ import { type Node } from 'reactflow';
 import { NodeTypeEnum } from '../../Nodes/NodeTypeEnum';
 import { MetaOperator } from '../Operator';
 import { EndPoint, type IMergeOperatorData } from '../types';
-import { type IGenerationOption } from '../../Compiler/graph';
+import { type IGenerationOption } from '../../Compiler';
 import { EosCoreSymbol, EosOperatorsSymbol } from '../../Compiler/runtime';
 
 export class MergeOperator

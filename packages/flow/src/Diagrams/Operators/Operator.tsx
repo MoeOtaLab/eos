@@ -30,6 +30,7 @@ export abstract class MetaOperator<
   isUnique?: boolean;
   nodeColor?: string;
   description?: string;
+  isCustom?: boolean;
 
   constructor(defaultOperatorData: IMetaOperatorData) {
     this.defaultOperatorData = defaultOperatorData;

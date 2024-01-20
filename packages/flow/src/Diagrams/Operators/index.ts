@@ -23,7 +23,7 @@ registerOperators([
 ]);
 
 export {
-  OperatorMap,
   getOperatorFromNode,
   getOperatorFromOperatorType,
+  getAllOperators,
 } from './OperatorMap';

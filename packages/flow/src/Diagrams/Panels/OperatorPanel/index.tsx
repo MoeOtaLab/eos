@@ -1,5 +1,5 @@
 import React, { type DragEventHandler } from 'react';
-import { OperatorMap } from '../../Operators';
+import { getAllOperators } from '../../Operators';
 import css from './OperatorPanel.module.less';
 
 export const OPERATOR_TYPE_DATA = 'operator_type';
@@ -18,10 +18,10 @@ export const OperatorPanel: React.FC = () => {
     <div className={css.container}>
       <div className={css.title}>Operators</div>
       <div className={css.content}>
-        {[...OperatorMap.entries()].map(([name, operator]) => {
+        {getAllOperators().map((operator) => {
           return (
             <div
-              key={name}
+              key={operator.operatorType}
               className={css['operator-item']}
               draggable={true}
               onDragStart={handleDragStart(

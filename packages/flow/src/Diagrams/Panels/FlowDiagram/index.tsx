@@ -18,7 +18,10 @@ import ReactFlow, {
   Panel,
 } from 'reactflow';
 import { OPERATOR_TYPE_DATA } from '../OperatorPanel';
-import { OperatorMap, getOperatorFromNode } from '../../Operators';
+import {
+  getOperatorFromNode,
+  getOperatorFromOperatorType,
+} from '../../Operators';
 import {
   useDiagramsContext,
   useDiagramsHookOption,
@@ -115,7 +118,7 @@ export const FlowDiagram: React.FC = () => {
   const handleDrop: DragEventHandler = (event) => {
     const operatorType = event.dataTransfer.getData(OPERATOR_TYPE_DATA);
     if (operatorType) {
-      const operator = OperatorMap.get(operatorType);
+      const operator = getOperatorFromOperatorType(operatorType);
       if (operator) {
         const operatorInstance = operator.create();
         if (operator.isUnique) {

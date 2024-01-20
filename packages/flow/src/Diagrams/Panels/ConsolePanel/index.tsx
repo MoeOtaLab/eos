@@ -70,6 +70,7 @@ export const ConsolePanel: React.FC = () => {
 
         <Button
           type="link"
+          disabled={!output}
           onClick={() => {
             setOutputVisible(true);
           }}

@@ -4,6 +4,7 @@ import { type IMetaOperatorData } from '../Operators/types';
 import { EosCoreSymbol } from './runtime';
 import { type Layer, flatLayer } from '../State/Layer';
 import { message } from 'antd';
+import { type MetaOperator } from '../Operators/Operator';
 
 export interface IConnection {
   nodeId: string;
@@ -166,6 +167,37 @@ function formatBlockVarName(containerId: string) {
   return `block_${formatVariableName(containerId)}`;
 }
 
+function generateBanner(info: string) {
+  return `// =================== ${info} ================ //\n`;
+}
+
+function addBanner(
+  code: string[] | undefined,
+  info: {
+    operator?: MetaOperator;
+    node: Node<IMetaOperatorData>;
+    extra?: string;
+  },
+) {
+  if (!code?.length) {
+    return code;
+  }
+
+  return [
+    generateBanner(
+      `START: ${[
+        info.operator?.operatorName,
+        info.node?.data.nodeLabel,
+        info.extra,
+      ]
+        .filter(Boolean)
+        .join(',')}`,
+    ),
+    ...code,
+    generateBanner('END'),
+  ];
+}
+
 export class Complier {
   private generateBlock(
     containerId: string,
@@ -179,12 +211,19 @@ export class Complier {
     const declarations: string[] = sortedNode
       .map((node: Node<IMetaOperatorData>) => {
         const operator = getOperatorFromNode(node);
-        return operator?.generateBlockDeclarations?.({
-          node,
-          nodeGraph,
-          formatVariableName,
-          formatBlockVarName,
-        });
+        return addBanner(
+          operator?.generateBlockDeclarations?.({
+            node,
+            nodeGraph,
+            formatVariableName,
+            formatBlockVarName,
+          }),
+          {
+            operator,
+            node,
+            extra: 'declarations',
+          },
+        );
       })
       .flat()
       .filter((x): x is string => Boolean(x));
@@ -192,12 +231,19 @@ export class Complier {
     const relations: string[] = sortedNode
       .map((node: Node<IMetaOperatorData>) => {
         const operator = getOperatorFromNode(node);
-        return operator?.generateBlockRelation?.({
-          node,
-          nodeGraph,
-          formatVariableName,
-          formatBlockVarName,
-        });
+        return addBanner(
+          operator?.generateBlockRelation?.({
+            node,
+            nodeGraph,
+            formatVariableName,
+            formatBlockVarName,
+          }),
+          {
+            operator,
+            node,
+            extra: 'relations',
+          },
+        );
       })
       .flat()
       .filter((x): x is string => Boolean(x));

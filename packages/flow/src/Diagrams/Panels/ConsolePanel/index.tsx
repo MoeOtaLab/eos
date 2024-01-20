@@ -3,7 +3,7 @@ import { useDiagramsState } from '../../State/DiagramsProvider';
 import { Complier, NodeGraph } from '../../Compiler';
 import { LinkRuntimeContextProvider } from '../../Compiler/runtime';
 import { Demo } from './Demo';
-import { Button } from 'antd';
+import { Button, Modal } from 'antd';
 import { cloneDeep } from 'lodash';
 import { type Layer } from '../../State/Layer';
 import { Editor } from '../../components/Editor';
@@ -18,6 +18,8 @@ export const ConsolePanel: React.FC = () => {
   }>({
     layer,
   });
+
+  const [outputVisible, setOutputVisible] = useState(false);
 
   return (
     <div>
@@ -65,6 +67,15 @@ export const ConsolePanel: React.FC = () => {
         >
           Compile and Run
         </Button>
+
+        <Button
+          type="link"
+          onClick={() => {
+            setOutputVisible(true);
+          }}
+        >
+          Show Output
+        </Button>
       </div>
 
       <div>
@@ -78,12 +89,24 @@ export const ConsolePanel: React.FC = () => {
         </LinkRuntimeContextProvider>
       </div>
 
-      <Editor
-        language="typescript"
-        readonly={true}
-        className={css.editor}
-        code={output}
-      />
+      <Modal
+        open={outputVisible}
+        width={'100vw'}
+        style={{ top: 0 }}
+        onOk={() => {
+          setOutputVisible(false);
+        }}
+        onCancel={() => {
+          setOutputVisible(false);
+        }}
+      >
+        <Editor
+          language="typescript"
+          readonly={true}
+          className={css.editor}
+          code={output}
+        />
+      </Modal>
     </div>
   );
 };

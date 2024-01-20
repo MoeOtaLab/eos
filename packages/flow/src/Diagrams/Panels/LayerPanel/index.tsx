@@ -1,84 +1,43 @@
-import classnames from 'classnames';
-import {
-  useDiagramsContext,
-  useDiagramsHookOption,
-} from '../../State/DiagramsProvider';
-import { Button, Input, Modal } from 'antd';
+import { useDiagramsContext } from '../../State/DiagramsProvider';
+import { Tree } from 'antd';
 import { type Layer } from '../../State/Layer';
-import { getOperatorFromOperatorType } from '../../Operators';
-import css from './LayerPanel.module.less';
+import React from 'react';
+import type { TreeDataNode } from 'antd';
+
+function convertLayerToTreeData(layer: Layer) {
+  const data: TreeDataNode = {
+    key: layer.id,
+    title: layer.name,
+    children: layer.children?.map((item) => {
+      return convertLayerToTreeData(item);
+    }),
+  };
+
+  return data;
+}
 
 export function LayerPanel() {
   const { layer, activeLayerId, setActiveLayerId } = useDiagramsContext();
-  const { currentStateRef, actionsRef } = useDiagramsHookOption();
 
-  function renderLayers(layers: Layer[], index: number = 0) {
-    return (
-      <div>
-        {layers.map((item) => (
-          <div key={item.id}>
-            <div
-              className={classnames(css['layer-container'], {
-                [css.active]: activeLayerId === item.id,
-              })}
-              onClick={() => {
-                setActiveLayerId(item.id);
-              }}
-              style={{ cursor: 'pointer' }}
-            >
-              {item.name}
-            </div>
-            <div style={{ marginLeft: 4 * (index + 1) }}>
-              {renderLayers(item.children || [], index + 1)}
-            </div>
-          </div>
-        ))}
-      </div>
-    );
-  }
+  const treeData: TreeDataNode[] = [convertLayerToTreeData(layer)];
+
+  const onSelect = (selectedKeys: React.Key[], info: any) => {
+    if (selectedKeys?.[0]) {
+      setActiveLayerId(String(selectedKeys?.[0]));
+    }
+  };
 
   return (
     <div>
       <div>Layer Panel</div>
-      {renderLayers([layer])}
-      <Button
-        type="link"
-        onClick={() => {
-          let name = '';
-          Modal.info({
-            title: 'Please Input Layer Name',
-            content: (
-              <div>
-                <Input
-                  onChange={(event) => {
-                    name = event.target.value;
-                  }}
-                ></Input>
-              </div>
-            ),
-            onOk() {
-              if (name) {
-                const customOperator =
-                  getOperatorFromOperatorType('CustomOperator');
-                if (!customOperator) {
-                  return;
-                }
-
-                const newNode = customOperator?.create();
-
-                // add nodes
-                customOperator.onAfterCreate({
-                  node: newNode,
-                  currentState: currentStateRef.current,
-                  actions: actionsRef.current,
-                });
-              }
-            },
-          });
-        }}
-      >
-        Add Layer
-      </Button>
+      <Tree
+        selectedKeys={[activeLayerId]}
+        showLine={{ showLeafIcon: true }}
+        showIcon={false}
+        defaultExpandedKeys={[]}
+        onSelect={onSelect}
+        treeData={treeData}
+      />
     </div>
   );
 }

@@ -2,7 +2,7 @@ import { StateOperator, ConstStateOperator } from './StateOperator';
 import { InputOperator } from './InputOperator';
 import { OutputOperator } from './OutputOperator';
 import { SumOperator } from './SumOperator';
-import { CustomOperator } from './CustomOperator';
+import { GroupOperator } from './GroupOperator';
 import { CombineOperator } from './CombineOperator';
 import { TransformOperator, EffectOperator } from './TransformOperator';
 import { MergeOperator } from './MergeOperator';
@@ -12,7 +12,7 @@ import { registerOperators } from './OperatorMap';
 registerOperators([
   new InputOperator(),
   new OutputOperator(),
-  new CustomOperator(),
+  new GroupOperator(),
   new StateOperator(),
   new ConstStateOperator(),
   new SumOperator(),

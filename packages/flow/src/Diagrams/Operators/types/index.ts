@@ -100,7 +100,7 @@ export interface IOutputOperatorData<
   // noop to add
 }
 
-export interface ICustomOperatorData<
+export interface IGroupOperatorData<
   NodeOptions extends Record<string, any> = Record<string, any>,
 > extends IMetaOperatorData<NodeOptions> {
   layerId: string;

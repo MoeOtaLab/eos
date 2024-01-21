@@ -5,7 +5,7 @@ import {
 } from '../../State/DiagramsProvider';
 import { Layer, findLayer } from '../../State/Layer';
 import { getOperatorFromNode } from '../../Operators';
-import { type CustomOperator } from '../../Operators/CustomOperator';
+import { type GroupOperator } from '../../Operators/GroupOperator';
 import { sleepMs } from '../../utils';
 import { loopDemoData, sumDemoData } from './defaultData';
 
@@ -24,7 +24,7 @@ export function CommandPanel() {
         );
 
         if (targetNode) {
-          const operator = getOperatorFromNode<CustomOperator>(targetNode);
+          const operator = getOperatorFromNode<GroupOperator>(targetNode);
 
           operator?.refreshNode({
             node: targetNode,

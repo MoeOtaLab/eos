@@ -5,16 +5,16 @@ import {
 } from '../../../State/DiagramsProvider';
 import { Button, Form, Input } from 'antd';
 import { findLayer } from '../../../State/Layer';
-import { type CustomOperator } from '..';
-import { type ICustomOperatorData } from '../../types';
+import { type GroupOperator } from '..';
+import { type IGroupOperatorData } from '../../types';
 import { getOperatorFromNode } from '../../OperatorMap';
 
-export function AttributeControl(props: { node: Node<ICustomOperatorData> }) {
+export function AttributeControl(props: { node: Node<IGroupOperatorData> }) {
   const { node } = props;
   const { updateNode, setLayer } = useDiagramsContext();
   const { currentStateRef, actionsRef } = useDiagramsHookOption();
 
-  const operator = getOperatorFromNode<CustomOperator>(node);
+  const operator = getOperatorFromNode<GroupOperator>(node);
 
   return (
     <div>
@@ -29,7 +29,7 @@ export function AttributeControl(props: { node: Node<ICustomOperatorData> }) {
               updateNode(
                 node.id,
                 (v) =>
-                  operator?.updateData(v as Node<ICustomOperatorData>, {
+                  operator?.updateData(v as Node<IGroupOperatorData>, {
                     nodeLabel: name,
                   }),
               );

@@ -7,7 +7,7 @@ import {
   type IAttributeControlOption,
   type IInputOperatorData,
   type IOutputOperatorData,
-  type ICustomOperatorData,
+  type IGroupOperatorData,
   EndPoint,
 } from '../types';
 import { type IGenerationOption } from '../../Compiler';
@@ -56,9 +56,9 @@ function generateEndPointList(data?: {
   ];
 }
 
-export class CustomOperator
-  extends MetaOperator<ICustomOperatorData>
-  implements MetaOperator<ICustomOperatorData>
+export class GroupOperator
+  extends MetaOperator<IGroupOperatorData>
+  implements MetaOperator<IGroupOperatorData>
 {
   description: string = '双击编辑';
 
@@ -67,8 +67,8 @@ export class CustomOperator
 
   constructor() {
     super({
-      operatorName: 'Custom',
-      operatorType: 'CustomOperator',
+      operatorName: 'Group',
+      operatorType: 'GroupOperator',
       nodeType: NodeTypeEnum.Node,
       endPointOptions: {
         endPointList: generateEndPointList(),
@@ -76,7 +76,7 @@ export class CustomOperator
     });
   }
 
-  getOutputPorts(node: Node<ICustomOperatorData>) {
+  getOutputPorts(node: Node<IGroupOperatorData>) {
     const eventPorts =
       node.data?.endPointOptions?.endPointList
         ?.filter(
@@ -91,7 +91,7 @@ export class CustomOperator
     return eventPorts;
   }
 
-  getInputPorts(node: Node<ICustomOperatorData>) {
+  getInputPorts(node: Node<IGroupOperatorData>) {
     const eventPorts =
       node.data?.endPointOptions?.endPointList
         ?.filter(
@@ -107,7 +107,7 @@ export class CustomOperator
   }
 
   // todo
-  onAfterCreate(options: IHookOption<Node<ICustomOperatorData>>) {
+  onAfterCreate(options: IHookOption<Node<IGroupOperatorData>>) {
     const { node, actions, currentState } = options;
     const { setLayer } = actions;
     const { activeLayerId, layer } = currentState;
@@ -123,7 +123,7 @@ export class CustomOperator
       if (currentActiveLayer) {
         if (!currentActiveLayer.nodes.find((item) => item.id === node.id)) {
           currentActiveLayer.nodes = currentActiveLayer.nodes.concat(
-            node as Node<ICustomOperatorData>,
+            node as Node<IGroupOperatorData>,
           );
         }
         currentActiveLayer.children.push(newLayer);
@@ -135,7 +135,7 @@ export class CustomOperator
   }
 
   generateAttributeControl(
-    options: IAttributeControlOption<Node<ICustomOperatorData>>,
+    options: IAttributeControlOption<Node<IGroupOperatorData>>,
   ) {
     const { node } = options;
     return (
@@ -146,7 +146,7 @@ export class CustomOperator
   }
 
   generateBlockDeclarations(
-    options: IGenerationOption<ICustomOperatorData>,
+    options: IGenerationOption<IGroupOperatorData>,
   ): string[] {
     const { node, nodeGraph, formatVariableName, formatBlockVarName } = options;
 
@@ -186,12 +186,12 @@ export class CustomOperator
   }
 
   generateBlockRelation(
-    _options: IGenerationOption<ICustomOperatorData>,
+    _options: IGenerationOption<IGroupOperatorData>,
   ): string[] {
     return [];
   }
 
-  getFreshNodeData(options: IHookOption<Node<ICustomOperatorData>>) {
+  getFreshNodeData(options: IHookOption<Node<IGroupOperatorData>>) {
     const { node, currentState } = options;
     const { layer } = currentState;
 
@@ -273,7 +273,7 @@ export class CustomOperator
     }
   }
 
-  refreshNode(options: IHookOption<Node<ICustomOperatorData>>) {
+  refreshNode(options: IHookOption<Node<IGroupOperatorData>>) {
     const { node } = options;
     const data = this.getFreshNodeData(options);
     if (data?.updatedNodeData) {
@@ -285,12 +285,12 @@ export class CustomOperator
     }
   }
 
-  onNodeDoubleClick(option: IHookOption<Node<ICustomOperatorData>>): void {
+  onNodeDoubleClick(option: IHookOption<Node<IGroupOperatorData>>): void {
     const { node, actions } = option;
     actions?.setActiveLayerId(node?.data?.layerId);
   }
 
-  onNodeFocus(options: IHookOption<Node<ICustomOperatorData>>): void {
+  onNodeFocus(options: IHookOption<Node<IGroupOperatorData>>): void {
     this?.refreshNode(options);
   }
 }

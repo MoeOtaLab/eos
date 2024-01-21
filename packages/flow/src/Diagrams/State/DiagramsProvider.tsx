@@ -13,8 +13,8 @@ import {
 import { Layer, findLayer } from './Layer';
 import { useLatest, useMemoizedFn } from 'ahooks';
 import { getOperatorFromNode } from '../Operators';
-import { type ICustomOperatorData } from '../Operators/types';
-import { type CustomOperator } from '../Operators/CustomOperator';
+import { type IGroupOperatorData } from '../Operators/types';
+import { type GroupOperator } from '../Operators/GroupOperator';
 
 interface IUpdateNodeOption {
   updateInternal?: boolean;
@@ -291,10 +291,10 @@ export const DiagramsContextInnerProvider: React.FC = (props) => {
         const parentLayer = findLayer(layer, prevLayer.parentLayerId);
         const targetNode = parentLayer?.nodes.find(
           (item) => item.id === prevLayer.relativeNodeId,
-        ) as Node<ICustomOperatorData>;
+        ) as Node<IGroupOperatorData>;
 
         if (targetNode) {
-          const operator = getOperatorFromNode<CustomOperator>(targetNode);
+          const operator = getOperatorFromNode<GroupOperator>(targetNode);
 
           operator?.refreshNode({
             node: targetNode,

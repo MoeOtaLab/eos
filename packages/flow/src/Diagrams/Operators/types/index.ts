@@ -2,6 +2,12 @@ import { type DiagramsContextType } from '../../State/DiagramsProvider';
 import { type NodeTypeEnum } from '../../Nodes/NodeTypeEnum';
 import { type NodeProps, type Node } from 'reactflow';
 import { v4 as uuid } from 'uuid';
+import { type Layer } from '../../State/Layer';
+
+export interface IAppContainersInfo {
+  appContainerId: string;
+  data: { layer: Layer };
+}
 
 type GetOperatorStateType<T> = T extends Node<infer P>
   ? P
@@ -21,11 +27,16 @@ export interface IHookOption<OpNode extends Node<any> | NodeProps<any>> {
   node: Omit<OpNode, 'position'>;
   currentState: Pick<
     DiagramsContextType<GetOperatorStateType<OpNode>>,
-    'activeLayerId' | 'layer' | 'nodes' | 'edges'
+    'activeLayerId' | 'layer' | 'nodes' | 'edges' | 'defaultLayer'
   >;
   actions: Pick<
     DiagramsContextType<GetOperatorStateType<OpNode>>,
-    'updateEdge' | 'updateNode' | 'setLayer' | 'setActiveLayerId' | 'setEdges'
+    | 'updateEdge'
+    | 'updateNode'
+    | 'setLayer'
+    | 'setActiveLayerId'
+    | 'setEdges'
+    | 'setDefaultLayer'
   >;
 }
 
@@ -105,6 +116,10 @@ export interface IGroupOperatorData<
 > extends IMetaOperatorData<NodeOptions> {
   layerId: string;
 }
+
+export interface ICustomOperatorData<
+  NodeOptions extends Record<string, any> = Record<string, any>,
+> extends IMetaOperatorData<NodeOptions> {}
 
 export enum StateOperatorValueTypeEnum {
   String = 'string',

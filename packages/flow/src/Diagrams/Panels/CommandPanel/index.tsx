@@ -4,16 +4,34 @@ import {
   useDiagramsHookOption,
 } from '../../State/DiagramsProvider';
 import { Layer, findLayer } from '../../State/Layer';
-import { getOperatorFromNode } from '../../Operators';
+import { getOperatorFromNode, registerOperators } from '../../Operators';
 import { type GroupOperator } from '../../Operators/GroupOperator';
 import { sleepMs } from '../../utils';
 import { loopDemoData, sumDemoData } from './defaultData';
+import { useOperators } from '../../State/OperatorProvider';
+import { type MetaOperator } from '../../Operators/Operator';
+import { CustomOperator } from '../../Operators/CustomOperator';
 
 const STORAGE_KEY = 'layer_storage';
 
+interface IStorageData {
+  layer: Layer;
+  customOperators: MetaOperator[];
+}
+
+function saveData(data: IStorageData) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+
+function loadData(): IStorageData {
+  return JSON.parse(localStorage.getItem(STORAGE_KEY) || '');
+}
+
 export function CommandPanel() {
-  const { layer, setLayer, setActiveLayerId } = useDiagramsContext();
+  const { layer, setLayer, setActiveLayerId, setDefaultLayer } =
+    useDiagramsContext();
   const { actionsRef, currentStateRef } = useDiagramsHookOption();
+  const { operators, refreshOperators } = useOperators();
 
   async function handleSave() {
     try {
@@ -34,8 +52,10 @@ export function CommandPanel() {
         }
       }
       await sleepMs(200);
-      const layerDataJson = JSON.stringify(currentStateRef.current.layer);
-      localStorage.setItem(STORAGE_KEY, layerDataJson);
+      saveData({
+        layer: currentStateRef.current.layer,
+        customOperators: operators.filter((item) => item.isCustom),
+      });
       message.success('success');
     } catch (error: any) {
       message.error(error?.message);
@@ -56,11 +76,18 @@ export function CommandPanel() {
         type="text"
         onClick={() => {
           try {
-            const layerData: Layer = JSON.parse(
-              localStorage.getItem(STORAGE_KEY) || '',
-            );
+            const data = loadData();
+            const layerData = data.layer;
             setLayer(layerData);
+            setDefaultLayer(layerData);
             setActiveLayerId(layerData.id);
+            const operators = data.customOperators.map((item) => {
+              const operater = new CustomOperator(item.operatorName);
+              Object.assign(operater, item);
+              return operater;
+            });
+            registerOperators(operators);
+            refreshOperators();
             message.success('success');
           } catch (error: any) {
             message.error(error?.message);
@@ -76,6 +103,7 @@ export function CommandPanel() {
           try {
             const newLayer = new Layer('App');
             setLayer(newLayer);
+            setDefaultLayer(newLayer);
             setActiveLayerId(newLayer.id);
             message.success('success');
           } catch (error: any) {
@@ -100,6 +128,7 @@ export function CommandPanel() {
         onClick={() => {
           try {
             setLayer(loopDemoData);
+            setDefaultLayer(loopDemoData);
             setActiveLayerId(loopDemoData.id);
             message.success('success');
           } catch (error: any) {
@@ -115,6 +144,7 @@ export function CommandPanel() {
         onClick={() => {
           try {
             setLayer(sumDemoData);
+            setDefaultLayer(sumDemoData);
             setActiveLayerId(sumDemoData.id);
             message.success('success');
           } catch (error: any) {

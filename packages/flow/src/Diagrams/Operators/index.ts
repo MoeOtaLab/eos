@@ -26,4 +26,5 @@ export {
   getOperatorFromNode,
   getOperatorFromOperatorType,
   getAllOperators,
+  registerOperators,
 } from './OperatorMap';

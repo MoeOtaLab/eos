@@ -17,6 +17,9 @@ export class Layer {
   /** 对应的 nodeId */
   relativeNodeId?: string;
 
+  /** 对应的 operatorType */
+  relativeOperatorType?: string;
+
   constructor(name: string) {
     this.id = uuid();
     this.name = name;

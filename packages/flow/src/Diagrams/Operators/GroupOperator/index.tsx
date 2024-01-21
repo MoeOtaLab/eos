@@ -1,60 +1,20 @@
 import { MetaOperator } from '../Operator';
-import { getOperatorFromNode } from '../OperatorMap';
 import { type Node } from 'reactflow';
 import { NodeTypeEnum } from '../../Nodes/NodeTypeEnum';
 import {
   type IHookOption,
   type IAttributeControlOption,
-  type IInputOperatorData,
-  type IOutputOperatorData,
   type IGroupOperatorData,
-  EndPoint,
 } from '../types';
 import { type IGenerationOption } from '../../Compiler';
 import { Layer, findLayer } from '../../State/Layer';
 import { AttributeControl } from './AttributeControl';
-import { type InputOperator } from '../InputOperator';
-import { type OutputOperator } from '../OutputOperator';
-
-function generateEndPointList(data?: {
-  outputStateList: EndPoint[];
-  outputEventList: EndPoint[];
-  inputStateList: EndPoint[];
-  inputEventList: EndPoint[];
-}) {
-  return [
-    // output
-    new EndPoint({
-      type: 'group',
-      label: 'State',
-      children: data?.outputStateList || [],
-      allowAddAndRemoveChildren: false,
-      hint: 'outputState',
-    }),
-    new EndPoint({
-      type: 'group',
-      label: 'Event',
-      children: data?.outputEventList || [],
-      allowAddAndRemoveChildren: false,
-      hint: 'outputEvent',
-    }),
-    // input
-    new EndPoint({
-      type: 'group',
-      label: 'State',
-      children: data?.inputStateList || [],
-      allowAddAndRemoveChildren: false,
-      hint: 'inputState',
-    }),
-    new EndPoint({
-      type: 'group',
-      label: 'Event',
-      children: data?.inputEventList || [],
-      allowAddAndRemoveChildren: false,
-      hint: 'inputEvent',
-    }),
-  ];
-}
+import {
+  generateEndPointList,
+  getNodeEndPointFromLayer,
+  getInputPorts,
+  getOutputPorts,
+} from './utils';
 
 export class GroupOperator
   extends MetaOperator<IGroupOperatorData>
@@ -74,36 +34,6 @@ export class GroupOperator
         endPointList: generateEndPointList(),
       },
     });
-  }
-
-  getOutputPorts(node: Node<IGroupOperatorData>) {
-    const eventPorts =
-      node.data?.endPointOptions?.endPointList
-        ?.filter(
-          (item) =>
-            item.type === 'group' &&
-            ['outputState', 'outputEvent'].includes(item.hint || ''),
-        )
-        .map((item) => item?.children)
-        ?.flat()
-        .filter((x): x is EndPoint => !!x) || [];
-
-    return eventPorts;
-  }
-
-  getInputPorts(node: Node<IGroupOperatorData>) {
-    const eventPorts =
-      node.data?.endPointOptions?.endPointList
-        ?.filter(
-          (item) =>
-            item.type === 'group' &&
-            ['inputState', 'inputEvent'].includes(item.hint || ''),
-        )
-        .map((item) => item?.children)
-        .flat()
-        .filter((x): x is EndPoint => !!x) || [];
-
-    return eventPorts;
   }
 
   // todo
@@ -154,7 +84,7 @@ export class GroupOperator
       `const temp_${formatVariableName(
         node.id,
       )} = context.mount(${formatBlockVarName(node.data.layerId)}, {
-        ${this.getInputPorts(node)
+        ${getInputPorts(node)
           .map((port) => {
             const sourceId = nodeGraph
               .findSourceNodes(node.id)
@@ -171,7 +101,7 @@ export class GroupOperator
           .filter(Boolean)
           .join(',\n')}
       })`,
-      ...(this.getOutputPorts(node) || [])?.map((port) => {
+      ...(getOutputPorts(node) || [])?.map((port) => {
         return `const ${formatVariableName(
           port.id,
         )} = temp_${formatVariableName(node.id)}.output['${
@@ -198,75 +128,13 @@ export class GroupOperator
     const targetLayer = findLayer(layer, node.data.layerId);
 
     if (targetLayer) {
-      const inputNode = targetLayer.nodes.find(
-        (item): item is Node<IInputOperatorData> =>
-          getOperatorFromNode(item)?.operatorType === 'InputOperator',
-      );
-      const outputNode = targetLayer.nodes.find(
-        (item): item is Node<IOutputOperatorData> =>
-          getOperatorFromNode(item)?.operatorType === 'OutputOperator',
-      );
-
-      const inputOperator = getOperatorFromNode<InputOperator>(inputNode);
-      const outputOperator = getOperatorFromNode<OutputOperator>(outputNode);
-
-      function getNewEndPortId(id: string) {
-        return `${id}__${node.id.slice(-5)}`;
-      }
-
-      const inputStatePorts = !inputNode
-        ? []
-        : inputOperator?.getStatePort(inputNode)?.map(
-            (item) =>
-              new EndPoint({
-                ...item,
-                id: getNewEndPortId(item.id),
-                type: 'target',
-              }),
-          );
-      const inputEventPorts = !inputNode
-        ? []
-        : inputOperator?.getEventPorts(inputNode)?.map(
-            (item) =>
-              new EndPoint({
-                ...item,
-                id: getNewEndPortId(item.id),
-                type: 'target',
-              }),
-          );
-
-      const outputStatePort = !outputNode
-        ? []
-        : outputOperator?.getStatePort(outputNode)?.map(
-            (item) =>
-              new EndPoint({
-                ...item,
-                id: getNewEndPortId(item.id),
-                type: 'source',
-              }),
-          );
-
-      const outputEventPort = !outputNode
-        ? []
-        : outputOperator?.getEventPorts(outputNode)?.map(
-            (item) =>
-              new EndPoint({
-                ...item,
-                id: getNewEndPortId(item.id),
-                type: 'source',
-              }),
-          );
+      const { endPointList } = getNodeEndPointFromLayer(targetLayer, node.id);
 
       return {
         targetLayer,
         updatedNodeData: {
           endPointOptions: {
-            endPointList: generateEndPointList({
-              inputEventList: inputEventPorts || [],
-              inputStateList: inputStatePorts || [],
-              outputEventList: outputEventPort || [],
-              outputStateList: outputStatePort || [],
-            }),
+            endPointList,
           },
         },
       };

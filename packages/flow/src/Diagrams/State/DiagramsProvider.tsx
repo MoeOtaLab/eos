@@ -12,9 +12,10 @@ import {
 } from 'reactflow';
 import { Layer, findLayer } from './Layer';
 import { useLatest, useMemoizedFn } from 'ahooks';
-import { getOperatorFromNode } from '../Operators';
+import { getOperatorFromNode, getOperatorFromOperatorType } from '../Operators';
 import { type IGroupOperatorData } from '../Operators/types';
 import { type GroupOperator } from '../Operators/GroupOperator';
+import { type CustomOperator } from '../Operators/CustomOperator';
 
 interface IUpdateNodeOption {
   updateInternal?: boolean;
@@ -50,9 +51,11 @@ export interface DiagramsContextType<T = any> {
   ) => void;
 
   /** ====== all ====== */
+  defaultLayer: Layer;
   layer: Layer;
   activeLayerId: string;
   setLayer: React.Dispatch<React.SetStateAction<Layer>>;
+  setDefaultLayer: React.Dispatch<React.SetStateAction<Layer>>;
   setActiveLayerId: (id: Layer['id']) => void;
 }
 
@@ -67,8 +70,10 @@ export const DiagramsContext = createContext<DiagramsContextType>({
   setEdges: (() => undefined) as any,
   updateEdge: (() => undefined) as any,
 
+  defaultLayer,
   layer: defaultLayer,
   setLayer: (() => undefined) as any,
+  setDefaultLayer: (() => undefined) as any,
   activeLayerId: defaultLayer.id,
   setActiveLayerId: (() => undefined) as any,
 });
@@ -94,6 +99,8 @@ export function useDiagramsHookOption() {
     setEdges,
     layer,
     activeLayerId,
+    defaultLayer,
+    setDefaultLayer,
   } = useDiagramsContext();
 
   const currentStateRef = useLatest({
@@ -101,6 +108,7 @@ export function useDiagramsHookOption() {
     edges,
     layer,
     activeLayerId,
+    defaultLayer,
   });
   const actionsRef = useLatest({
     updateEdge,
@@ -108,6 +116,7 @@ export function useDiagramsHookOption() {
     setEdges,
     setActiveLayerId,
     setLayer,
+    setDefaultLayer,
   });
 
   return {
@@ -120,10 +129,13 @@ export function useDiagramsState() {
   const nodes = useDiagramsContextSelector((ctx) => ctx.nodes);
   const edges = useDiagramsContextSelector((ctx) => ctx.edges);
   const layer = useDiagramsContextSelector((ctx) => ctx.layer);
+  const defaultLayer = useDiagramsContextSelector((ctx) => ctx.defaultLayer);
+
   return {
     nodes,
     edges,
     layer,
+    defaultLayer,
   };
 }
 
@@ -133,6 +145,9 @@ export function useDiagramsActions() {
   const updateEdge = useDiagramsContextSelector((ctx) => ctx.updateEdge);
   const updateNode = useDiagramsContextSelector((ctx) => ctx.updateNode);
   const setLayer = useDiagramsContextSelector((ctx) => ctx.setLayer);
+  const setDefaultLayer = useDiagramsContextSelector(
+    (ctx) => ctx.setDefaultLayer,
+  );
   const setActiveLayerId = useDiagramsContextSelector(
     (ctx) => ctx.setActiveLayerId,
   );
@@ -144,6 +159,7 @@ export function useDiagramsActions() {
     updateNode,
     setLayer,
     setActiveLayerId,
+    setDefaultLayer,
   };
 }
 
@@ -151,6 +167,7 @@ export const DiagramsContextInnerProvider: React.FC = (props) => {
   const { children } = props;
 
   const [_layer, _setLayer] = useState(() => new Layer('App'));
+  const [defaultLayer, setDefaultLayer] = useState(_layer);
   const layerRef = useRef(_layer);
   const layer = layerRef.current;
 
@@ -165,6 +182,14 @@ export const DiagramsContextInnerProvider: React.FC = (props) => {
     layerRef.current =
       typeof action === 'function' ? action(layerRef.current) : action;
     _setLayer(layerRef.current);
+    if (layerRef.current?.relativeOperatorType) {
+      const operator = getOperatorFromOperatorType<CustomOperator>(
+        layerRef.current.relativeOperatorType,
+      );
+      operator?.updateContent({
+        layer: layerRef.current,
+      });
+    }
   });
 
   const setNodes = useMemoizedFn(function setNodes(
@@ -271,6 +296,7 @@ export const DiagramsContextInnerProvider: React.FC = (props) => {
     edges,
     layer,
     activeLayerId,
+    defaultLayer,
   });
   const actionsRef = useLatest({
     updateEdge,
@@ -278,6 +304,7 @@ export const DiagramsContextInnerProvider: React.FC = (props) => {
     setEdges,
     setActiveLayerId: () => undefined,
     setLayer,
+    setDefaultLayer,
   });
 
   const setActiveLayerId = useMemoizedFn((activeId: string) => {
@@ -316,7 +343,9 @@ export const DiagramsContextInnerProvider: React.FC = (props) => {
         setEdges,
         setNodes,
         layer,
+        defaultLayer,
         activeLayerId,
+        setDefaultLayer,
         setLayer,
         setActiveLayerId,
       }}

@@ -5,6 +5,7 @@ import {
   type IHookOption,
   type IAttributeControlOption,
   type IMetaOperatorData,
+  type IAppContainersInfo,
 } from './types';
 import { type IGenerationOption } from '../Compiler';
 import { Input } from 'antd';
@@ -122,6 +123,10 @@ export abstract class MetaOperator<
 
   abstract generateBlockOutput(options: IGenerationOption<T>): string[];
 
+  getExtraAppContainers(options: IGenerationOption<T>): IAppContainersInfo[] {
+    return [];
+  }
+
   getIgnoreDegreeIds(node: Node<T>): string[] {
     return [];
   }
@@ -132,6 +137,9 @@ export abstract class MetaOperator<
   onNodeFocus(options: IHookOption<Node<T>>) {}
 
   onNodeDoubleClick(options: IHookOption<Node<T>>) {}
+
+  // TODO: improve
+  onLayerChange(options: Omit<IHookOption<Node<T>>, 'node'>) {}
 
   // ============ START: Panel Relative ============= //
   generateAttributeControl(options: IAttributeControlOption<Node<T>>) {

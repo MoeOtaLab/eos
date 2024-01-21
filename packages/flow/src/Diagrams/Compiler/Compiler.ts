@@ -1,6 +1,9 @@
 import { type Edge, type Node } from 'reactflow';
 import { getOperatorFromNode } from '../Operators';
-import { type IMetaOperatorData } from '../Operators/types';
+import {
+  type IAppContainersInfo,
+  type IMetaOperatorData,
+} from '../Operators/types';
 import { EosCoreSymbol } from './runtime';
 import { type Layer, flatLayer } from '../State/Layer';
 import { message } from 'antd';
@@ -199,6 +202,28 @@ function addBanner(
 }
 
 export class Complier {
+  extraAppContainer: IAppContainersInfo[] = [];
+  handledAppContainerIdSet = new Set<string>();
+
+  getUniqueExtraAppContainerList() {
+    const appContainerIdSet = new Set<string>();
+    return this.extraAppContainer.filter((item) => {
+      if (
+        this.handledAppContainerIdSet.has(item.appContainerId) ||
+        appContainerIdSet.has(item.appContainerId)
+      ) {
+        return false;
+      }
+      appContainerIdSet.add(item.appContainerId);
+      return true;
+    });
+  }
+
+  reset() {
+    this.extraAppContainer = [];
+    this.handledAppContainerIdSet = new Set();
+  }
+
   private generateBlock(
     containerId: string,
     data: { nodes: Node[]; edges: Edge[] },
@@ -261,6 +286,21 @@ export class Complier {
       .flat()
       .filter((x): x is string => Boolean(x));
 
+    const extraAppContainer = sortedNode
+      .map((node: Node<IMetaOperatorData>) => {
+        const operator = getOperatorFromNode(node);
+        return operator?.getExtraAppContainers?.({
+          node,
+          nodeGraph,
+          formatVariableName,
+          formatBlockVarName,
+        });
+      })
+      .flat()
+      .filter((x): x is IAppContainersInfo => Boolean(x));
+
+    this.extraAppContainer = this.extraAppContainer.concat(extraAppContainer);
+
     const output = `
       function ${formatBlockVarName(containerId)}(input, context) {
         ${declarations.join(';\n')}
@@ -292,15 +332,32 @@ export class Complier {
   }
 
   complie(data: { layer: Layer }) {
+    this.reset();
     const appContainerId = 'App';
-    const appCode = this.generateContainer(appContainerId, data);
+    let appCode = [this.generateContainer(appContainerId, data)];
+
+    let extraAppContainerList = this.getUniqueExtraAppContainerList();
+    let maxLoop = 500;
+    while (extraAppContainerList?.length && maxLoop >= 0) {
+      maxLoop -= 1;
+      const resultList = extraAppContainerList.map((item) => {
+        this.handledAppContainerIdSet.add(item.appContainerId);
+        return this.generateContainer(item.appContainerId, item.data);
+      });
+      appCode = [...resultList, ...appCode];
+      extraAppContainerList = this.getUniqueExtraAppContainerList();
+    }
+
+    if (maxLoop < 0) {
+      message.warning('reach maxloop');
+    }
 
     const output = `
       const {
         start,
         tracker
       } = ${EosCoreSymbol}
-      ${appCode}
+      ${appCode.join('\n')}
       function main(input) {
         window.logs = [];
         tracker.onTrack(record => {

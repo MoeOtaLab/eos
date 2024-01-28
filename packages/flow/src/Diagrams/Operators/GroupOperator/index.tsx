@@ -1,20 +1,11 @@
 import { MetaOperator } from '../Operator';
 import { type Node } from 'reactflow';
 import { NodeTypeEnum } from '../../Nodes/NodeTypeEnum';
-import {
-  type IHookOption,
-  type IAttributeControlOption,
-  type IGroupOperatorData,
-} from '../types';
+import { type IHookOption, type IAttributeControlOption, type IGroupOperatorData } from '../types';
 import { type IGenerationOption } from '../../Compiler';
 import { Layer, findLayer } from '../../State/Layer';
 import { AttributeControl } from './AttributeControl';
-import {
-  generateEndPointList,
-  getNodeEndPointFromLayer,
-  getInputPorts,
-  getOutputPorts,
-} from './utils';
+import { generateEndPointList, getNodeEndPointFromLayer, getInputPorts, getOutputPorts } from './utils';
 
 export class GroupOperator
   extends MetaOperator<IGroupOperatorData>
@@ -31,8 +22,8 @@ export class GroupOperator
       operatorType: 'GroupOperator',
       nodeType: NodeTypeEnum.Node,
       endPointOptions: {
-        endPointList: generateEndPointList(),
-      },
+        endPointList: generateEndPointList()
+      }
     });
   }
 
@@ -52,9 +43,7 @@ export class GroupOperator
       const currentActiveLayer = findLayer(layer, activeLayerId);
       if (currentActiveLayer) {
         if (!currentActiveLayer.nodes.find((item) => item.id === node.id)) {
-          currentActiveLayer.nodes = currentActiveLayer.nodes.concat(
-            node as Node<IGroupOperatorData>,
-          );
+          currentActiveLayer.nodes = currentActiveLayer.nodes.concat(node as Node<IGroupOperatorData>);
         }
         currentActiveLayer.children.push(newLayer);
       }
@@ -64,9 +53,7 @@ export class GroupOperator
     // setActiveLayerId(newLayer.id);
   }
 
-  generateAttributeControl(
-    options: IAttributeControlOption<Node<IGroupOperatorData>>,
-  ) {
+  generateAttributeControl(options: IAttributeControlOption<Node<IGroupOperatorData>>) {
     const { node } = options;
     return (
       <div>
@@ -75,15 +62,11 @@ export class GroupOperator
     );
   }
 
-  generateBlockDeclarations(
-    options: IGenerationOption<IGroupOperatorData>,
-  ): string[] {
+  generateBlockDeclarations(options: IGenerationOption<IGroupOperatorData>): string[] {
     const { node, nodeGraph, formatVariableName, formatBlockVarName } = options;
 
     return [
-      `const temp_${formatVariableName(
-        node.id,
-      )} = context.mount(${formatBlockVarName(node.data.layerId)}, {
+      `const temp_${formatVariableName(node.id)} = context.mount(${formatBlockVarName(node.data.layerId)}, {
         ${getInputPorts(node)
           .map((port) => {
             const sourceId = nodeGraph
@@ -94,20 +77,16 @@ export class GroupOperator
               return '';
             }
 
-            return `['${port.variableName}']: ${formatVariableName(
-              sourceId || '',
-            )}`;
+            return `['${port.variableName}']: ${formatVariableName(sourceId || '')}`;
           })
           .filter(Boolean)
           .join(',\n')}
       })`,
       ...(getOutputPorts(node) || [])?.map((port) => {
-        return `const ${formatVariableName(
-          port.id,
-        )} = temp_${formatVariableName(node.id)}.output['${
+        return `const ${formatVariableName(port.id)} = temp_${formatVariableName(node.id)}.output['${
           port.variableName
         }']`;
-      }),
+      })
     ];
   }
 
@@ -115,9 +94,7 @@ export class GroupOperator
     return [];
   }
 
-  generateBlockRelation(
-    _options: IGenerationOption<IGroupOperatorData>,
-  ): string[] {
+  generateBlockRelation(_options: IGenerationOption<IGroupOperatorData>): string[] {
     return [];
   }
 
@@ -134,9 +111,9 @@ export class GroupOperator
         targetLayer,
         updatedNodeData: {
           endPointOptions: {
-            endPointList,
-          },
-        },
+            endPointList
+          }
+        }
       };
     }
   }
@@ -145,11 +122,10 @@ export class GroupOperator
     const { node } = options;
     const data = this.getFreshNodeData(options);
     if (data?.updatedNodeData) {
-      options.actions.updateNode(
-        node.id,
-        (v) => this.updateData(v, data.updatedNodeData),
-        { updateInternal: true, layerId: data.targetLayer?.parentLayerId },
-      );
+      options.actions.updateNode(node.id, (v) => this.updateData(v, data.updatedNodeData), {
+        updateInternal: true,
+        layerId: data.targetLayer?.parentLayerId
+      });
     }
   }
 

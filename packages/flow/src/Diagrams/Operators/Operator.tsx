@@ -5,15 +5,13 @@ import {
   type IHookOption,
   type IAttributeControlOption,
   type IMetaOperatorData,
-  type IAppContainersInfo,
+  type IAppContainersInfo
 } from './types';
 import { type IGenerationOption } from '../Compiler';
 import { Input } from 'antd';
 import { pick } from 'lodash';
 
-export abstract class MetaOperator<
-  T extends IMetaOperatorData = IMetaOperatorData,
-> {
+export abstract class MetaOperator<T extends IMetaOperatorData = IMetaOperatorData> {
   // ============ START: Instance Meta Data ============= //
   defaultOperatorData: IMetaOperatorData;
 
@@ -46,7 +44,7 @@ export abstract class MetaOperator<
       // 4. should generate the funtion which will be used in later code piping
       position: {
         x: 0,
-        y: 0,
+        y: 0
       },
       ...defaultProps,
       id: defaultProps?.id || getRandomId(),
@@ -58,36 +56,28 @@ export abstract class MetaOperator<
         operatorName: this.defaultOperatorData.operatorName,
         operatorType: this.defaultOperatorData.operatorType,
         nodeType: this.defaultOperatorData.nodeType,
-        nodeOptions: this.defaultOperatorData.nodeOptions,
-      } as T,
+        nodeOptions: this.defaultOperatorData.nodeOptions
+      } as T
     };
   }
 
-  updateNodeMeta(
-    currentNode: Node<T>,
-    patch: Omit<Node<T>, 'data' | 'id'>,
-  ): Node<T> {
+  updateNodeMeta(currentNode: Node<T>, patch: Omit<Node<T>, 'data' | 'id'>): Node<T> {
     return {
       ...currentNode,
       ...patch,
-      ...pick(currentNode, 'id', 'data'),
+      ...pick(currentNode, 'id', 'data')
     };
   }
 
   updateData(
     currentNode: Node<T>,
-    patch: Partial<
-      Omit<
-        Node<T>['data'],
-        'nodeOptions' | 'nodeType' | 'operatorName' | 'operatorType'
-      >
-    >,
+    patch: Partial<Omit<Node<T>['data'], 'nodeOptions' | 'nodeType' | 'operatorName' | 'operatorType'>>
   ): Node<T> {
     const metaDataPropList: (keyof IMetaOperatorData)[] = [
       'nodeOptions',
       'nodeType',
       'operatorName',
-      'operatorType',
+      'operatorType'
     ];
 
     return {
@@ -95,24 +85,21 @@ export abstract class MetaOperator<
       data: {
         ...currentNode.data,
         ...patch,
-        ...pick(currentNode.data, ...metaDataPropList),
-      },
+        ...pick(currentNode.data, ...metaDataPropList)
+      }
     };
   }
 
-  updateNodeOptions(
-    currentNode: Node<T>,
-    patch: Partial<Node<T>['data']['nodeOptions']>,
-  ): Node<T> {
+  updateNodeOptions(currentNode: Node<T>, patch: Partial<Node<T>['data']['nodeOptions']>): Node<T> {
     return {
       ...currentNode,
       data: {
         ...currentNode?.data,
         nodeOptions: {
           ...currentNode?.data?.nodeOptions,
-          ...patch,
-        },
-      },
+          ...patch
+        }
+      }
     };
   }
 

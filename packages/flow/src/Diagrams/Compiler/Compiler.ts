@@ -1,9 +1,6 @@
 import { type Edge, type Node } from 'reactflow';
 import { getOperatorFromNode } from '../Operators';
-import {
-  type IAppContainersInfo,
-  type IMetaOperatorData,
-} from '../Operators/types';
+import { type IAppContainersInfo, type IMetaOperatorData } from '../Operators/types';
 import { EosCoreSymbol } from './runtime';
 import { type Layer, flatLayer } from '../State/Layer';
 import { message } from 'antd';
@@ -39,12 +36,7 @@ export class NodeGraph {
     const connections: NodeGraph['connections'] = new Map();
 
     for (const edge of this.edges) {
-      if (
-        !edge.target ||
-        !edge.source ||
-        !edge?.targetHandle ||
-        !edge?.sourceHandle
-      ) {
+      if (!edge.target || !edge.source || !edge?.targetHandle || !edge?.sourceHandle) {
         console.warn('found useless target/source edge: ', edge);
         continue;
       }
@@ -53,14 +45,14 @@ export class NodeGraph {
       if (!sourceConnnection) {
         sourceConnnection = {
           incoming: [],
-          outcoming: [],
+          outcoming: []
         };
       }
 
       sourceConnnection.outcoming.push({
         nodeId: edge.target,
         handleId: edge.sourceHandle,
-        relatedHandleId: edge.targetHandle,
+        relatedHandleId: edge.targetHandle
       });
 
       connections.set(edge.source, sourceConnnection);
@@ -69,13 +61,13 @@ export class NodeGraph {
       if (!targetConnection) {
         targetConnection = {
           incoming: [],
-          outcoming: [],
+          outcoming: []
         };
       }
       targetConnection.incoming.push({
         nodeId: edge.source,
         handleId: edge.targetHandle,
-        relatedHandleId: edge.sourceHandle,
+        relatedHandleId: edge.sourceHandle
       });
 
       connections.set(edge.target, targetConnection);
@@ -112,8 +104,7 @@ export class NodeGraph {
         const currentDegree = degreeMap.get(edge.target) || 0;
         const targetNode = this.nodeMap.get(edge.target);
         const ignoreDegreeIds = targetNode
-          ? getOperatorFromNode(targetNode)?.getIgnoreDegreeIds?.(targetNode) ||
-            []
+          ? getOperatorFromNode(targetNode)?.getIgnoreDegreeIds?.(targetNode) || []
           : [];
         if (!ignoreDegreeIds.includes(edge.targetHandle || '')) {
           degreeMap.set(edge.target, currentDegree + 1);
@@ -122,9 +113,7 @@ export class NodeGraph {
     }
 
     // find degree-0 nodes
-    const queue: (Node | undefined)[] = this.nodes.filter(
-      (item) => !degreeMap.get(item.id),
-    );
+    const queue: (Node | undefined)[] = this.nodes.filter((item) => !degreeMap.get(item.id));
 
     while (queue?.length) {
       const node = queue.pop();
@@ -180,7 +169,7 @@ function addBanner(
     operator?: MetaOperator;
     node: Node<IMetaOperatorData>;
     extra?: string;
-  },
+  }
 ) {
   if (!code?.length) {
     return code;
@@ -188,16 +177,12 @@ function addBanner(
 
   return [
     generateBanner(
-      `START: ${[
-        info.operator?.operatorName,
-        info.node?.data.nodeLabel,
-        info.extra,
-      ]
+      `START: ${[info.operator?.operatorName, info.node?.data.nodeLabel, info.extra]
         .filter(Boolean)
-        .join(',')}`,
+        .join(',')}`
     ),
     ...code,
-    generateBanner('END'),
+    generateBanner('END')
   ];
 }
 
@@ -224,10 +209,7 @@ export class Complier {
     this.handledAppContainerIdSet = new Set();
   }
 
-  private generateBlock(
-    containerId: string,
-    data: { nodes: Node[]; edges: Edge[] },
-  ) {
+  private generateBlock(containerId: string, data: { nodes: Node[]; edges: Edge[] }) {
     const { nodes, edges } = data;
     const nodeGraph = new NodeGraph(nodes, edges);
 
@@ -241,13 +223,13 @@ export class Complier {
             node,
             nodeGraph,
             formatVariableName,
-            formatBlockVarName,
+            formatBlockVarName
           }),
           {
             operator,
             node,
-            extra: 'declarations',
-          },
+            extra: 'declarations'
+          }
         );
       })
       .flat()
@@ -261,13 +243,13 @@ export class Complier {
             node,
             nodeGraph,
             formatVariableName,
-            formatBlockVarName,
+            formatBlockVarName
           }),
           {
             operator,
             node,
-            extra: 'relations',
-          },
+            extra: 'relations'
+          }
         );
       })
       .flat()
@@ -280,7 +262,7 @@ export class Complier {
           node,
           nodeGraph,
           formatVariableName,
-          formatBlockVarName,
+          formatBlockVarName
         });
       })
       .flat()
@@ -293,7 +275,7 @@ export class Complier {
           node,
           nodeGraph,
           formatVariableName,
-          formatBlockVarName,
+          formatBlockVarName
         });
       })
       .flat()
@@ -320,14 +302,12 @@ export class Complier {
     const blockOutput = containers.map((containerLayer) =>
       this.generateBlock(containerLayer.id, {
         nodes: containerLayer.nodes,
-        edges: containerLayer.edges,
-      }),
+        edges: containerLayer.edges
+      })
     );
     const output = `
       ${blockOutput.join(';\n')}
-      const ${formatBlockVarName(appContainerId)} = ${formatBlockVarName(
-        layer.id,
-      )}`;
+      const ${formatBlockVarName(appContainerId)} = ${formatBlockVarName(layer.id)}`;
     return output;
   }
 

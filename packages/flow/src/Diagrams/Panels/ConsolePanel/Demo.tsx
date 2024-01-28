@@ -4,10 +4,7 @@ import { useLinkRuntimeContext } from '../../Compiler/runtime';
 import { NodeGraph } from '../../Compiler';
 import { getOperatorFromNode } from '../../Operators';
 import { useEffect, useRef, useState } from 'react';
-import {
-  type IInputOperatorData,
-  type IOutputOperatorData,
-} from '../../Operators/types';
+import { type IInputOperatorData, type IOutputOperatorData } from '../../Operators/types';
 import { type OutputOperator } from '../../Operators/OutputOperator';
 import { type InputOperator } from '../../Operators/InputOperator';
 import { type ModelBlock, ModelState, ExtraInfo } from '@eos/core';
@@ -20,8 +17,7 @@ export const Demo: React.FC = () => {
   const nodeGraph = new NodeGraph(nodes, edges);
 
   const inputNode = nodes.find(
-    (item): item is Node<IInputOperatorData> =>
-      getOperatorFromNode(item)?.operatorType === 'InputOperator',
+    (item): item is Node<IInputOperatorData> => getOperatorFromNode(item)?.operatorType === 'InputOperator'
   );
   const inputStatePorts = !inputNode
     ? []
@@ -32,17 +28,13 @@ export const Demo: React.FC = () => {
     : getOperatorFromNode<InputOperator>(inputNode)?.getEventPorts(inputNode);
 
   const outputNode = nodes.find(
-    (item): item is Node<IOutputOperatorData> =>
-      getOperatorFromNode(item)?.operatorType === 'OutputOperator',
+    (item): item is Node<IOutputOperatorData> => getOperatorFromNode(item)?.operatorType === 'OutputOperator'
   );
 
   useEffect(() => {
     console.log('store ==> ', store);
     inputStateMapRef.current = Object.fromEntries(
-      inputStatePorts?.map((item) => [
-        item.variableName,
-        new ModelState(undefined),
-      ]) || [],
+      inputStatePorts?.map((item) => [item.variableName, new ModelState(undefined)]) || []
     );
     const result = store?.(inputStateMapRef.current);
     console.log('init ==> ', result);
@@ -54,18 +46,13 @@ export const Demo: React.FC = () => {
       return;
     }
 
-    const outputPorts =
-      getOperatorFromNode<OutputOperator>(outputNode)?.getEventPorts(
-        outputNode,
-      );
+    const outputPorts = getOperatorFromNode<OutputOperator>(outputNode)?.getEventPorts(outputNode);
 
     outputPorts?.forEach((port) => {
-      instance?.output[port.variableName || '']?.subscribe(
-        (value: any, extraInfo: any) => {
-          message.info(`value: ${value}`);
-          console.log('events', port, value, extraInfo);
-        },
-      );
+      instance?.output[port.variableName || '']?.subscribe((value: any, extraInfo: any) => {
+        message.info(`value: ${value}`);
+        console.log('events', port, value, extraInfo);
+      });
     });
   }, [instance]);
 
@@ -82,7 +69,7 @@ export const Demo: React.FC = () => {
             ?.find((con) => con.handleId === item.id)?.relatedHandleId;
           return {
             port: item,
-            handleId,
+            handleId
           };
         });
 
@@ -106,7 +93,7 @@ export const Demo: React.FC = () => {
         gap: 16,
         gridAutoFlow: 'column',
         justifyContent: 'start',
-        marginBottom: 16,
+        marginBottom: 16
       }}
     >
       {instance?.output && (
@@ -121,9 +108,10 @@ export const Demo: React.FC = () => {
                       onChange={(e) => {
                         const value: string = e.target.value;
                         console.log('instance', instance);
-                        inputStateMapRef.current?.[
-                          item.variableName || ''
-                        ]?.update(Number(value), new ExtraInfo());
+                        inputStateMapRef.current?.[item.variableName || '']?.update(
+                          Number(value),
+                          new ExtraInfo()
+                        );
                       }}
                     />
                   </div>
@@ -143,9 +131,7 @@ export const Demo: React.FC = () => {
                   <Button
                     key={item.id}
                     onClick={() => {
-                      instance?.output?.[item.variableName || '']?.next(
-                        JSON.parse(inputValue),
-                      );
+                      instance?.output?.[item.variableName || '']?.next(JSON.parse(inputValue));
                     }}
                   >
                     {item.label || item.variableName}
@@ -160,9 +146,7 @@ export const Demo: React.FC = () => {
               return (
                 <div key={port.id}>
                   <Form.Item label={port.label || port.variableName}>
-                    {JSON.stringify(
-                      instance?.output?.[port.variableName || '']?.current,
-                    )}
+                    {JSON.stringify(instance?.output?.[port.variableName || '']?.current)}
                   </Form.Item>
                 </div>
               );

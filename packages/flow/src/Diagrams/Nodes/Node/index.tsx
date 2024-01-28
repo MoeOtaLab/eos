@@ -49,19 +49,19 @@ export function Node(props: NodeProps<IMetaOperatorData>) {
   return (
     <div
       className={classnames(css.container, {
-        [css.selected]: selected,
+        [css.selected]: selected
       })}
       key={props.id}
       style={
         {
-          '--color-node-theme': operator?.nodeColor || undefined,
+          '--color-node-theme': operator?.nodeColor || undefined
         } as any
       }
       onClick={() => {
         operator?.onNodeFocus({
           node: props,
           currentState: currentStateRef.current,
-          actions: actionsRef.current,
+          actions: actionsRef.current
         });
       }}
     >
@@ -72,15 +72,13 @@ export function Node(props: NodeProps<IMetaOperatorData>) {
           operator?.onNodeDoubleClick({
             node: props,
             currentState: currentStateRef.current,
-            actions: actionsRef.current,
+            actions: actionsRef.current
           });
         }}
       >
         <div className={css.node__title}>
           {operator?.description && (
-            <div className={css['node__operator-description']}>
-              {operator?.description}
-            </div>
+            <div className={css['node__operator-description']}>{operator?.description}</div>
           )}
           {valueSection && <div>{valueSection}</div>}
           {operator?.renderCustomLabel?.(props) || null}

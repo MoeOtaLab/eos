@@ -4,7 +4,7 @@ import typescript from '@rollup/plugin-typescript';
 
 export default defineConfig({
   input: {
-    shared: './src/index.ts',
+    shared: './src/index.ts'
   },
   output: [
     {
@@ -16,7 +16,7 @@ export default defineConfig({
       },
       chunkFileNames(chunkInfo) {
         return `cjs/eos-${chunkInfo.name}.js`;
-      },
+      }
     },
     {
       dir: 'output',
@@ -27,13 +27,13 @@ export default defineConfig({
       },
       chunkFileNames(chunkInfo) {
         return `esm/eos-${chunkInfo.name}.js`;
-      },
-    },
+      }
+    }
   ],
   plugins: [
     clear({
-      targets: ['output'],
+      targets: ['output']
     }),
-    typescript({ module: 'ESNext', include: ['src/**'] }),
-  ],
+    typescript({ module: 'ESNext', include: ['src/**'] })
+  ]
 });

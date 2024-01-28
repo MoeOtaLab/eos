@@ -1,10 +1,7 @@
 import { EventEmitter } from '../EventEmitter';
 import { RelationHelper } from './RelationHelper';
 import { type SetupFn, type InputOutputInterface } from './ModelTemplate';
-import {
-  ModelConstructor,
-  type ModelConstructorOption,
-} from './ModelConstructor';
+import { ModelConstructor, type ModelConstructorOption } from './ModelConstructor';
 
 type LifecycleEventType =
   | 'start'
@@ -32,20 +29,17 @@ type SelfLifeCycleType =
   | 'beforeUnmountSelf'
   | 'unmountSelf';
 
-export type AtomLifecycleEventType = Exclude<
-  LifecycleEventType,
-  'start' | 'stop' | 'preInit'
->;
+export type AtomLifecycleEventType = Exclude<LifecycleEventType, 'start' | 'stop' | 'preInit'>;
 
 export interface ModelBlockContextType {
   id: string;
   onLifecycle: <CallbackType extends () => any>(
     lifecycleType: AtomLifecycleEventType,
-    callback: CallbackType,
+    callback: CallbackType
   ) => any;
   mount: <I extends InputOutputInterface, O extends InputOutputInterface>(
     template: SetupFn<I, O>,
-    input?: I,
+    input?: I
   ) => ModelConstructor<I, O>;
   unmount: (node: ModelConstructor) => void;
 }
@@ -53,12 +47,12 @@ export interface ModelBlockContextType {
 export enum ModelBlockStatus {
   BeforeInited,
   Initing,
-  Done,
+  Done
 }
 
 export class ModelBlock<
   InputInterface extends InputOutputInterface = any,
-  OutputInterface extends InputOutputInterface = any,
+  OutputInterface extends InputOutputInterface = any
 > extends ModelConstructor<InputInterface, OutputInterface> {
   /**
    * @deprecated
@@ -89,9 +83,7 @@ export class ModelBlock<
 
   protected relationHelper: RelationHelper;
 
-  constructor(
-    options: ModelConstructorOption<InputInterface, OutputInterface>,
-  ) {
+  constructor(options: ModelConstructorOption<InputInterface, OutputInterface>) {
     super(options);
     this.relationHelper = new RelationHelper(this);
   }
@@ -100,9 +92,7 @@ export class ModelBlock<
     this.next = next;
   }
 
-  protected setNextSibling(
-    nextSibling: ModelBlock<any, any> | null | undefined,
-  ) {
+  protected setNextSibling(nextSibling: ModelBlock<any, any> | null | undefined) {
     this.nextSibling = nextSibling;
   }
 
@@ -116,7 +106,7 @@ export class ModelBlock<
    */
   _getInnerHandler() {
     return {
-      getContext: this.getContext.bind(this),
+      getContext: this.getContext.bind(this)
     };
   }
 
@@ -125,7 +115,7 @@ export class ModelBlock<
       id: this.uid,
       onLifecycle: this.onLifecycle.bind(this),
       mount: this.mountTemplate.bind(this),
-      unmount: this.unmountChild.bind(this),
+      unmount: this.unmountChild.bind(this)
     };
   }
 
@@ -133,21 +123,17 @@ export class ModelBlock<
 
   protected onLifecycle<CallbackType extends () => any>(
     lifecycleType: AtomLifecycleEventType,
-    callback: CallbackType,
+    callback: CallbackType
   ) {
     this.eventEmitter.on(lifecycleType, callback);
     return {
       unsubscribe: () => {
         this.eventEmitter.off(lifecycleType, callback);
-      },
+      }
     };
   }
 
-  protected childrenAction(
-    type: 'pre' | 'post',
-    eventType: SelfLifeCycleType,
-    child: ModelBlock,
-  ) {
+  protected childrenAction(type: 'pre' | 'post', eventType: SelfLifeCycleType, child: ModelBlock) {
     this.relationHelper.action(type, child, (model) => {
       model[eventType]?.();
     });
@@ -165,10 +151,10 @@ export class ModelBlock<
     this.childrenAction('post', 'mountSelf', child);
   }
 
-  protected mountTemplate<
-    I extends InputOutputInterface,
-    O extends InputOutputInterface,
-  >(template: SetupFn<I, O>, input?: I): ModelConstructor<I, O> {
+  protected mountTemplate<I extends InputOutputInterface, O extends InputOutputInterface>(
+    template: SetupFn<I, O>,
+    input?: I
+  ): ModelConstructor<I, O> {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     /** @ts-expect-error */
     if (template === this.template) {
@@ -185,7 +171,7 @@ export class ModelBlock<
 
     const block = new ModelBlock({
       template,
-      input,
+      input
     });
 
     this.mountChild(block);
@@ -193,10 +179,9 @@ export class ModelBlock<
     return block;
   }
 
-  protected mountChild<
-    I extends InputOutputInterface,
-    O extends InputOutputInterface,
-  >(block: ModelBlock<I, O>) {
+  protected mountChild<I extends InputOutputInterface, O extends InputOutputInterface>(
+    block: ModelBlock<I, O>
+  ) {
     console.log('mount::status', this.status);
 
     if (this.status === ModelBlockStatus.Done) {

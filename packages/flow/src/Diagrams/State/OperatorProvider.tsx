@@ -11,7 +11,7 @@ interface IOperatorContextState {
 
 const OperatorContext = createContext<IOperatorContextState>({
   operators: [],
-  refreshOperators: () => undefined,
+  refreshOperators: () => undefined
 });
 
 export function OperatorProvider(props: React.PropsWithChildren<any>) {
@@ -25,7 +25,7 @@ export function OperatorProvider(props: React.PropsWithChildren<any>) {
     <OperatorContext.Provider
       value={{
         operators,
-        refreshOperators,
+        refreshOperators
       }}
     >
       {props?.children}

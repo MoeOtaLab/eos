@@ -3,7 +3,7 @@ export {
   type SetupFn,
   type ModelBlockContextType,
   start,
-  type InputOutputInterface,
+  type InputOutputInterface
 } from './ModelBlock';
 export { ModelState, ModelEvent } from './ModelState';
 export { type Observable } from './ModelState/Observable';

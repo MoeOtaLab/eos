@@ -8,7 +8,7 @@ beforeEach(() => {
   postLifecycleStack = [];
 });
 
-const lifecycleList = ([
+const lifecycleList = [
   'postInit',
   'preMount',
   'postMount',
@@ -17,8 +17,8 @@ const lifecycleList = ([
   'beforeUnmount',
   'unmount',
   'preUnmount',
-  'postUnmount',
-] as const);
+  'postUnmount'
+] as const;
 
 function createModelTemplate(name: string, ...children: SetupFn<any, any>[]) {
   function ModelTemplate(_input: any, context: ModelBlockContextType) {
@@ -26,33 +26,33 @@ function createModelTemplate(name: string, ...children: SetupFn<any, any>[]) {
     preLifecycleStack.push({ lifecycle: 'preInit', name });
     postLifecycleStack.push({ lifecycle: 'preInit', name });
 
-    lifecycleList.forEach(lifecycleName => {
+    lifecycleList.forEach((lifecycleName) => {
       onLifecycle(lifecycleName, () => {
         preLifecycleStack.push({
           lifecycle: lifecycleName,
-          name,
+          name
         });
       });
     });
 
-    children.forEach(child => {
+    children.forEach((child) => {
       mount(child);
     });
 
-    lifecycleList.forEach(lifecycleName => {
+    lifecycleList.forEach((lifecycleName) => {
       onLifecycle(lifecycleName, () => {
         postLifecycleStack.push({
           lifecycle: lifecycleName,
-          name,
+          name
         });
       });
     });
 
     return {};
-  };
+  }
 
   ModelTemplate.meta = {
-    name,
+    name
   };
 
   return ModelTemplate;
@@ -63,17 +63,11 @@ const App = createModelTemplate(
   createModelTemplate(
     '1-1',
     createModelTemplate('1-1-1'),
-    createModelTemplate(
-      '1-1-2',
-      createModelTemplate('1-1-2-1')
-    )
+    createModelTemplate('1-1-2', createModelTemplate('1-1-2-1'))
   ),
   createModelTemplate(
     '1-2',
-    createModelTemplate(
-      '1-2-1',
-      createModelTemplate('1-2-1-1')
-    ),
+    createModelTemplate('1-2-1', createModelTemplate('1-2-1-1')),
     createModelTemplate('1-2-2')
   )
 );
@@ -83,41 +77,22 @@ test('should trigger lifecycle in correct order', () => {
 
   app.unmount();
 
-  expect(preLifecycleStack).toEqual([
-    'preInit',
-    ...lifecycleList,
-  ]
-    .map(lifecycleName => {
-      if (lifecycleName.startsWith('pre') || lifecycleName.startsWith('before')) {
-        return [
-          '1',
-          '1-1',
-          '1-1-1',
-          '1-1-2',
-          '1-1-2-1',
-          '1-2',
-          '1-2-1',
-          '1-2-1-1',
-          '1-2-2',
-        ].map(name => ({
+  expect(preLifecycleStack).toEqual(
+    ['preInit', ...lifecycleList]
+      .map((lifecycleName) => {
+        if (lifecycleName.startsWith('pre') || lifecycleName.startsWith('before')) {
+          return ['1', '1-1', '1-1-1', '1-1-2', '1-1-2-1', '1-2', '1-2-1', '1-2-1-1', '1-2-2'].map(
+            (name) => ({
+              name,
+              lifecycle: lifecycleName
+            })
+          );
+        }
+        return ['1-1-1', '1-1-2-1', '1-1-2', '1-1', '1-2-1-1', '1-2-1', '1-2-2', '1-2', '1'].map((name) => ({
           name,
-          lifecycle: lifecycleName,
+          lifecycle: lifecycleName
         }));
-      }
-      return [
-        '1-1-1',
-        '1-1-2-1',
-        '1-1-2',
-        '1-1',
-        '1-2-1-1',
-        '1-2-1',
-        '1-2-2',
-        '1-2',
-        '1',
-      ].map(name => ({
-        name,
-        lifecycle: lifecycleName,
-      }));
-    })
-    .flat());
+      })
+      .flat()
+  );
 });

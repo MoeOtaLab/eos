@@ -20,32 +20,26 @@ export class ConstStateOperator extends StateOperator implements MetaOperator {
           new EndPoint({
             type: 'source',
             label: 'data',
-            hint: 'data',
-          }),
-        ],
-      },
+            hint: 'data'
+          })
+        ]
+      }
     });
 
     return node;
   }
 
-  generateBlockDeclarations(
-    options: IGenerationOption<IStateOperatorData>,
-  ): string[] {
+  generateBlockDeclarations(options: IGenerationOption<IStateOperatorData>): string[] {
     const { node } = options;
 
     return [
-      `const ${super.getStateSymbol(
-        options,
-      )} = new ${EosOperatorsSymbol}.constValue(${JSON.stringify(
-        node.data.value,
-      )})`,
+      `const ${super.getStateSymbol(options)} = new ${EosOperatorsSymbol}.constValue(${JSON.stringify(
+        node.data.value
+      )})`
     ];
   }
 
-  generateBlockRelation(
-    options: IGenerationOption<IStateOperatorData>,
-  ): string[] {
+  generateBlockRelation(options: IGenerationOption<IStateOperatorData>): string[] {
     return [];
   }
 }

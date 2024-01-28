@@ -13,7 +13,7 @@ export class CombineOperator
     super({
       operatorName: 'Combine',
       operatorType: 'CombineOperator',
-      nodeType: NodeTypeEnum.Node,
+      nodeType: NodeTypeEnum.Node
     });
   }
 
@@ -31,9 +31,9 @@ export class CombineOperator
                 label: 'output',
                 hint: 'output',
                 variableType: 'array',
-                type: 'source',
-              }),
-            ],
+                type: 'source'
+              })
+            ]
           }),
           new EndPoint({
             type: 'group',
@@ -41,15 +41,15 @@ export class CombineOperator
             label: 'Main Stream',
             defaultChildData: {
               hint: 'mainSource',
-              type: 'target',
+              type: 'target'
             },
             allowAddAndRemoveChildren: true,
             children: [
               new EndPoint({
                 hint: 'mainSource',
-                type: 'target',
-              }),
-            ],
+                type: 'target'
+              })
+            ]
           }),
           new EndPoint({
             type: 'group',
@@ -57,25 +57,23 @@ export class CombineOperator
             label: 'Append Stream',
             defaultChildData: {
               hint: 'appendSource',
-              type: 'target',
+              type: 'target'
             },
             allowAddAndRemoveChildren: true,
             children: [
               new EndPoint({
                 hint: 'appendSource',
-                type: 'target',
-              }),
-            ],
-          }),
-        ],
-      },
+                type: 'target'
+              })
+            ]
+          })
+        ]
+      }
     });
   }
 
   getHintPorts(node: Node<ICombineOperatorData>, hint: string) {
-    return node.data.endPointOptions?.endPointList?.find(
-      (item) => item.hint === hint,
-    )?.children;
+    return node.data.endPointOptions?.endPointList?.find((item) => item.hint === hint)?.children;
   }
 
   getMainInputPorts(node: Node<ICombineOperatorData>) {
@@ -86,24 +84,16 @@ export class CombineOperator
     return this.getHintPorts(node, 'appendInput');
   }
 
-  generateBlockDeclarations(
-    options: IGenerationOption<ICombineOperatorData>,
-  ): string[] {
+  generateBlockDeclarations(options: IGenerationOption<ICombineOperatorData>): string[] {
     const { node, formatVariableName, nodeGraph } = options;
-    const handleId =
-      this.getHintPorts(node, 'output')?.find((item) => item.hint === 'output')
-        ?.id || '';
+    const handleId = this.getHintPorts(node, 'output')?.find((item) => item.hint === 'output')?.id || '';
 
-    const mainInputList =
-      this.getMainInputPorts(node)?.map((item) => item.id) || [];
+    const mainInputList = this.getMainInputPorts(node)?.map((item) => item.id) || [];
 
-    const appendInputList =
-      this.getAppendInputPorts(node)?.map((item) => item.id) || [];
+    const appendInputList = this.getAppendInputPorts(node)?.map((item) => item.id) || [];
 
     const sourceItems = nodeGraph.findSourceNodes(node.id) || [];
-    const sourceItemMap = new Map(
-      sourceItems.map((item) => [item.handleId, item]),
-    );
+    const sourceItemMap = new Map(sourceItems.map((item) => [item.handleId, item]));
 
     const mainInputSourceIds = mainInputList
       .map((id) => sourceItemMap.get(id))
@@ -115,13 +105,9 @@ export class CombineOperator
 
     return [
       `const ${formatVariableName(handleId)} = ${EosOperatorsSymbol}.combine(
-        [${mainInputSourceIds
-          .map((id) => (id ? formatVariableName(id) : 'undefined'))
-          .join(',')}],
-        [${appendInputSourceIds
-          .map((id) => (id ? formatVariableName(id) : 'undefined'))
-          .join(',')}]
-      )`,
+        [${mainInputSourceIds.map((id) => (id ? formatVariableName(id) : 'undefined')).join(',')}],
+        [${appendInputSourceIds.map((id) => (id ? formatVariableName(id) : 'undefined')).join(',')}]
+      )`
     ];
   }
 

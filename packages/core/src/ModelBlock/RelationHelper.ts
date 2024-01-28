@@ -90,10 +90,7 @@ export class RelationHelper {
     }
   }
 
-  postAction(
-    currentNode: ModelBlock,
-    action: (modelBlock: ModelBlock) => void,
-  ) {
+  postAction(currentNode: ModelBlock, action: (modelBlock: ModelBlock) => void) {
     let next: ModelBlock | null | undefined = currentNode;
 
     // get down.
@@ -118,11 +115,7 @@ export class RelationHelper {
     }
   }
 
-  action(
-    type: 'pre' | 'post',
-    currentNode: ModelBlock,
-    action: (modelBlock: ModelBlock) => void,
-  ) {
+  action(type: 'pre' | 'post', currentNode: ModelBlock, action: (modelBlock: ModelBlock) => void) {
     if (type === 'pre') {
       this.preAction(currentNode, action);
     } else if (type === 'post') {

@@ -10,7 +10,7 @@ function convertLayerToTreeData(layer: Layer) {
     title: layer.name,
     children: layer.children?.map((item) => {
       return convertLayerToTreeData(item);
-    }),
+    })
   };
 
   return data;

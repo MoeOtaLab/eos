@@ -1,3 +1,3 @@
 export enum NodeTypeEnum {
-  Node = 'Node',
+  Node = 'Node'
 }

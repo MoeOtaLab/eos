@@ -16,7 +16,7 @@ export const ConsolePanel: React.FC = () => {
   const [cacheData, setCacheData] = useState<{
     layer: Layer;
   }>({
-    layer,
+    layer
   });
 
   const [outputVisible, setOutputVisible] = useState(false);
@@ -30,7 +30,7 @@ export const ConsolePanel: React.FC = () => {
           display: 'grid',
           gap: 16,
           gridAutoFlow: 'column',
-          justifyContent: 'start',
+          justifyContent: 'start'
         }}
       >
         <Button
@@ -38,7 +38,7 @@ export const ConsolePanel: React.FC = () => {
           onClick={() => {
             console.log(new NodeGraph(layer.nodes, layer.edges));
             console.log({
-              layer,
+              layer
             });
           }}
         >
@@ -81,11 +81,7 @@ export const ConsolePanel: React.FC = () => {
 
       <div>
         <br />
-        <LinkRuntimeContextProvider
-          value={code}
-          nodes={cacheData.layer.nodes}
-          edges={cacheData.layer.edges}
-        >
+        <LinkRuntimeContextProvider value={code} nodes={cacheData.layer.nodes} edges={cacheData.layer.edges}>
           <Demo />
         </LinkRuntimeContextProvider>
       </div>
@@ -101,12 +97,7 @@ export const ConsolePanel: React.FC = () => {
           setOutputVisible(false);
         }}
       >
-        <Editor
-          language="typescript"
-          readonly={true}
-          className={css.editor}
-          code={output}
-        />
+        <Editor language="typescript" readonly={true} className={css.editor} code={output} />
       </Modal>
     </div>
   );

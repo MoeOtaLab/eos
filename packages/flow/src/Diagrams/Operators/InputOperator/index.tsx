@@ -17,7 +17,7 @@ export class InputOperator
     super({
       operatorName: 'Input',
       operatorType: 'InputOperator',
-      nodeType: NodeTypeEnum.Node,
+      nodeType: NodeTypeEnum.Node
     });
   }
 
@@ -32,14 +32,14 @@ export class InputOperator
             allowAddAndRemoveChildren: true,
             defaultChildData: {
               type: 'source',
-              hint: 'state',
+              hint: 'state'
             },
             children: [
               // new EndPoint({
               //   type: 'source',
               //   hint: 'state',
               // }),
-            ],
+            ]
           }),
           new EndPoint({
             type: 'group',
@@ -48,14 +48,14 @@ export class InputOperator
             allowAddAndRemoveChildren: true,
             defaultChildData: {
               type: 'source',
-              hint: 'event',
+              hint: 'event'
             },
             children: [
               // new EndPoint({
               //   type: 'source',
               //   hint: 'event',
               // }),
-            ],
+            ]
           }),
           new EndPoint({
             type: 'group',
@@ -65,41 +65,39 @@ export class InputOperator
             children: [
               new EndPoint({
                 type: 'source',
-                variableName: 'beforeMount',
+                variableName: 'beforeMount'
               }),
               new EndPoint({
                 type: 'source',
-                variableName: 'mount',
+                variableName: 'mount'
               }),
               new EndPoint({
                 type: 'source',
-                variableName: 'beforeUnmount',
+                variableName: 'beforeUnmount'
               }),
               new EndPoint({
                 type: 'source',
-                variableName: 'unmount',
-              }),
-            ],
-          }),
-        ],
-      },
+                variableName: 'unmount'
+              })
+            ]
+          })
+        ]
+      }
     });
   }
 
   getEventPorts(node: Node<IInputOperatorData>) {
     const eventPorts =
-      node.data?.endPointOptions?.endPointList?.find(
-        (item) => item.type === 'group' && item.hint === 'event',
-      )?.children || [];
+      node.data?.endPointOptions?.endPointList?.find((item) => item.type === 'group' && item.hint === 'event')
+        ?.children || [];
 
     return eventPorts;
   }
 
   getStatePort(node: Node<IInputOperatorData>) {
     const statePorts =
-      node.data?.endPointOptions?.endPointList?.find(
-        (item) => item.type === 'group' && item.hint === 'state',
-      )?.children || [];
+      node.data?.endPointOptions?.endPointList?.find((item) => item.type === 'group' && item.hint === 'state')
+        ?.children || [];
 
     return statePorts;
   }
@@ -107,14 +105,12 @@ export class InputOperator
   getLifecyclePorts(node: Node<IInputOperatorData>) {
     const lifecyclePorts =
       node.data?.endPointOptions?.endPointList?.find(
-        (item) => item.type === 'group' && item.hint === 'lifecycle',
+        (item) => item.type === 'group' && item.hint === 'lifecycle'
       )?.children || [];
     return lifecyclePorts;
   }
 
-  generateBlockDeclarations(
-    options: IGenerationOption<IInputOperatorData>,
-  ): string[] {
+  generateBlockDeclarations(options: IGenerationOption<IInputOperatorData>): string[] {
     const { node } = options;
 
     const eventPorts = this.getEventPorts(node);
@@ -126,26 +122,21 @@ export class InputOperator
         (port) =>
           `const ${formatVariableName(port.id)} = input['${
             port.variableName
-          }'] || new ${EosCoreSymbol}.ModelEvent()`,
+          }'] || new ${EosCoreSymbol}.ModelEvent()`
       ),
       ...statePorts.map(
         (port) =>
           `const ${formatVariableName(port.id)} = input['${
             port.variableName
-          }'] || new ${EosCoreSymbol}.ModelState(undefined)`,
+          }'] || new ${EosCoreSymbol}.ModelState(undefined)`
       ),
       ...lifecyclePorts.map(
-        (port) =>
-          `const ${formatVariableName(
-            port.id,
-          )} = new ${EosCoreSymbol}.ModelEvent()`,
-      ),
+        (port) => `const ${formatVariableName(port.id)} = new ${EosCoreSymbol}.ModelEvent()`
+      )
     ];
   }
 
-  generateBlockRelation(
-    options: IGenerationOption<IInputOperatorData>,
-  ): string[] {
+  generateBlockRelation(options: IGenerationOption<IInputOperatorData>): string[] {
     const { node } = options;
 
     const lifecyclePorts = this.getLifecyclePorts(node);
@@ -156,21 +147,16 @@ export class InputOperator
       context.onLifecycle('${port.variableName}', () => {
         ${formatVariableName(port.id || '')}.next();
       })
-    `,
-      ),
+    `
+      )
     ];
   }
 
-  generateBlockOutput(
-    options: IGenerationOption<IInputOperatorData>,
-  ): string[] {
+  generateBlockOutput(options: IGenerationOption<IInputOperatorData>): string[] {
     const { node } = options;
 
     const eventPorts = this.getEventPorts(node);
 
-    return eventPorts.map(
-      (port) =>
-        `['${port.variableName || ''}']: ${formatVariableName(port.id)}`,
-    );
+    return eventPorts.map((port) => `['${port.variableName || ''}']: ${formatVariableName(port.id)}`);
   }
 }

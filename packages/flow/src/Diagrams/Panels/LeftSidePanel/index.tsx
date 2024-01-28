@@ -1,9 +1,5 @@
 import { Tabs } from 'antd';
-import {
-  ControlOutlined,
-  FileAddOutlined,
-  FunctionOutlined,
-} from '@ant-design/icons';
+import { ControlOutlined, FileAddOutlined, FunctionOutlined } from '@ant-design/icons';
 import { OperatorPanel } from '../OperatorPanel';
 import { LayerPanel } from '../LayerPanel';
 import { CommandPanel } from '../CommandPanel';
@@ -19,18 +15,18 @@ export function LeftSidePanel() {
           {
             label: <FunctionOutlined rev="" />,
             key: 'Operators',
-            children: <OperatorPanel />,
+            children: <OperatorPanel />
           },
           {
             label: <FileAddOutlined rev="" />,
             key: 'Layers',
-            children: <LayerPanel />,
+            children: <LayerPanel />
           },
           {
             label: <ControlOutlined rev="" />,
             key: 'commands',
-            children: <CommandPanel />,
-          },
+            children: <CommandPanel />
+          }
         ]}
       />
     </div>

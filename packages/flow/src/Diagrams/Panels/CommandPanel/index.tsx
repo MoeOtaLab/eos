@@ -1,8 +1,5 @@
 import { Button, message } from 'antd';
-import {
-  useDiagramsContext,
-  useDiagramsHookOption,
-} from '../../State/DiagramsProvider';
+import { useDiagramsContext, useDiagramsHookOption } from '../../State/DiagramsProvider';
 import { Layer, findLayer } from '../../State/Layer';
 import { getOperatorFromNode, registerOperators } from '../../Operators';
 import { type GroupOperator } from '../../Operators/GroupOperator';
@@ -28,8 +25,7 @@ function loadData(): IStorageData {
 }
 
 export function CommandPanel() {
-  const { layer, setLayer, setActiveLayerId, setDefaultLayer } =
-    useDiagramsContext();
+  const { layer, setLayer, setActiveLayerId, setDefaultLayer } = useDiagramsContext();
   const { actionsRef, currentStateRef } = useDiagramsHookOption();
   const { operators, refreshOperators } = useOperators();
 
@@ -37,9 +33,7 @@ export function CommandPanel() {
     try {
       if (layer.parentLayerId) {
         const parentLayer = findLayer(layer, layer.parentLayerId);
-        const targetNode = parentLayer?.nodes.find(
-          (item) => item.id === layer.relativeNodeId,
-        );
+        const targetNode = parentLayer?.nodes.find((item) => item.id === layer.relativeNodeId);
 
         if (targetNode) {
           const operator = getOperatorFromNode<GroupOperator>(targetNode);
@@ -47,14 +41,14 @@ export function CommandPanel() {
           operator?.refreshNode({
             node: targetNode,
             actions: actionsRef.current,
-            currentState: currentStateRef.current,
+            currentState: currentStateRef.current
           });
         }
       }
       await sleepMs(200);
       saveData({
         layer: currentStateRef.current.layer,
-        customOperators: operators.filter((item) => item.isCustom),
+        customOperators: operators.filter((item) => item.isCustom)
       });
       message.success('success');
     } catch (error: any) {

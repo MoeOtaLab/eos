@@ -3,7 +3,10 @@ import { ModelState, type ExtraInfo } from '../..';
 import { updateValue, type UpdateAction } from '../../ModelState/State';
 
 // todo 重载
-export function proxyData<T extends Record<any, any>, Key extends string>(originState: ModelState<T>, key: Key) {
+export function proxyData<T extends Record<any, any>, Key extends string>(
+  originState: ModelState<T>,
+  key: Key
+) {
   const defaultData = get<T, Key>(originState.current, key);
   type SubDataType = typeof defaultData;
 
@@ -13,7 +16,7 @@ export function proxyData<T extends Record<any, any>, Key extends string>(origin
     }
 
     update(updateAction: SubDataType | UpdateAction<SubDataType>, extraInfo: ExtraInfo): void {
-      originState.update(data => {
+      originState.update((data) => {
         const currentValue = get(data, key);
         const newData = clone(data);
         const nextValue = updateValue(currentValue, updateAction);

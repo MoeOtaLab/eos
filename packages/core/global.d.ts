@@ -1,1 +1,1 @@
-declare module 'rollup-plugin-clear'
+declare module 'rollup-plugin-clear';

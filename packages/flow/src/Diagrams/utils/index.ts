@@ -6,17 +6,11 @@ export function getRandomId() {
 }
 
 export function isSameTargetHandle(source: Edge, target: Edge | Connection) {
-  return (
-    source.target === target.target &&
-    source.targetHandle === target.targetHandle
-  );
+  return source.target === target.target && source.targetHandle === target.targetHandle;
 }
 
 export function isSameSourceHandle(source: Edge, target: Edge | Connection) {
-  return (
-    source.source === target.source &&
-    source.sourceHandle === target.sourceHandle
-  );
+  return source.source === target.source && source.sourceHandle === target.sourceHandle;
 }
 
 export async function sleepMs(milSec: number) {

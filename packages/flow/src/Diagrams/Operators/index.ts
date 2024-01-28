@@ -19,12 +19,12 @@ registerOperators([
   new CombineOperator(),
   new TransformOperator(),
   new EffectOperator(),
-  new MergeOperator(),
+  new MergeOperator()
 ]);
 
 export {
   getOperatorFromNode,
   getOperatorFromOperatorType,
   getAllOperators,
-  registerOperators,
+  registerOperators
 } from './OperatorMap';

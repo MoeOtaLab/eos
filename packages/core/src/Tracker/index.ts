@@ -5,7 +5,7 @@ export interface TrackRecord {
   /** 上报的主体 */
   target: string;
   extraInfo: ExtraInfo;
-};
+}
 
 class Tracker extends EventEmitter<TrackRecord> {
   track(trackRecord: TrackRecord) {

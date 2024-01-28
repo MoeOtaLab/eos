@@ -1,8 +1,5 @@
 import { type Node } from 'reactflow';
-import {
-  useDiagramsContext,
-  useDiagramsHookOption,
-} from '../../../State/DiagramsProvider';
+import { useDiagramsContext, useDiagramsHookOption } from '../../../State/DiagramsProvider';
 import { Button, Form, Input } from 'antd';
 import { findLayer } from '../../../State/Layer';
 import { type GroupOperator } from '..';
@@ -26,12 +23,10 @@ export function AttributeControl(props: { node: Node<IGroupOperatorData> }) {
           onBlur={(e) => {
             if (operator) {
               const name = e.target.value;
-              updateNode(
-                node.id,
-                (v) =>
-                  operator?.updateData(v as Node<IGroupOperatorData>, {
-                    nodeLabel: name,
-                  }),
+              updateNode(node.id, (v) =>
+                operator?.updateData(v as Node<IGroupOperatorData>, {
+                  nodeLabel: name
+                })
               );
               setTimeout(() => {
                 setLayer((layer) => {
@@ -53,7 +48,7 @@ export function AttributeControl(props: { node: Node<IGroupOperatorData> }) {
             operator?.refreshNode({
               currentState: currentStateRef.current,
               actions: actionsRef.current,
-              node,
+              node
             });
           }}
         >

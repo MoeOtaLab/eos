@@ -4,7 +4,7 @@ import { ExtraInfo } from '../src/ModelState/ExtraInfo';
 
 function TodoItem(
   input: { index: ModelState<number>; data: ModelState<any[]>; key: string },
-  context: ModelBlockContextType,
+  context: ModelBlockContextType
 ) {
   const { index, data, key } = input;
   const { onLifecycle } = context;
@@ -55,21 +55,17 @@ function TodoItem(
     data,
     deleteEvent,
     titleChangeEvent,
-    checkEvent,
+    checkEvent
   };
 }
 
 function TodoListContainer(
   input: { listData: ModelState<any[]>; key: string },
-  context: ModelBlockContextType,
+  context: ModelBlockContextType
 ) {
   const { listData, key } = input;
 
-  const { instanceList } = mountList(
-    { data: listData, key },
-    context,
-    TodoItem,
-  );
+  const { instanceList } = mountList({ data: listData, key }, context, TodoItem);
 
   // add item
   // check/uncheck all
@@ -82,7 +78,7 @@ function TodoListContainer(
     listData.update((list) => {
       return list.concat({
         ...val,
-        checked: false,
+        checked: false
       });
     }, extraInfo);
   });
@@ -91,7 +87,7 @@ function TodoListContainer(
     listData.update((list) => {
       return list.map((item) => ({
         ...item,
-        checked: Boolean(val),
+        checked: Boolean(val)
       }));
     }, extraInfo);
   });
@@ -104,7 +100,7 @@ function TodoListContainer(
     addItemEvent,
     checkAllEvent,
     clearAllEvent,
-    instanceList,
+    instanceList
   };
 }
 
@@ -113,16 +109,10 @@ export function TodoListDemoApp(_input: any, context: ModelBlockContextType) {
   const data = new ModelState({ list: [{ key: 1 }] });
   const listData = proxyData(data, 'list');
 
-  listData.update(
-    (list) => [...(list || []), { key: 777 }],
-    new ExtraInfo('update list'),
-  );
+  listData.update((list) => [...(list || []), { key: 777 }], new ExtraInfo('update list'));
 
   setTimeout(() => {
-    listData.update(
-      (list) => [{ key: 777 }, { key: 99 }],
-      new ExtraInfo('update list'),
-    );
+    listData.update((list) => [{ key: 777 }, { key: 99 }], new ExtraInfo('update list'));
   }, 1000);
 
   console.log('listData', listData.current);
@@ -130,7 +120,7 @@ export function TodoListDemoApp(_input: any, context: ModelBlockContextType) {
 
   const todoListContainerInstance = mount(TodoListContainer, {
     listData,
-    key: 'key',
+    key: 'key'
   });
 
   onLifecycle('mount', () => {
@@ -138,17 +128,17 @@ export function TodoListDemoApp(_input: any, context: ModelBlockContextType) {
       // 增加一个
       todoListContainerInstance.output?.addItemEvent.next(
         { key: '23333', title: 'new item' },
-        new ExtraInfo('add manually'),
+        new ExtraInfo('add manually')
       );
       console.log('listData addItemEvent', listData.current);
       todoListContainerInstance.output?.checkAllEvent.next(
         true,
-        new ExtraInfo('listData checkAllEvent true'),
+        new ExtraInfo('listData checkAllEvent true')
       );
       console.log('listData checkAllEvent true', listData.current);
       todoListContainerInstance.output?.checkAllEvent.next(
         false,
-        new ExtraInfo('listData checkAllEvent false'),
+        new ExtraInfo('listData checkAllEvent false')
       );
       console.log('listData checkAllEvent false', listData.current);
 
@@ -157,36 +147,27 @@ export function TodoListDemoApp(_input: any, context: ModelBlockContextType) {
         ?.at(-1)
         ?.instance.output?.titleChangeEvent.next(
           'change - title',
-          new ExtraInfo('listData titleChangeEvent'),
+          new ExtraInfo('listData titleChangeEvent')
         );
       console.log('listData titleChangeEvent', listData.current);
 
       todoListContainerInstance.output?.instanceList?.current
         ?.at(-1)
-        ?.instance.output?.checkEvent.next(
-          true,
-          new ExtraInfo('listData checkEvent true'),
-        );
+        ?.instance.output?.checkEvent.next(true, new ExtraInfo('listData checkEvent true'));
       console.log('listData checkEvent true', listData.current);
 
       todoListContainerInstance.output?.instanceList?.current
         ?.at(-2)
-        ?.instance.output?.deleteEvent.next(
-          undefined,
-          new ExtraInfo('listData deleteEvent'),
-        );
+        ?.instance.output?.deleteEvent.next(undefined, new ExtraInfo('listData deleteEvent'));
       console.log('listData deleteEvent', listData.current);
 
-      todoListContainerInstance.output?.clearAllEvent.next(
-        false,
-        new ExtraInfo('listData clearAllEvent'),
-      );
+      todoListContainerInstance.output?.clearAllEvent.next(false, new ExtraInfo('listData clearAllEvent'));
       console.log('listData clearAllEvent', listData.current);
     }, 3000);
   });
 
   return {
     data,
-    todoListContainerInstance,
+    todoListContainerInstance
   };
 }

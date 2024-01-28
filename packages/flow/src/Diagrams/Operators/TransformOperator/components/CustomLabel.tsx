@@ -24,7 +24,7 @@ export function CustomLabel(props: { node: NodeProps<ITranformOperatorData> }) {
           color: 'white',
           cursor: 'pointer',
           display: 'block',
-          textAlign: 'center',
+          textAlign: 'center'
         }}
         onClick={() => {
           setCode(node.data?.customCode || operator?.getInitCustomCode() || '');
@@ -42,8 +42,8 @@ export function CustomLabel(props: { node: NodeProps<ITranformOperatorData> }) {
             node.id,
             (cur) =>
               operator?.updateData(cur, {
-                customCode: editorRef.current?.editor?.getValue() || '',
-              }) || cur,
+                customCode: editorRef.current?.editor?.getValue() || ''
+              }) || cur
           );
         }}
         onCancel={() => {
@@ -51,12 +51,7 @@ export function CustomLabel(props: { node: NodeProps<ITranformOperatorData> }) {
         }}
         destroyOnClose={true}
       >
-        <Editor
-          ref={editorRef}
-          code={code}
-          language="javascript"
-          className={css.editor}
-        />
+        <Editor ref={editorRef} code={code} language="javascript" className={css.editor} />
       </Modal>
     </div>
   );

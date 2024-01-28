@@ -3,17 +3,9 @@ import { type IGenerationOption } from '../../Compiler';
 import { NodeTypeEnum } from '../../Nodes/NodeTypeEnum';
 import { Layer } from '../../State/Layer';
 import { MetaOperator } from '../Operator';
-import {
-  type IHookOption,
-  type ICustomOperatorData,
-  type IAppContainersInfo,
-} from '../types';
+import { type IHookOption, type ICustomOperatorData, type IAppContainersInfo } from '../types';
 import { v4 as uuid } from 'uuid';
-import {
-  getNodeEndPointFromLayer,
-  getInputPorts,
-  getOutputPorts,
-} from '../GroupOperator/utils';
+import { getNodeEndPointFromLayer, getInputPorts, getOutputPorts } from '../GroupOperator/utils';
 import { getRandomId } from '../../utils';
 
 export class CustomOperator
@@ -34,11 +26,11 @@ export class CustomOperator
     super({
       operatorName,
       operatorType: `Custom_${uuid()}`,
-      nodeType: NodeTypeEnum.Node,
+      nodeType: NodeTypeEnum.Node
     });
 
     this.content = {
-      layer: new Layer(operatorName),
+      layer: new Layer(operatorName)
     };
 
     this.content.layer.relativeOperatorType = this.operatorType;
@@ -55,23 +47,21 @@ export class CustomOperator
     const node = super.create(
       {
         endPointOptions: {
-          endPointList,
-        },
+          endPointList
+        }
       },
-      { id },
+      { id }
     );
 
     return node;
   }
 
-  generateBlockDeclarations(
-    options: IGenerationOption<ICustomOperatorData>,
-  ): string[] {
+  generateBlockDeclarations(options: IGenerationOption<ICustomOperatorData>): string[] {
     const { node, nodeGraph, formatVariableName, formatBlockVarName } = options;
 
     return [
       `const temp_${formatVariableName(
-        node.id,
+        node.id
       )} = context.mount(${formatBlockVarName(this.getOperatorId())}, {
         ${getInputPorts(node)
           .map((port) => {
@@ -83,32 +73,24 @@ export class CustomOperator
               return '';
             }
 
-            return `['${port.variableName}']: ${formatVariableName(
-              sourceId || '',
-            )}`;
+            return `['${port.variableName}']: ${formatVariableName(sourceId || '')}`;
           })
           .filter(Boolean)
           .join(',\n')}
       })`,
       ...(getOutputPorts(node) || [])?.map((port) => {
-        return `const ${formatVariableName(
-          port.id,
-        )} = temp_${formatVariableName(node.id)}.output['${
+        return `const ${formatVariableName(port.id)} = temp_${formatVariableName(node.id)}.output['${
           port.variableName
         }']`;
-      }),
+      })
     ];
   }
 
-  generateBlockOutput(
-    options: IGenerationOption<ICustomOperatorData<Record<string, any>>>,
-  ): string[] {
+  generateBlockOutput(options: IGenerationOption<ICustomOperatorData<Record<string, any>>>): string[] {
     return [];
   }
 
-  generateBlockRelation(
-    options: IGenerationOption<ICustomOperatorData<Record<string, any>>>,
-  ): string[] {
+  generateBlockRelation(options: IGenerationOption<ICustomOperatorData<Record<string, any>>>): string[] {
     return [];
   }
 
@@ -116,8 +98,8 @@ export class CustomOperator
     return [
       {
         appContainerId: this.getOperatorId(),
-        data: this.content,
-      },
+        data: this.content
+      }
     ];
   }
 
@@ -134,36 +116,26 @@ export class CustomOperator
   refreshNode(options: IHookOption<Node<ICustomOperatorData>>) {
     const { node, currentState } = options;
 
-    const { endPointList } = getNodeEndPointFromLayer(
-      this.content.layer,
-      node.id,
-    );
+    const { endPointList } = getNodeEndPointFromLayer(this.content.layer, node.id);
 
     if (endPointList) {
-      options.actions.updateNode(
-        node.id,
-        (v) => this.updateData(v, { endPointOptions: { endPointList } }),
-        { updateInternal: true, layerId: currentState.layer?.id },
-      );
+      options.actions.updateNode(node.id, (v) => this.updateData(v, { endPointOptions: { endPointList } }), {
+        updateInternal: true,
+        layerId: currentState.layer?.id
+      });
     }
   }
 
-  onLayerChange(
-    options: Omit<
-      IHookOption<Node<ICustomOperatorData<Record<string, any>>>>,
-      'node'
-    >,
-  ): void {
+  onLayerChange(options: Omit<IHookOption<Node<ICustomOperatorData<Record<string, any>>>>, 'node'>): void {
     const { currentState } = options;
     const currentNodes = currentState.layer.nodes?.filter(
-      (item: Node<ICustomOperatorData>) =>
-        item.data?.operatorType === this.operatorType,
+      (item: Node<ICustomOperatorData>) => item.data?.operatorType === this.operatorType
     );
 
     currentNodes?.forEach((node) => {
       this.refreshNode({
         node,
-        ...options,
+        ...options
       });
     });
   }

@@ -5,7 +5,7 @@ import {
   type IStateOperatorData,
   type IAttributeControlOption,
   StateOperatorValueTypeEnum,
-  EndPoint,
+  EndPoint
 } from '../types';
 import { type IGenerationOption } from '../../Compiler';
 import { EosCoreSymbol } from '../../Compiler/runtime';
@@ -37,7 +37,7 @@ export class StateOperator
     super({
       operatorName: 'State',
       operatorType: 'StateOperator',
-      nodeType: NodeTypeEnum.Node,
+      nodeType: NodeTypeEnum.Node
     });
   }
 
@@ -48,50 +48,43 @@ export class StateOperator
           new EndPoint({
             type: 'source',
             label: 'data',
-            hint: 'data',
+            hint: 'data'
           }),
           new EndPoint({
             type: 'target',
             label: 'update',
-            hint: 'update',
-          }),
-        ],
+            hint: 'update'
+          })
+        ]
       },
       value: 0,
-      valueType: StateOperatorValueTypeEnum.Number,
+      valueType: StateOperatorValueTypeEnum.Number
     });
   }
 
   getStateSymbol(options: IGenerationOption<IStateOperatorData>) {
     const { node, formatVariableName } = options;
     return formatVariableName(
-      node.data.endPointOptions?.endPointList?.find(
-        (item) => item.type === 'source' && item.hint === 'data',
-      )?.id || '',
+      node.data.endPointOptions?.endPointList?.find((item) => item.type === 'source' && item.hint === 'data')
+        ?.id || ''
     );
   }
 
-  generateBlockDeclarations(
-    options: IGenerationOption<IStateOperatorData>,
-  ): string[] {
+  generateBlockDeclarations(options: IGenerationOption<IStateOperatorData>): string[] {
     const { node } = options;
 
     return [
       `const ${this.getStateSymbol(
-        options,
-      )} = new ${EosCoreSymbol}.ModelState(${JSON.stringify(node.data.value)})`,
+        options
+      )} = new ${EosCoreSymbol}.ModelState(${JSON.stringify(node.data.value)})`
     ];
   }
 
-  generateBlockOutput(
-    options: IGenerationOption<IStateOperatorData>,
-  ): string[] {
+  generateBlockOutput(options: IGenerationOption<IStateOperatorData>): string[] {
     return [];
   }
 
-  generateBlockRelation(
-    options: IGenerationOption<IStateOperatorData>,
-  ): string[] {
+  generateBlockRelation(options: IGenerationOption<IStateOperatorData>): string[] {
     const { node, formatVariableName, nodeGraph } = options;
 
     const sources = nodeGraph.findSourceNodes(node.id) || [];
@@ -99,20 +92,14 @@ export class StateOperator
     return [
       ...sources?.map(
         (item) => `
-          ${formatVariableName(
-            item.relatedHandleId,
-          )}.subscribe((val, extraInfo) => {
-            ${this.getStateSymbol(options)}.update(val, extraInfo.concat('${
-              item.nodeId
-            }'));
-          });`,
-      ),
+          ${formatVariableName(item.relatedHandleId)}.subscribe((val, extraInfo) => {
+            ${this.getStateSymbol(options)}.update(val, extraInfo.concat('${item.nodeId}'));
+          });`
+      )
     ];
   }
 
-  generateAttributeControl(
-    options: IAttributeControlOption<Node<IStateOperatorData>>,
-  ): JSX.Element {
+  generateAttributeControl(options: IAttributeControlOption<Node<IStateOperatorData>>): JSX.Element {
     const { node, actions } = options;
 
     return (
@@ -124,27 +111,27 @@ export class StateOperator
             options={[
               {
                 value: StateOperatorValueTypeEnum.Number,
-                label: 'Number',
+                label: 'Number'
               },
               {
                 value: StateOperatorValueTypeEnum.String,
-                label: 'String',
+                label: 'String'
               },
               {
                 value: StateOperatorValueTypeEnum.Boolean,
-                label: 'Boolean',
+                label: 'Boolean'
               },
               {
                 value: StateOperatorValueTypeEnum.Object,
-                label: 'Object',
-              },
+                label: 'Object'
+              }
             ]}
             onChange={(value) => {
               actions.updateNode(node.id, (item) =>
                 this.updateData(item, {
                   valueType: value,
-                  value: getDefaultValue(value),
-                }),
+                  value: getDefaultValue(value)
+                })
               );
             }}
           ></Select>
@@ -152,10 +139,9 @@ export class StateOperator
         <Form.Item label="value" colon={false}>
           <Input.TextArea
             value={
-              [
-                StateOperatorValueTypeEnum.String,
-                StateOperatorValueTypeEnum.Object,
-              ].includes(node.data.valueType)
+              [StateOperatorValueTypeEnum.String, StateOperatorValueTypeEnum.Object].includes(
+                node.data.valueType
+              )
                 ? (node.data.value as string)
                 : JSON.stringify(node.data.value)
             }
@@ -170,13 +156,9 @@ export class StateOperator
                 } catch (error) {
                   message.error('JSON parse error, please check again');
                 }
-              } else if (
-                node.data.valueType === StateOperatorValueTypeEnum.Boolean
-              ) {
+              } else if (node.data.valueType === StateOperatorValueTypeEnum.Boolean) {
                 valueWillUpdate = !!targetValue;
-              } else if (
-                node.data.valueType === StateOperatorValueTypeEnum.Number
-              ) {
+              } else if (node.data.valueType === StateOperatorValueTypeEnum.Number) {
                 valueWillUpdate = Number(targetValue);
               } else {
                 valueWillUpdate = targetValue;
@@ -184,8 +166,8 @@ export class StateOperator
 
               actions.updateNode(node.id, (item) =>
                 this.updateData(item, {
-                  value: valueWillUpdate,
-                }),
+                  value: valueWillUpdate
+                })
               );
             }}
           ></Input.TextArea>
@@ -194,9 +176,7 @@ export class StateOperator
     );
   }
 
-  getNodeProps(
-    currentNode: NodeProps<IStateOperatorData<Record<string, any>>>,
-  ): INodeProps {
+  getNodeProps(currentNode: NodeProps<IStateOperatorData<Record<string, any>>>): INodeProps {
     const { data } = currentNode;
     return {
       showValue: true,
@@ -206,12 +186,12 @@ export class StateOperator
             data.valueType === StateOperatorValueTypeEnum.Object
               ? 'Object(click to view)'
               : JSON.stringify(data.value),
-          hasDetail: data.valueType === StateOperatorValueTypeEnum.Object,
+          hasDetail: data.valueType === StateOperatorValueTypeEnum.Object
         };
       },
       getDetailValue() {
         return JSON.stringify(data.value, undefined, 2);
-      },
+      }
     };
   }
 }

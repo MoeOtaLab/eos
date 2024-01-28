@@ -5,7 +5,7 @@ import {
   EndPoint,
   type IOutputOperatorData,
   type IInputOperatorData,
-  type IMetaOperatorData,
+  type IMetaOperatorData
 } from '../types';
 import { type InputOperator } from '../InputOperator';
 import { type OutputOperator } from '../OutputOperator';
@@ -23,14 +23,14 @@ export function generateEndPointList(data?: {
       label: 'State',
       children: data?.outputStateList || [],
       allowAddAndRemoveChildren: false,
-      hint: 'outputState',
+      hint: 'outputState'
     }),
     new EndPoint({
       type: 'group',
       label: 'Event',
       children: data?.outputEventList || [],
       allowAddAndRemoveChildren: false,
-      hint: 'outputEvent',
+      hint: 'outputEvent'
     }),
     // input
     new EndPoint({
@@ -38,29 +38,24 @@ export function generateEndPointList(data?: {
       label: 'State',
       children: data?.inputStateList || [],
       allowAddAndRemoveChildren: false,
-      hint: 'inputState',
+      hint: 'inputState'
     }),
     new EndPoint({
       type: 'group',
       label: 'Event',
       children: data?.inputEventList || [],
       allowAddAndRemoveChildren: false,
-      hint: 'inputEvent',
-    }),
+      hint: 'inputEvent'
+    })
   ];
 }
 
-export function getNodeEndPointFromLayer(
-  targetLayer: Layer,
-  nodeId: Node<IMetaOperatorData>['id'],
-) {
+export function getNodeEndPointFromLayer(targetLayer: Layer, nodeId: Node<IMetaOperatorData>['id']) {
   const inputNode = targetLayer.nodes.find(
-    (item): item is Node<IInputOperatorData> =>
-      getOperatorFromNode(item)?.operatorType === 'InputOperator',
+    (item): item is Node<IInputOperatorData> => getOperatorFromNode(item)?.operatorType === 'InputOperator'
   );
   const outputNode = targetLayer.nodes.find(
-    (item): item is Node<IOutputOperatorData> =>
-      getOperatorFromNode(item)?.operatorType === 'OutputOperator',
+    (item): item is Node<IOutputOperatorData> => getOperatorFromNode(item)?.operatorType === 'OutputOperator'
   );
 
   const inputOperator = getOperatorFromNode<InputOperator>(inputNode);
@@ -77,8 +72,8 @@ export function getNodeEndPointFromLayer(
           new EndPoint({
             ...item,
             id: getNewEndPortId(item.id),
-            type: 'target',
-          }),
+            type: 'target'
+          })
       );
   const inputEventPorts = !inputNode
     ? []
@@ -87,8 +82,8 @@ export function getNodeEndPointFromLayer(
           new EndPoint({
             ...item,
             id: getNewEndPortId(item.id),
-            type: 'target',
-          }),
+            type: 'target'
+          })
       );
 
   const outputStatePort = !outputNode
@@ -98,8 +93,8 @@ export function getNodeEndPointFromLayer(
           new EndPoint({
             ...item,
             id: getNewEndPortId(item.id),
-            type: 'source',
-          }),
+            type: 'source'
+          })
       );
 
   const outputEventPort = !outputNode
@@ -109,8 +104,8 @@ export function getNodeEndPointFromLayer(
           new EndPoint({
             ...item,
             id: getNewEndPortId(item.id),
-            type: 'source',
-          }),
+            type: 'source'
+          })
       );
 
   return {
@@ -118,19 +113,15 @@ export function getNodeEndPointFromLayer(
       inputEventList: inputEventPorts || [],
       inputStateList: inputStatePorts || [],
       outputEventList: outputEventPort || [],
-      outputStateList: outputStatePort || [],
-    }),
+      outputStateList: outputStatePort || []
+    })
   };
 }
 
 export function getOutputPorts(node: Node<IMetaOperatorData>) {
   const eventPorts =
     node.data?.endPointOptions?.endPointList
-      ?.filter(
-        (item) =>
-          item.type === 'group' &&
-          ['outputState', 'outputEvent'].includes(item.hint || ''),
-      )
+      ?.filter((item) => item.type === 'group' && ['outputState', 'outputEvent'].includes(item.hint || ''))
       .map((item) => item?.children)
       ?.flat()
       .filter((x): x is EndPoint => !!x) || [];
@@ -141,11 +132,7 @@ export function getOutputPorts(node: Node<IMetaOperatorData>) {
 export function getInputPorts(node: Node<IMetaOperatorData>) {
   const eventPorts =
     node.data?.endPointOptions?.endPointList
-      ?.filter(
-        (item) =>
-          item.type === 'group' &&
-          ['inputState', 'inputEvent'].includes(item.hint || ''),
-      )
+      ?.filter((item) => item.type === 'group' && ['inputState', 'inputEvent'].includes(item.hint || ''))
       .map((item) => item?.children)
       .flat()
       .filter((x): x is EndPoint => !!x) || [];

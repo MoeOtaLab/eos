@@ -5,9 +5,7 @@
     "outDir": "output",
     "sourceMap": true,
     "useDefineForClassFields": true,
-    "lib": [
-      "ESNext"
-    ],
+    "lib": ["ESNext"],
     "allowJs": true,
     "declaration": true,
     "declarationDir": "output/types",
@@ -21,5 +19,5 @@
     "resolveJsonModule": true,
     "isolatedModules": false,
     "jsx": "react-jsx"
-  },
+  }
 }

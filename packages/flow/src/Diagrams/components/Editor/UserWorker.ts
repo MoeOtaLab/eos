@@ -20,7 +20,7 @@ self.MonacoEnvironment = {
       return new TsWorker();
     }
     return new EditorWorker();
-  },
+  }
 };
 
 monaco.languages.typescript.typescriptDefaults.setEagerModelSync(true);

@@ -14,7 +14,7 @@ export class TransformOperator
     super({
       operatorName: 'Transform',
       operatorType: 'TransformOperator',
-      nodeType: NodeTypeEnum.Node,
+      nodeType: NodeTypeEnum.Node
     });
   }
 
@@ -25,43 +25,34 @@ export class TransformOperator
           new EndPoint({
             type: 'source',
             hint: 'output',
-            label: 'output',
+            label: 'output'
           }),
           new EndPoint({
             type: 'target',
             hint: 'input',
-            label: 'input',
-          }),
-        ],
-      },
+            label: 'input'
+          })
+        ]
+      }
     });
   }
 
   nodeColor?: string | undefined = '#F3F8FF';
 
-  generateBlockDeclarations(
-    options: IGenerationOption<ITranformOperatorData>,
-  ): string[] {
+  generateBlockDeclarations(options: IGenerationOption<ITranformOperatorData>): string[] {
     const { node, nodeGraph } = options;
     const handleId =
-      node.data.endPointOptions?.endPointList?.find(
-        (item) => item.hint === 'output',
-      )?.id || '';
+      node.data.endPointOptions?.endPointList?.find((item) => item.hint === 'output')?.id || '';
 
     const inputPortId =
-      node.data.endPointOptions?.endPointList?.find(
-        (item) => item.hint === 'input',
-      )?.id || '';
+      node.data.endPointOptions?.endPointList?.find((item) => item.hint === 'input')?.id || '';
 
     const sourceId =
-      nodeGraph
-        .findSourceNodes(node.id)
-        ?.find((item) => item.handleId === inputPortId)?.relatedHandleId || '';
+      nodeGraph.findSourceNodes(node.id)?.find((item) => item.handleId === inputPortId)?.relatedHandleId ||
+      '';
 
     return [
-      `${
-        handleId ? `const ${formatVariableName(handleId)} = ` : ''
-      }${EosOperatorsSymbol}.transform(
+      `${handleId ? `const ${formatVariableName(handleId)} = ` : ''}${EosOperatorsSymbol}.transform(
         ${formatVariableName(sourceId)},
         (...args) => {
           const module = { exports: {} };
@@ -70,19 +61,15 @@ export class TransformOperator
           })(module)
           return typeof module.exports === 'function' ? module.exports(...args) : module.exports.default(...args);
         }
-      )`,
+      )`
     ];
   }
 
-  generateBlockOutput(
-    options: IGenerationOption<ITranformOperatorData>,
-  ): string[] {
+  generateBlockOutput(options: IGenerationOption<ITranformOperatorData>): string[] {
     return [];
   }
 
-  generateBlockRelation(
-    options: IGenerationOption<ITranformOperatorData>,
-  ): string[] {
+  generateBlockRelation(options: IGenerationOption<ITranformOperatorData>): string[] {
     return [];
   }
 

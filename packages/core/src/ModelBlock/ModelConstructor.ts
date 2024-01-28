@@ -3,7 +3,7 @@ import { Entity } from '../Entity';
 
 export interface ModelConstructorOption<
   InputInterface extends InputOutputInterface = any,
-  OutputInterface extends InputOutputInterface = any,
+  OutputInterface extends InputOutputInterface = any
 > {
   template: SetupFn<InputInterface, OutputInterface>;
   input?: InputInterface;
@@ -11,7 +11,7 @@ export interface ModelConstructorOption<
 
 export class ModelConstructor<
   InputInterface extends InputOutputInterface = any,
-  OutputInterface extends InputOutputInterface = any,
+  OutputInterface extends InputOutputInterface = any
 > extends Entity {
   protected template: SetupFn<InputInterface, OutputInterface>;
 
@@ -20,9 +20,7 @@ export class ModelConstructor<
 
   protected input: InputInterface;
 
-  constructor(
-    options: ModelConstructorOption<InputInterface, OutputInterface>,
-  ) {
+  constructor(options: ModelConstructorOption<InputInterface, OutputInterface>) {
     super();
     const { template, input } = options;
     this.template = template;

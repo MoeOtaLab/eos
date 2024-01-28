@@ -1,15 +1,6 @@
-import {
-  createContext,
-  useContextSelector,
-  useContext,
-} from 'use-context-selector';
+import { createContext, useContextSelector, useContext } from 'use-context-selector';
 import React, { useRef, useState } from 'react';
-import {
-  ReactFlowProvider,
-  type Node,
-  type Edge,
-  useUpdateNodeInternals,
-} from 'reactflow';
+import { ReactFlowProvider, type Node, type Edge, useUpdateNodeInternals } from 'reactflow';
 import { Layer, findLayer } from './Layer';
 import { useLatest, useMemoizedFn } from 'ahooks';
 import { getOperatorFromNode, getOperatorFromOperatorType } from '../Operators';
@@ -29,26 +20,12 @@ type ISetEdgeOption = ISetNodeOption;
 export interface DiagramsContextType<T = any> {
   /** ====== current ====== */
   nodes: Node<T>[];
-  setNodes: (
-    action: React.SetStateAction<Node<T>[]>,
-    options?: ISetNodeOption,
-  ) => void;
-  updateNode: (
-    id: string,
-    action: React.SetStateAction<Node<T>>,
-    options?: IUpdateNodeOption,
-  ) => void;
+  setNodes: (action: React.SetStateAction<Node<T>[]>, options?: ISetNodeOption) => void;
+  updateNode: (id: string, action: React.SetStateAction<Node<T>>, options?: IUpdateNodeOption) => void;
 
   edges: Edge<T>[];
-  setEdges: (
-    action: React.SetStateAction<Edge<T>[]>,
-    options?: ISetEdgeOption,
-  ) => void;
-  updateEdge: (
-    id: string,
-    action: React.SetStateAction<Edge<T>>,
-    options?: ISetEdgeOption,
-  ) => void;
+  setEdges: (action: React.SetStateAction<Edge<T>[]>, options?: ISetEdgeOption) => void;
+  updateEdge: (id: string, action: React.SetStateAction<Edge<T>>, options?: ISetEdgeOption) => void;
 
   /** ====== all ====== */
   defaultLayer: Layer;
@@ -75,16 +52,14 @@ export const DiagramsContext = createContext<DiagramsContextType>({
   setLayer: (() => undefined) as any,
   setDefaultLayer: (() => undefined) as any,
   activeLayerId: defaultLayer.id,
-  setActiveLayerId: (() => undefined) as any,
+  setActiveLayerId: (() => undefined) as any
 });
 
 export function useDiagramsContext() {
   return useContext(DiagramsContext);
 }
 
-export function useDiagramsContextSelector<T>(
-  selector: (ctx: DiagramsContextType) => T,
-) {
+export function useDiagramsContextSelector<T>(selector: (ctx: DiagramsContextType) => T) {
   return useContextSelector(DiagramsContext, selector);
 }
 
@@ -100,7 +75,7 @@ export function useDiagramsHookOption() {
     layer,
     activeLayerId,
     defaultLayer,
-    setDefaultLayer,
+    setDefaultLayer
   } = useDiagramsContext();
 
   const currentStateRef = useLatest({
@@ -108,7 +83,7 @@ export function useDiagramsHookOption() {
     edges,
     layer,
     activeLayerId,
-    defaultLayer,
+    defaultLayer
   });
   const actionsRef = useLatest({
     updateEdge,
@@ -116,12 +91,12 @@ export function useDiagramsHookOption() {
     setEdges,
     setActiveLayerId,
     setLayer,
-    setDefaultLayer,
+    setDefaultLayer
   });
 
   return {
     currentStateRef,
-    actionsRef,
+    actionsRef
   };
 }
 
@@ -135,7 +110,7 @@ export function useDiagramsState() {
     nodes,
     edges,
     layer,
-    defaultLayer,
+    defaultLayer
   };
 }
 
@@ -145,12 +120,8 @@ export function useDiagramsActions() {
   const updateEdge = useDiagramsContextSelector((ctx) => ctx.updateEdge);
   const updateNode = useDiagramsContextSelector((ctx) => ctx.updateNode);
   const setLayer = useDiagramsContextSelector((ctx) => ctx.setLayer);
-  const setDefaultLayer = useDiagramsContextSelector(
-    (ctx) => ctx.setDefaultLayer,
-  );
-  const setActiveLayerId = useDiagramsContextSelector(
-    (ctx) => ctx.setActiveLayerId,
-  );
+  const setDefaultLayer = useDiagramsContextSelector((ctx) => ctx.setDefaultLayer);
+  const setActiveLayerId = useDiagramsContextSelector((ctx) => ctx.setActiveLayerId);
 
   return {
     setEdges,
@@ -159,7 +130,7 @@ export function useDiagramsActions() {
     updateNode,
     setLayer,
     setActiveLayerId,
-    setDefaultLayer,
+    setDefaultLayer
   };
 }
 
@@ -176,36 +147,30 @@ export const DiagramsContextInnerProvider: React.FC = (props) => {
   const nodes = activeLayer?.nodes || [];
   const edges = activeLayer?.edges || [];
 
-  const setLayer = useMemoizedFn(function setLayer(
-    action: React.SetStateAction<Layer>,
-  ) {
-    layerRef.current =
-      typeof action === 'function' ? action(layerRef.current) : action;
+  const setLayer = useMemoizedFn(function setLayer(action: React.SetStateAction<Layer>) {
+    layerRef.current = typeof action === 'function' ? action(layerRef.current) : action;
     _setLayer(layerRef.current);
     if (layerRef.current?.relativeOperatorType) {
-      const operator = getOperatorFromOperatorType<CustomOperator>(
-        layerRef.current.relativeOperatorType,
-      );
+      const operator = getOperatorFromOperatorType<CustomOperator>(layerRef.current.relativeOperatorType);
       operator?.updateContent({
-        layer: layerRef.current,
+        layer: layerRef.current
       });
     }
   });
 
   const setNodes = useMemoizedFn(function setNodes(
     action: React.SetStateAction<Node[]>,
-    options?: ISetNodeOption,
+    options?: ISetNodeOption
   ) {
     setLayer((layer) => {
       const activeLayer = findLayer(layer, options?.layerId || activeLayerId);
       if (activeLayer) {
-        activeLayer.nodes =
-          typeof action === 'function' ? action(activeLayer.nodes) : action;
+        activeLayer.nodes = typeof action === 'function' ? action(activeLayer.nodes) : action;
 
         const nodeIdSet = new Set(activeLayer.nodes.map((item) => item.id));
         // update nodes & children
         activeLayer.children = activeLayer.children.filter(
-          (item) => item.relativeNodeId && nodeIdSet.has(item.relativeNodeId),
+          (item) => item.relativeNodeId && nodeIdSet.has(item.relativeNodeId)
         );
       }
       return { ...layer };
@@ -214,13 +179,12 @@ export const DiagramsContextInnerProvider: React.FC = (props) => {
 
   const setEdges = useMemoizedFn(function setEdges(
     action: React.SetStateAction<Edge[]>,
-    options?: ISetEdgeOption,
+    options?: ISetEdgeOption
   ) {
     setLayer((layer) => {
       const activeLayer = findLayer(layer, options?.layerId || activeLayerId);
       if (activeLayer) {
-        activeLayer.edges =
-          typeof action === 'function' ? action(activeLayer.edges) : action;
+        activeLayer.edges = typeof action === 'function' ? action(activeLayer.edges) : action;
       }
       return { ...layer };
     });
@@ -231,7 +195,7 @@ export const DiagramsContextInnerProvider: React.FC = (props) => {
   const updateEdge = useMemoizedFn(function updateEdge(
     id: string,
     updateElementAction: React.SetStateAction<Edge>,
-    options?: ISetEdgeOption,
+    options?: ISetEdgeOption
   ) {
     if (!id) {
       return;
@@ -247,9 +211,7 @@ export const DiagramsContextInnerProvider: React.FC = (props) => {
       const elesWillUpdate = [...eles];
       const target = elesWillUpdate.splice(targetIndex, 1)?.[0];
       const res =
-        typeof updateElementAction === 'function'
-          ? updateElementAction(target)
-          : updateElementAction;
+        typeof updateElementAction === 'function' ? updateElementAction(target) : updateElementAction;
       return elesWillUpdate.concat(res);
     }, options);
   });
@@ -257,7 +219,7 @@ export const DiagramsContextInnerProvider: React.FC = (props) => {
   const updateNode = useMemoizedFn(function updateNode(
     id: string,
     updateElementAction: React.SetStateAction<Node>,
-    option?: IUpdateNodeOption,
+    option?: IUpdateNodeOption
   ) {
     if (!id) {
       return;
@@ -276,12 +238,10 @@ export const DiagramsContextInnerProvider: React.FC = (props) => {
         const elesWillUpdate = [...eles];
         const target = elesWillUpdate.splice(targetIndex, 1)?.[0];
         const res =
-          typeof updateElementAction === 'function'
-            ? updateElementAction(target)
-            : updateElementAction;
+          typeof updateElementAction === 'function' ? updateElementAction(target) : updateElementAction;
         return elesWillUpdate.concat(res);
       },
-      { layerId },
+      { layerId }
     );
 
     if (updateInternal) {
@@ -296,7 +256,7 @@ export const DiagramsContextInnerProvider: React.FC = (props) => {
     edges,
     layer,
     activeLayerId,
-    defaultLayer,
+    defaultLayer
   });
   const actionsRef = useLatest({
     updateEdge,
@@ -304,7 +264,7 @@ export const DiagramsContextInnerProvider: React.FC = (props) => {
     setEdges,
     setActiveLayerId: () => undefined,
     setLayer,
-    setDefaultLayer,
+    setDefaultLayer
   });
 
   const setActiveLayerId = useMemoizedFn((activeId: string) => {
@@ -317,7 +277,7 @@ export const DiagramsContextInnerProvider: React.FC = (props) => {
       if (prevLayer?.parentLayerId) {
         const parentLayer = findLayer(layer, prevLayer.parentLayerId);
         const targetNode = parentLayer?.nodes.find(
-          (item) => item.id === prevLayer.relativeNodeId,
+          (item) => item.id === prevLayer.relativeNodeId
         ) as Node<IGroupOperatorData>;
 
         if (targetNode) {
@@ -326,7 +286,7 @@ export const DiagramsContextInnerProvider: React.FC = (props) => {
           operator?.refreshNode({
             node: targetNode,
             actions: actionsRef.current,
-            currentState: currentStateRef.current,
+            currentState: currentStateRef.current
           });
         }
       }
@@ -347,7 +307,7 @@ export const DiagramsContextInnerProvider: React.FC = (props) => {
         activeLayerId,
         setDefaultLayer,
         setLayer,
-        setActiveLayerId,
+        setActiveLayerId
       }}
     >
       {children}

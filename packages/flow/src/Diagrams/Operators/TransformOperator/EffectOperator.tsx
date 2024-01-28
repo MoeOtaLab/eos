@@ -3,10 +3,7 @@ import { type MetaOperator } from '../Operator';
 import { EndPoint, type IEffectOperatorData } from '../types';
 import { TransformOperator } from './TransformOperator';
 
-export class EffectOperator
-  extends TransformOperator
-  implements MetaOperator<IEffectOperatorData>
-{
+export class EffectOperator extends TransformOperator implements MetaOperator<IEffectOperatorData> {
   constructor() {
     super();
     this.defaultOperatorData.operatorName = 'Effect';
@@ -21,10 +18,10 @@ export class EffectOperator
           new EndPoint({
             type: 'target',
             hint: 'input',
-            label: 'input',
-          }),
-        ],
-      },
+            label: 'input'
+          })
+        ]
+      }
     });
 
     return newNode;

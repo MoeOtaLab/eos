@@ -9,18 +9,11 @@ export interface IAppContainersInfo {
   data: { layer: Layer };
 }
 
-type GetOperatorStateType<T> = T extends Node<infer P>
-  ? P
-  : T extends NodeProps<infer Y>
-    ? Y
-    : unknown;
+type GetOperatorStateType<T> = T extends Node<infer P> ? P : T extends NodeProps<infer Y> ? Y : unknown;
 
 export interface IAttributeControlOption<OpNode extends Node<any>> {
   node: OpNode;
-  actions: Pick<
-    DiagramsContextType<GetOperatorStateType<OpNode>>,
-    'updateEdge' | 'updateNode' | 'setLayer'
-  >;
+  actions: Pick<DiagramsContextType<GetOperatorStateType<OpNode>>, 'updateEdge' | 'updateNode' | 'setLayer'>;
 }
 
 export interface IHookOption<OpNode extends Node<any> | NodeProps<any>> {
@@ -31,12 +24,7 @@ export interface IHookOption<OpNode extends Node<any> | NodeProps<any>> {
   >;
   actions: Pick<
     DiagramsContextType<GetOperatorStateType<OpNode>>,
-    | 'updateEdge'
-    | 'updateNode'
-    | 'setLayer'
-    | 'setActiveLayerId'
-    | 'setEdges'
-    | 'setDefaultLayer'
+    'updateEdge' | 'updateNode' | 'setLayer' | 'setActiveLayerId' | 'setEdges' | 'setDefaultLayer'
   >;
 }
 
@@ -48,7 +36,7 @@ export class EndPoint {
   static createFromGroup(group: EndPoint) {
     return new EndPoint({
       hint: group.hint,
-      ...group?.defaultChildData,
+      ...group?.defaultChildData
     });
   }
 
@@ -77,9 +65,7 @@ export class EndPoint {
 
 type IEndPointOption = EndPoint;
 
-export interface IMetaOperatorData<
-  NodeOptions extends Record<string, any> = Record<string, any>,
-> {
+export interface IMetaOperatorData<NodeOptions extends Record<string, any> = Record<string, any>> {
   /** operator type, unique specifier */
   operatorType: string;
   /** operator name, label for user */
@@ -99,69 +85,59 @@ export interface IMetaOperatorData<
   };
 }
 
-export interface IInputOperatorData<
-  NodeOptions extends Record<string, any> = Record<string, any>,
-> extends IMetaOperatorData<NodeOptions> {
+export interface IInputOperatorData<NodeOptions extends Record<string, any> = Record<string, any>>
+  extends IMetaOperatorData<NodeOptions> {
   // noop to add
 }
 
-export interface IOutputOperatorData<
-  NodeOptions extends Record<string, any> = Record<string, any>,
-> extends IMetaOperatorData<NodeOptions> {
+export interface IOutputOperatorData<NodeOptions extends Record<string, any> = Record<string, any>>
+  extends IMetaOperatorData<NodeOptions> {
   // noop to add
 }
 
-export interface IGroupOperatorData<
-  NodeOptions extends Record<string, any> = Record<string, any>,
-> extends IMetaOperatorData<NodeOptions> {
+export interface IGroupOperatorData<NodeOptions extends Record<string, any> = Record<string, any>>
+  extends IMetaOperatorData<NodeOptions> {
   layerId: string;
 }
 
-export interface ICustomOperatorData<
-  NodeOptions extends Record<string, any> = Record<string, any>,
-> extends IMetaOperatorData<NodeOptions> {}
+export interface ICustomOperatorData<NodeOptions extends Record<string, any> = Record<string, any>>
+  extends IMetaOperatorData<NodeOptions> {}
 
 export enum StateOperatorValueTypeEnum {
   String = 'string',
   Number = 'number',
   Boolean = 'boolean',
-  Object = 'object',
+  Object = 'object'
 }
 
-export interface IStateOperatorData<
-  NodeOptions extends Record<string, any> = Record<string, any>,
-> extends IMetaOperatorData<NodeOptions> {
+export interface IStateOperatorData<NodeOptions extends Record<string, any> = Record<string, any>>
+  extends IMetaOperatorData<NodeOptions> {
   layerId: string;
   valueType: StateOperatorValueTypeEnum;
   value: string | number | boolean | undefined;
 }
 
-export interface ISumOperatorData<
-  NodeOptions extends Record<string, any> = Record<string, any>,
-> extends IMetaOperatorData<NodeOptions> {
+export interface ISumOperatorData<NodeOptions extends Record<string, any> = Record<string, any>>
+  extends IMetaOperatorData<NodeOptions> {
   // noop
 }
 
-export interface ICombineOperatorData<
-  NodeOptions extends Record<string, any> = Record<string, any>,
-> extends IMetaOperatorData<NodeOptions> {
+export interface ICombineOperatorData<NodeOptions extends Record<string, any> = Record<string, any>>
+  extends IMetaOperatorData<NodeOptions> {
   // noop
 }
 
-export interface ITranformOperatorData<
-  NodeOptions extends Record<string, any> = Record<string, any>,
-> extends IMetaOperatorData<NodeOptions> {
+export interface ITranformOperatorData<NodeOptions extends Record<string, any> = Record<string, any>>
+  extends IMetaOperatorData<NodeOptions> {
   customCode?: string;
 }
 
-export interface IEffectOperatorData<
-  NodeOptions extends Record<string, any> = Record<string, any>,
-> extends ITranformOperatorData<NodeOptions> {
+export interface IEffectOperatorData<NodeOptions extends Record<string, any> = Record<string, any>>
+  extends ITranformOperatorData<NodeOptions> {
   // noop
 }
 
-export interface IMergeOperatorData<
-  NodeOptions extends Record<string, any> = Record<string, any>,
-> extends IMetaOperatorData<NodeOptions> {
+export interface IMergeOperatorData<NodeOptions extends Record<string, any> = Record<string, any>>
+  extends IMetaOperatorData<NodeOptions> {
   // noop
 }

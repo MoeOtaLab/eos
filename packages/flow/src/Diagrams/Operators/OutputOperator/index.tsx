@@ -15,7 +15,7 @@ export class OutputOperator
     super({
       operatorName: 'Output',
       operatorType: 'OutputOperator',
-      nodeType: NodeTypeEnum.Node,
+      nodeType: NodeTypeEnum.Node
     });
   }
 
@@ -30,14 +30,14 @@ export class OutputOperator
             allowAddAndRemoveChildren: true,
             defaultChildData: {
               type: 'target',
-              hint: 'state',
+              hint: 'state'
             },
             children: [
               new EndPoint({
                 type: 'target',
-                hint: 'state',
-              }),
-            ],
+                hint: 'state'
+              })
+            ]
           }),
 
           new EndPoint({
@@ -47,58 +47,47 @@ export class OutputOperator
             allowAddAndRemoveChildren: true,
             defaultChildData: {
               type: 'target',
-              hint: 'event',
+              hint: 'event'
             },
             children: [
               // new EndPoint({
               //   type: 'target',
               //   hint: 'event',
               // }),
-            ],
-          }),
-        ],
-      },
+            ]
+          })
+        ]
+      }
     });
   }
 
   public getEventPorts(node: Node<IOutputOperatorData>) {
     const eventPorts =
-      node.data?.endPointOptions?.endPointList?.find(
-        (item) => item.type === 'group' && item.hint === 'event',
-      )?.children || [];
+      node.data?.endPointOptions?.endPointList?.find((item) => item.type === 'group' && item.hint === 'event')
+        ?.children || [];
 
     return eventPorts;
   }
 
   public getStatePort(node: Node<IOutputOperatorData>) {
     const statePorts =
-      node.data?.endPointOptions?.endPointList?.find(
-        (item) => item.type === 'group' && item.hint === 'state',
-      )?.children || [];
+      node.data?.endPointOptions?.endPointList?.find((item) => item.type === 'group' && item.hint === 'state')
+        ?.children || [];
 
     return statePorts;
   }
 
-  public generateBlockDeclarations(
-    options: IGenerationOption<IOutputOperatorData>,
-  ): string[] {
+  public generateBlockDeclarations(options: IGenerationOption<IOutputOperatorData>): string[] {
     const { node, formatVariableName } = options;
 
     const eventPorts = this.getEventPorts(node);
 
     return [
-      ...eventPorts.map(
-        (port) =>
-          `const ${formatVariableName(
-            port.id,
-          )} = new ${EosCoreSymbol}.ModelEvent()`,
-      ),
+      ...eventPorts.map((port) => `const ${formatVariableName(port.id)} = new ${EosCoreSymbol}.ModelEvent()`)
     ];
   }
 
-  generateBlockRelation(
-    options: IGenerationOption<IOutputOperatorData>,
-  ): string[] {
+  generateBlockRelation(options: IGenerationOption<IOutputOperatorData>): string[] {
     const { node, formatVariableName, nodeGraph } = options;
 
     const eventPorts = this.getEventPorts(node).map((port) => {
@@ -112,35 +101,27 @@ export class OutputOperator
       }
 
       return `${formatVariableName(sourceId)}.subscribe((value, extraInfo) => {
-          ${formatVariableName(targetId)}.next(value, extraInfo.concat('${
-            node.id
-          }'))
+          ${formatVariableName(targetId)}.next(value, extraInfo.concat('${node.id}'))
         })`;
     });
 
     return [...eventPorts];
   }
 
-  generateBlockOutput(
-    options: IGenerationOption<IOutputOperatorData>,
-  ): string[] {
+  generateBlockOutput(options: IGenerationOption<IOutputOperatorData>): string[] {
     const { node, formatVariableName, nodeGraph } = options;
 
     const eventPorts = this.getEventPorts(node);
     const statePorts = this.getStatePort(node);
 
     return [
-      ...eventPorts.map(
-        (port) => `['${port.variableName}']: ${formatVariableName(port.id)}`,
-      ),
+      ...eventPorts.map((port) => `['${port.variableName}']: ${formatVariableName(port.id)}`),
       ...statePorts.map((port) => {
         const sourceId = nodeGraph
           .findSourceNodes(node.id)
           ?.find((item) => item.handleId === port.id)?.relatedHandleId;
-        return sourceId
-          ? `['${port.variableName}']: ${formatVariableName(sourceId)}`
-          : '';
-      }),
+        return sourceId ? `['${port.variableName}']: ${formatVariableName(sourceId)}` : '';
+      })
     ];
   }
 }

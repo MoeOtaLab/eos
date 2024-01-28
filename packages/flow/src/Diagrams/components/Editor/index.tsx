@@ -1,11 +1,4 @@
-import {
-  useRef,
-  useState,
-  useEffect,
-  forwardRef,
-  useImperativeHandle,
-  type ForwardedRef,
-} from 'react';
+import { useRef, useState, useEffect, forwardRef, useImperativeHandle, type ForwardedRef } from 'react';
 import classnames from 'classnames';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import styles from './Editor.module.css';
@@ -24,12 +17,11 @@ function _Editor(
     readonly?: boolean;
     language: string;
   },
-  ref: ForwardedRef<IEditorRefType>,
+  ref: ForwardedRef<IEditorRefType>
 ) {
   const { code, className, readonly, language } = props;
 
-  const [editor, setEditor] =
-    useState<monaco.editor.IStandaloneCodeEditor | null>(null);
+  const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor | null>(null);
   const monacoEl = useRef(null);
 
   useEffect(() => {
@@ -41,7 +33,7 @@ function _Editor(
         return monaco.editor.create(monacoEl.current!, {
           value: code,
           language,
-          readOnly: readonly,
+          readOnly: readonly
         });
       });
     }
@@ -56,14 +48,14 @@ function _Editor(
 
         if (readonly) {
           editor.updateOptions({
-            readOnly: false,
+            readOnly: false
           });
         }
 
         await editor.getAction('editor.action.formatDocument')?.run();
         if (readonly) {
           editor.updateOptions({
-            readOnly: true,
+            readOnly: true
           });
         }
       }
@@ -74,14 +66,12 @@ function _Editor(
   useImperativeHandle(
     ref,
     () => ({
-      editor,
+      editor
     }),
-    [editor],
+    [editor]
   );
 
-  return (
-    <div className={classnames(styles.editor, className)} ref={monacoEl}></div>
-  );
+  return <div className={classnames(styles.editor, className)} ref={monacoEl}></div>;
 }
 
 export const Editor = forwardRef(_Editor);

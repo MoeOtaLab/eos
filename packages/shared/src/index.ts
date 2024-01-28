@@ -1,2 +1,2 @@
-export { EventEmitter } from './EventEmitter'
-export type { Listener } from './EventEmitter'
+export { EventEmitter } from './EventEmitter';
+export type { Listener } from './EventEmitter';

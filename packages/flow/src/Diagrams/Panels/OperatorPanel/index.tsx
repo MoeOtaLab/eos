@@ -60,7 +60,7 @@ export const OperatorPanel: React.FC = () => {
               ),
               onOk() {
                 addCustomOperator();
-              },
+              }
             });
 
             setTimeout(() => {
@@ -77,10 +77,7 @@ export const OperatorPanel: React.FC = () => {
               key={operator.operatorType}
               className={css['operator-item']}
               draggable={true}
-              onDragStart={handleDragStart(
-                OPERATOR_TYPE_DATA,
-                operator.operatorType,
-              )}
+              onDragStart={handleDragStart(OPERATOR_TYPE_DATA, operator.operatorType)}
             >
               {operator.isCustom ? 'Custom:' : ''}
               {operator.operatorName}

@@ -19,13 +19,13 @@ export function SimpleDemoApp(input: any, context: ModelBlockContextType) {
 
       return value;
     }),
-    constValue(1),
+    constValue(1)
   ).subscribe((res, extraInfo) => {
     state2.update(res, extraInfo);
   });
 
   return {
     result,
-    event,
+    event
   };
 }

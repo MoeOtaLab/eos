@@ -12,14 +12,9 @@ export interface ReportPayload<T> {
 
 export type UpdateAction<T> = (source: T) => T;
 
-export function updateValue<T>(
-  currentValue: T,
-  updateAction: UpdateAction<T> | T,
-) {
+export function updateValue<T>(currentValue: T, updateAction: UpdateAction<T> | T) {
   const nextValue =
-    typeof updateAction === 'function'
-      ? (updateAction as (...args: any) => any)(currentValue)
-      : updateAction;
+    typeof updateAction === 'function' ? (updateAction as (...args: any) => any)(currentValue) : updateAction;
 
   return nextValue;
 }
@@ -38,10 +33,7 @@ export class Atom<ValueType> extends Observable<ValueType> {
     this.update = this.update.bind(this);
   }
 
-  protected update(
-    updateAction: UpdateAction<ValueType> | ValueType,
-    extraInfo: ExtraInfo,
-  ) {
+  protected update(updateAction: UpdateAction<ValueType> | ValueType, extraInfo: ExtraInfo) {
     const nextValue = updateValue(this._current, updateAction);
     this._current = nextValue;
     tracker.track({ target: this.uid, extraInfo });
@@ -51,10 +43,7 @@ export class Atom<ValueType> extends Observable<ValueType> {
 }
 
 export class State<ValueType> extends Atom<ValueType> {
-  update(
-    updateAction: ValueType | UpdateAction<ValueType>,
-    extraInfo: ExtraInfo,
-  ): void {
+  update(updateAction: ValueType | UpdateAction<ValueType>, extraInfo: ExtraInfo): void {
     super.update(updateAction, extraInfo);
   }
 }

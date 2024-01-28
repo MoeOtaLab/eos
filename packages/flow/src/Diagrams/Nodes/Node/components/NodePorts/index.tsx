@@ -19,7 +19,7 @@ export function NodePorts(props: { node: Partial<Node<IMetaOperatorData>> }) {
       <div key={port.id} style={{ position: 'relative' }}>
         <div
           style={{
-            textAlign: port.type === 'source' ? 'right' : 'left',
+            textAlign: port.type === 'source' ? 'right' : 'left'
           }}
         >
           {port.label || port.variableName}
@@ -62,9 +62,7 @@ export function NodePorts(props: { node: Partial<Node<IMetaOperatorData>> }) {
                       return;
                     }
                     updateNode(node?.id, (node: Node<IMetaOperatorData>) => {
-                      item.children = (item.children || []).concat(
-                        EndPoint.createFromGroup(item),
-                      );
+                      item.children = (item.children || []).concat(EndPoint.createFromGroup(item));
                       return operator.updateData(node, {});
                     });
                   }}

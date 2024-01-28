@@ -1,34 +1,34 @@
 import { get } from 'lodash';
 import { ModelState, type ModelBlockContextType, type SetupFn, type InputOutputInterface } from '../..';
 
-export function mountList<Data extends ModelState<any[]>, Output extends InputOutputInterface>(input: { data: Data; key: string }, context: ModelBlockContextType, template: SetupFn<{ index: ModelState<number>; data: Data; key: string }, Output>) {
+export function mountList<Data extends ModelState<any[]>, Output extends InputOutputInterface>(
+  input: { data: Data; key: string },
+  context: ModelBlockContextType,
+  template: SetupFn<{ index: ModelState<number>; data: Data; key: string }, Output>
+) {
   const { data, key } = input;
   const { mount, unmount } = context;
 
-  const instanceList = new ModelState(data.current.map((value, index) => {
-    const indexState = new ModelState(index);
-    const keyValue = get(value, key);
+  const instanceList = new ModelState(
+    data.current.map((value, index) => {
+      const indexState = new ModelState(index);
+      const keyValue = get(value, key);
 
-    return {
-      key: keyValue,
-      index: indexState,
-      instance: mount(template, { index: indexState, data, key: keyValue }),
-    };
-  }) || []);
+      return {
+        key: keyValue,
+        index: indexState,
+        instance: mount(template, { index: indexState, data, key: keyValue })
+      };
+    }) || []
+  );
 
   data.subscribe((_val, extraInfo) => {
     // console.log('change::', extraInfo, data.current, instanceList);
     const nextList = data.current.map((item, index) => ({ key: get(item, key), index }));
     const currentList = instanceList.current;
     // reconciliation
-    const nextKeyMap = new Map(nextList.map(item => [
-      item.key,
-      item,
-    ]));
-    const currentKeyMap = new Map(currentList.map(item => [
-      item.key,
-      item,
-    ]));
+    const nextKeyMap = new Map(nextList.map((item) => [item.key, item]));
+    const currentKeyMap = new Map(currentList.map((item) => [item.key, item]));
 
     const nextInstanceList: typeof currentList = [];
 
@@ -46,7 +46,7 @@ export function mountList<Data extends ModelState<any[]>, Output extends InputOu
         const itemWillMount = {
           index: indexState,
           key: currentNextItem.key,
-          instance: mount(template, { index: indexState, data, key: currentNextItem.key }),
+          instance: mount(template, { index: indexState, data, key: currentNextItem.key })
         };
         nextInstanceList.push(itemWillMount);
         console.log('mount ==> ', itemWillMount.key);
@@ -54,16 +54,18 @@ export function mountList<Data extends ModelState<any[]>, Output extends InputOu
     }
 
     // unmount
-    currentList.filter(item => !nextKeyMap.get(item.key)).forEach(node => {
-      console.log('unmount ==> ', node.key);
-      unmount(node.instance);
-    });
+    currentList
+      .filter((item) => !nextKeyMap.get(item.key))
+      .forEach((node) => {
+        console.log('unmount ==> ', node.key);
+        unmount(node.instance);
+      });
 
     instanceList.update(nextInstanceList, extraInfo);
   });
 
   return {
     data,
-    instanceList,
+    instanceList
   };
 }

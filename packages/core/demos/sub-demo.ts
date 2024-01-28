@@ -16,7 +16,7 @@ function other1(input: any, context: ModelBlockContextType) {
 
   return {
     count,
-    event,
+    event
   };
 }
 
@@ -41,7 +41,7 @@ function sub(input: any, context: ModelBlockContextType) {
 
   return {
     other1Ins,
-    other2Ins,
+    other2Ins
   };
 }
 
@@ -57,7 +57,7 @@ function Test(_input: any, context: ModelBlockContextType) {
 
   return {
     state1,
-    state2,
+    state2
   };
 }
 
@@ -71,6 +71,6 @@ export function SubDemoApp(input: any, context: ModelBlockContextType) {
 
   return {
     theme,
-    subIns,
+    subIns
   };
 }

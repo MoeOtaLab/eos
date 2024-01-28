@@ -10,16 +10,14 @@ function registerOperator(operator: MetaOperator) {
   const currentOperator = OperatorMap.get(operator.operatorType);
   if (currentOperator) {
     if (currentOperator === operator) {
-      console.warn(
-        `duplicated register: ${operator.operatorType}:${operator.operatorName}`,
-      );
+      console.warn(`duplicated register: ${operator.operatorType}:${operator.operatorName}`);
     } else {
       console.error(
         `register with same type: ${operator.operatorType}, current: ${currentOperator.operatorName}, next: ${operator.operatorName}`,
         {
           current: currentOperator,
-          operator,
-        },
+          operator
+        }
       );
     }
   }
@@ -32,18 +30,12 @@ export function registerOperators(operators: MetaOperator[]) {
     registerOperator(operator);
   });
 }
-export function getOperatorFromOperatorType<T extends MetaOperator>(
-  operatorType: string,
-) {
+export function getOperatorFromOperatorType<T extends MetaOperator>(operatorType: string) {
   return OperatorMap.get(operatorType) as T | undefined;
 }
 
-export function getOperatorFromNode<T extends MetaOperator>(
-  node?: Partial<Pick<Node<any>, 'data'>>,
-) {
-  return getOperatorFromOperatorType<T>(
-    (node?.data as IMetaOperatorData)?.operatorType || '',
-  );
+export function getOperatorFromNode<T extends MetaOperator>(node?: Partial<Pick<Node<any>, 'data'>>) {
+  return getOperatorFromOperatorType<T>((node?.data as IMetaOperatorData)?.operatorType || '');
 }
 
 export function getAllOperators() {

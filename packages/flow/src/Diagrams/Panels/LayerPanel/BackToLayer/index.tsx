@@ -3,7 +3,7 @@ import { Button } from 'antd';
 import {
   useDiagramsContextSelector,
   useDiagramsActions,
-  useDiagramsHookOption,
+  useDiagramsHookOption
 } from '../../../State/DiagramsProvider';
 import { findLayer } from '../../../State/Layer';
 import { useOperators } from '../../../State/OperatorProvider';
@@ -44,7 +44,7 @@ export function BackToLayer() {
               operators.forEach((operator) => {
                 operator.onLayerChange?.({
                   currentState: currentStateRef.current,
-                  actions: actionsRef.current,
+                  actions: actionsRef.current
                 });
               });
             });

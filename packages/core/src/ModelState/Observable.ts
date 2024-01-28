@@ -24,10 +24,7 @@ export class Subscription {
   }
 }
 
-export class Observable<ValueType>
-  extends Entity
-  implements Subscribable<ValueType>
-{
+export class Observable<ValueType> extends Entity implements Subscribable<ValueType> {
   protected get current(): ValueType {
     throw new Error('need override');
   }
@@ -62,9 +59,7 @@ export class Observable<ValueType>
     return subscription;
   }
 
-  pipe<T extends Observable<any>>(
-    fn: (currentObservale: Observable<ValueType>) => T,
-  ) {
+  pipe<T extends Observable<any>>(fn: (currentObservale: Observable<ValueType>) => T) {
     return fn(this);
   }
 }

@@ -43,9 +43,11 @@ jobs:
           version: 6.24.2
           # Where to store PNPM files
           # If specified, run `pnpm install`
-          run_install: true # optional, default is null
-      - name: Build Page
-        run: pnpm build:gh-page
+          run_install: false # optional, default is null
+      - name: Rush Install
+        run: node common/scripts/install-run-rush.js install
+      - name: Rush rebuild
+        run: node common/scripts/install-run-rush.js rebuild --verbose --production --to
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         with:

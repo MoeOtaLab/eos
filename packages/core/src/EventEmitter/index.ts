@@ -1,1 +1,1 @@
-export { EventEmitter, type Listener } from '@eos/shared/src/EventEmitter';
+export { EventEmitter, type Listener } from '@eos/shared';

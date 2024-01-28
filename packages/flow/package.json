@@ -4,13 +4,14 @@
   "private": true,
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
-    "build:gh-page": "tsc && vite build --base /eos/",
+    "build": "tsc && vite build --base /eos/",
     "serve": "vite preview"
   },
   "dependencies": {
     "@ant-design/icons": "^5.2.6",
     "@dagrejs/dagre": "^1.0.4",
+    "@eos/core": "workspace:*",
+    "@eos/shared": "workspace:*",
     "ahooks": "^3.7.8",
     "antd": "^5.11.2",
     "classnames": "^2.3.1",
@@ -24,6 +25,8 @@
     "uuid": "^9.0.1"
   },
   "devDependencies": {
+    "typescript": "^5.2.2",
+    "@types/node": "^18.7.16",
     "@babel/core": "^7.19.0",
     "@types/babel__core": "^7.1.19",
     "@types/lodash": "^4.14.201",

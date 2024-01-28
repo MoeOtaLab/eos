@@ -1,7 +1,7 @@
 import { type Edge, type Node } from 'reactflow';
 import React, { useState, useMemo, useEffect, useContext } from 'react';
-import * as EosCore from '@eos/core/src';
-import * as EosOperators from '@eos/core/src/operators';
+import * as EosCore from '@eos/core';
+import * as EosOperators from '@eos/core/operators';
 
 export const EosCoreSymbol = 'EosCore';
 export const EosOperatorsSymbol = 'EosOperators';

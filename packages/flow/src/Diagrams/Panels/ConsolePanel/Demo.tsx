@@ -10,7 +10,7 @@ import {
 } from '../../Operators/types';
 import { type OutputOperator } from '../../Operators/OutputOperator';
 import { type InputOperator } from '../../Operators/InputOperator';
-import { type ModelBlock, ModelState, ExtraInfo } from '@eos/core/src';
+import { type ModelBlock, ModelState, ExtraInfo } from '@eos/core';
 
 export const Demo: React.FC = () => {
   const { store, nodes, edges } = useLinkRuntimeContext();

@@ -47,7 +47,7 @@ jobs:
       - name: Rush Install
         run: node common/scripts/install-run-rush.js install
       - name: Rush rebuild
-        run: node common/scripts/install-run-rush.js rebuild --verbose --allowWarningsInSuccessfulBuild --to @eos/flow
+        run: node common/scripts/install-run-rush.js rebuild --verbose --to @eos/flow
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         with:

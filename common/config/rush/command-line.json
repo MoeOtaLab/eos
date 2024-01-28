@@ -182,6 +182,16 @@
       "autoinstallerName": "rush-prettier",
       // This will invoke common/autoinstallers/rush-prettier/node_modules/.bin/pretty-quick
       "shellCommand": "pretty-quick --staged"
+    },
+    {
+      "commandKind": "bulk",
+      "name": "build",
+      "allowWarningsInSuccessfulBuild": true
+    },
+    {
+      "commandKind": "bulk",
+      "name": "rebuild",
+      "allowWarningsInSuccessfulBuild": true
     }
   ],
   /**

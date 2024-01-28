@@ -3,8 +3,9 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "dev": "vite",
     "build": "tsc && vite build --base /eos/",
+    "dev": "vite",
+    "rebuild": "tsc && vite build --base /eos/",
     "serve": "vite preview"
   },
   "dependencies": {
@@ -25,15 +26,15 @@
     "uuid": "^9.0.1"
   },
   "devDependencies": {
-    "typescript": "^5.2.2",
-    "@types/node": "^18.7.16",
     "@babel/core": "^7.19.0",
     "@types/babel__core": "^7.1.19",
     "@types/lodash": "^4.14.201",
+    "@types/node": "^18.7.16",
     "@types/react": "^17.0.0",
     "@types/react-dom": "^17.0.0",
     "@types/uuid": "^9.0.3",
     "@vitejs/plugin-react": "^1.0.0",
+    "typescript": "^5.2.2",
     "vite": "^2.6.0"
   }
 }

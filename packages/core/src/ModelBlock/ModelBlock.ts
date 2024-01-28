@@ -1,4 +1,4 @@
-import { EventEmitter } from '../EventEmitter';
+import { EventEmitter } from '@eos/shared';
 import { RelationHelper } from './RelationHelper';
 import { type SetupFn, type InputOutputInterface } from './ModelTemplate';
 import { ModelConstructor, type ModelConstructorOption } from './ModelConstructor';

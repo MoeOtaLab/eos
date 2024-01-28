@@ -40,6 +40,7 @@
   ],
   "scripts": {
     "build": "rollup --config rollup.config.ts --configPlugin typescript --bundleConfigAsCjs",
+    "buildWatch": "rollup --config rollup.config.ts --configPlugin typescript --bundleConfigAsCjs --watch",
     "dev": "ts-node demos/index.ts",
     "prepublish": "pnpm run test && pnpm run build",
     "rebuild": "rollup --config rollup.config.ts --configPlugin typescript --bundleConfigAsCjs",

@@ -1,4 +1,4 @@
-import { EventEmitter } from '../EventEmitter';
+import { EventEmitter } from '@eos/shared';
 import { type ExtraInfo } from '../ModelState/ExtraInfo';
 
 export interface TrackRecord {

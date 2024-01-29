@@ -32,5 +32,5 @@ export function proxyData<T extends Record<any, any>, Key extends string>(
     }
   }
 
-  return new ProxyState(defaultData);
+  return new ProxyState(defaultData) as ModelState<SubDataType>;
 }

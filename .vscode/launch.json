@@ -7,10 +7,10 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Launch Program",
+      "name": "Debug Demo",
       "program": "${workspaceFolder}/packages/core/demos/index.ts",
       "preLaunchTask": "tsc: build - tsconfig.json",
-      "outFiles": ["${workspaceFolder}/packages/core/out/**/*.js"]
+      "outFiles": ["${workspaceFolder}/packages/core/output/**/*.js"]
     }
   ]
 }

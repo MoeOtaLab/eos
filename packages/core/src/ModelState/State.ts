@@ -1,18 +1,8 @@
 import { Observable } from './Observable';
-import { type ExtraInfo } from './ExtraInfo';
 import { tracker } from '../Tracker';
+import { Action, IUpdateAction } from './Action';
 
-export interface ReportPayload<T> {
-  traceId: string; // maybe multiple input source.
-  operatorId: string;
-  current: T;
-  next: T;
-  reason?: string;
-}
-
-export type UpdateAction<T> = (source: T) => T;
-
-export function updateValue<T>(currentValue: T, updateAction: UpdateAction<T> | T) {
+export function updateValue<T>(currentValue: T, updateAction: IUpdateAction<T> | T | undefined) {
   const nextValue =
     typeof updateAction === 'function' ? (updateAction as (...args: any) => any)(currentValue) : updateAction;
 
@@ -30,20 +20,20 @@ export class Atom<ValueType> extends Observable<ValueType> {
     super();
 
     this._current = defaultValue;
-    this.update = this.update.bind(this);
+    this.next = this.next.bind(this);
   }
 
-  protected update(updateAction: UpdateAction<ValueType> | ValueType, extraInfo: ExtraInfo) {
-    const nextValue = updateValue(this._current, updateAction);
+  protected next(action: Action<ValueType>) {
+    const nextValue = updateValue(this._current, action.payload);
     this._current = nextValue;
-    tracker.track({ target: this.uid, extraInfo });
+    tracker.track({ target: this.uid, action });
 
-    this.next(nextValue, extraInfo);
+    super.trigger(action.concat({ payload: nextValue, path: this.uid }));
   }
 }
 
 export class State<ValueType> extends Atom<ValueType> {
-  update(updateAction: ValueType | UpdateAction<ValueType>, extraInfo: ExtraInfo): void {
-    super.update(updateAction, extraInfo);
+  next(action: Action<ValueType>): void {
+    super.next(action);
   }
 }

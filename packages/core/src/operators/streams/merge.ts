@@ -5,8 +5,13 @@ export function merge<ObservableSubjectList extends Array<Atom<any>>>(streamSour
   const result = new ModelState<any[]>([]);
 
   streamSource.forEach((input) => {
-    input.subscribe((value, extraInfo) => {
-      result.update(value, extraInfo.concat('combine'));
+    input.subscribe((action) => {
+      result.next(
+        action.concat({
+          payload: action.payload,
+          path: 'merge'
+        })
+      );
     });
   });
 

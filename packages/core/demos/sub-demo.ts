@@ -1,14 +1,14 @@
 import { ModelState, ModelEvent, type ModelBlockContextType } from '../src';
-import { ExtraInfo } from '../src/ModelState/ExtraInfo';
+import { Action } from '../src/ModelState';
 
 function other1(input: any, context: ModelBlockContextType) {
   const { onLifecycle } = context;
   const count = new ModelState(0);
-  const event = new ModelEvent();
+  const event = new ModelEvent<number>();
 
   onLifecycle('postInit', () => {
-    const subscription = count.subscribe((val, extraInfo) => {
-      event.next(val, extraInfo);
+    const subscription = count.subscribe((action) => {
+      event.next(action);
     });
 
     return subscription;
@@ -51,8 +51,18 @@ function Test(_input: any, context: ModelBlockContextType) {
   const state2 = new ModelState(1);
 
   onLifecycle('mount', () => {
-    state1.update((c) => c + 2, new ExtraInfo());
-    state2.update((c) => c * 5, new ExtraInfo());
+    state1.next(
+      new Action({
+        payload: (c) => c + 2,
+        path: 'mount'
+      })
+    );
+    state2.next(
+      new Action({
+        payload: (c) => c * 5,
+        path: 'mount'
+      })
+    );
   });
 
   return {

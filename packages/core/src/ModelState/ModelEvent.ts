@@ -1,8 +1,8 @@
-import { ExtraInfo } from './ExtraInfo';
 import { Observable } from './Observable';
+import { Action } from './Action';
 
 export class ModelEvent<T> extends Observable<T> {
-  next(info: T, extraInfo: ExtraInfo) {
-    super.next(info, extraInfo || new ExtraInfo('[ModelEvent] fallback'));
+  next(action?: Action<T>) {
+    super.trigger(action || new Action<T>({ payload: undefined, path: 'event' }));
   }
 }

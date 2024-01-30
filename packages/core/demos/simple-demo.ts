@@ -13,15 +13,15 @@ export function SimpleDemoApp(input: any, context: ModelBlockContextType) {
     event.pipe((item) => {
       const value = new ModelState<number>(0);
 
-      item.subscribe((val, extraInfo) => {
-        value.update(val, extraInfo);
+      item.subscribe((action) => {
+        value.next(action);
       });
 
       return value;
     }),
     constValue(1)
-  ).subscribe((res, extraInfo) => {
-    state2.update(res, extraInfo);
+  ).subscribe((action) => {
+    state2.next(action);
   });
 
   return {

@@ -3,18 +3,23 @@ import { ModelState } from '../..';
 
 export function transform<StreamValue, ResultValue>(
   steam: Atom<StreamValue>,
-  action: (value: StreamValue) => ResultValue
+  actionFn: (value: StreamValue) => ResultValue
 ) {
   return steam.pipe((observer) => {
     const result = new ModelState<ResultValue | undefined>(undefined);
 
-    observer.subscribe(async (value, extra) => {
-      const actionResult = action(value);
+    observer.subscribe(async (action) => {
+      const actionResult = actionFn(action.payload as StreamValue);
       let resultValue = actionResult;
       if (actionResult instanceof Promise) {
         resultValue = await actionResult;
       }
-      result.update(resultValue, extra.concat('transform'));
+      result.next(
+        action.concat({
+          payload: resultValue,
+          path: 'transform'
+        })
+      );
     });
 
     return result;

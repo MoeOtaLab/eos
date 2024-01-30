@@ -1,6 +1,6 @@
 import { type ModelBlockContextType, ModelState, ModelEvent } from '../src';
 import { proxyData, mountList } from '../src/operators';
-import { ExtraInfo } from '../src/ModelState/ExtraInfo';
+import { Action } from '../src/ModelState';
 
 function TodoItem(
   input: { index: ModelState<number>; data: ModelState<any[]>; key: string },
@@ -12,34 +12,49 @@ function TodoItem(
   // delete
   // change title
   // check/uncheck
-  const deleteEvent = new ModelEvent();
-  const titleChangeEvent = new ModelEvent();
+  const deleteEvent = new ModelEvent<undefined>();
+  const titleChangeEvent = new ModelEvent<string>();
   const checkEvent = new ModelEvent<boolean>();
 
-  deleteEvent.subscribe((_val, extraInfo) => {
-    data.update((data) => {
-      const dataWillUpdate = [...data];
-      dataWillUpdate.splice(index.current, 1);
-      return dataWillUpdate;
-    }, extraInfo);
+  deleteEvent.subscribe((action) => {
+    data.next(
+      action.concat({
+        payload: (data: any[]) => {
+          const dataWillUpdate = [...data];
+          dataWillUpdate.splice(index.current, 1);
+          return dataWillUpdate;
+        },
+        path: 'deleteEvent'
+      })
+    );
   });
 
-  titleChangeEvent.subscribe((val, extraInfo) => {
-    data.update((data) => {
-      const dataWillUpdate = [...data];
-      const item = data[index.current];
-      item.title = val;
-      return dataWillUpdate;
-    }, extraInfo);
+  titleChangeEvent.subscribe((action) => {
+    data.next(
+      action.concat({
+        payload: (data: any[]) => {
+          const dataWillUpdate = [...data];
+          const item = data[index.current];
+          item.title = action.payload;
+          return dataWillUpdate;
+        },
+        path: 'titleChangeEvent'
+      })
+    );
   });
 
-  checkEvent.subscribe((val, extraInfo) => {
-    data.update((data) => {
-      const dataWillUpdate = [...data];
-      const item = data[index.current];
-      item.checked = Boolean(val);
-      return dataWillUpdate;
-    }, extraInfo);
+  checkEvent.subscribe((action) => {
+    data.next(
+      action.concat({
+        payload: (data: any[]) => {
+          const dataWillUpdate = [...data];
+          const item = data[index.current];
+          item.checked = Boolean(action.payload);
+          return dataWillUpdate;
+        },
+        path: 'checkEvent'
+      })
+    );
   });
 
   onLifecycle('mount', () => {
@@ -72,28 +87,38 @@ function TodoListContainer(
   // clear
   const addItemEvent = new ModelEvent<{ key: string; title: string }>();
   const checkAllEvent = new ModelEvent<boolean>();
-  const clearAllEvent = new ModelEvent();
+  const clearAllEvent = new ModelEvent<boolean>();
 
-  addItemEvent.subscribe((val, extraInfo) => {
-    listData.update((list) => {
-      return list.concat({
-        ...val,
-        checked: false
-      });
-    }, extraInfo);
+  addItemEvent.subscribe((action) => {
+    listData.next(
+      action.concat({
+        payload: (list: any[]) => {
+          return list.concat({
+            ...action.payload,
+            checked: false
+          });
+        },
+        path: 'addItemEvent'
+      })
+    );
   });
 
-  checkAllEvent.subscribe((val, extraInfo) => {
-    listData.update((list) => {
-      return list.map((item) => ({
-        ...item,
-        checked: Boolean(val)
-      }));
-    }, extraInfo);
+  checkAllEvent.subscribe((action) => {
+    listData.next(
+      action.concat({
+        payload: (list: any[]) => {
+          return list.map((item) => ({
+            ...item,
+            checked: Boolean(action.payload)
+          }));
+        },
+        path: 'checkAllEvent'
+      })
+    );
   });
 
-  clearAllEvent.subscribe((_val, extraInfo) => {
-    listData.update([], extraInfo);
+  clearAllEvent.subscribe((action) => {
+    listData.next(action.concat({ payload: [], path: 'clearAllEvent' }));
   });
 
   return {
@@ -109,10 +134,20 @@ export function TodoListDemoApp(_input: any, context: ModelBlockContextType) {
   const data = new ModelState({ list: [{ key: 1 }] });
   const listData = proxyData(data, 'list');
 
-  listData.update((list) => [...(list || []), { key: 777 }], new ExtraInfo('update list'));
+  listData.next(
+    new Action({
+      payload: (list) => [...(list || []), { key: 777 }],
+      path: 'update list'
+    })
+  );
 
   setTimeout(() => {
-    listData.update((list) => [{ key: 777 }, { key: 99 }], new ExtraInfo('update list'));
+    listData.next(
+      new Action({
+        payload: (list) => [{ key: 777 }, { key: 99 }],
+        path: 'update list'
+      })
+    );
   }, 1000);
 
   console.log('listData', listData.current);
@@ -127,41 +162,58 @@ export function TodoListDemoApp(_input: any, context: ModelBlockContextType) {
     setTimeout(() => {
       // 增加一个
       todoListContainerInstance.output?.addItemEvent.next(
-        { key: '23333', title: 'new item' },
-        new ExtraInfo('add manually')
+        new Action({
+          payload: { key: '23333', title: 'new item' },
+          path: 'add manually'
+        })
       );
       console.log('listData addItemEvent', listData.current);
       todoListContainerInstance.output?.checkAllEvent.next(
-        true,
-        new ExtraInfo('listData checkAllEvent true')
+        new Action({
+          payload: true,
+          path: 'listData checkAllEvent true'
+        })
       );
       console.log('listData checkAllEvent true', listData.current);
       todoListContainerInstance.output?.checkAllEvent.next(
-        false,
-        new ExtraInfo('listData checkAllEvent false')
+        new Action({
+          payload: false,
+          path: 'listData checkAllEvent false'
+        })
       );
       console.log('listData checkAllEvent false', listData.current);
 
       // change title
-      todoListContainerInstance.output?.instanceList?.current
-        ?.at(-1)
-        ?.instance.output?.titleChangeEvent.next(
-          'change - title',
-          new ExtraInfo('listData titleChangeEvent')
-        );
+      todoListContainerInstance.output?.instanceList?.current?.at(-1)?.instance.output?.titleChangeEvent.next(
+        new Action({
+          payload: 'change - title',
+          path: 'listData titleChangeEvent'
+        })
+      );
       console.log('listData titleChangeEvent', listData.current);
 
-      todoListContainerInstance.output?.instanceList?.current
-        ?.at(-1)
-        ?.instance.output?.checkEvent.next(true, new ExtraInfo('listData checkEvent true'));
+      todoListContainerInstance.output?.instanceList?.current?.at(-1)?.instance.output?.checkEvent.next(
+        new Action({
+          payload: true,
+          path: 'listData checkEvent true'
+        })
+      );
       console.log('listData checkEvent true', listData.current);
 
-      todoListContainerInstance.output?.instanceList?.current
-        ?.at(-2)
-        ?.instance.output?.deleteEvent.next(undefined, new ExtraInfo('listData deleteEvent'));
+      todoListContainerInstance.output?.instanceList?.current?.at(-2)?.instance.output?.deleteEvent.next(
+        new Action({
+          payload: undefined,
+          path: 'listData deleteEvent'
+        })
+      );
       console.log('listData deleteEvent', listData.current);
 
-      todoListContainerInstance.output?.clearAllEvent.next(false, new ExtraInfo('listData clearAllEvent'));
+      todoListContainerInstance.output?.clearAllEvent.next(
+        new Action({
+          payload: false,
+          path: 'listData clearAllEvent'
+        })
+      );
       console.log('listData clearAllEvent', listData.current);
     }, 3000);
   });

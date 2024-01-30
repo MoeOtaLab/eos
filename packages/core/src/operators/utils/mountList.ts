@@ -22,8 +22,8 @@ export function mountList<Data extends ModelState<any[]>, Output extends InputOu
     }) || []
   );
 
-  data.subscribe((_val, extraInfo) => {
-    // console.log('change::', extraInfo, data.current, instanceList);
+  data.subscribe((action) => {
+    // console.log('change::', data.current, instanceList);
     const nextList = data.current.map((item, index) => ({ key: get(item, key), index }));
     const currentList = instanceList.current;
     // reconciliation
@@ -38,7 +38,12 @@ export function mountList<Data extends ModelState<any[]>, Output extends InputOu
         // update
         nextInstanceList.push(currentItem);
         if (currentItem.index.current !== currentNextItem.index) {
-          currentItem.index.update(currentNextItem.index, extraInfo);
+          currentItem.index.next(
+            action.concat({
+              payload: currentNextItem.index,
+              path: 'nextInstanceList'
+            })
+          );
         }
       } else {
         // mount
@@ -61,7 +66,12 @@ export function mountList<Data extends ModelState<any[]>, Output extends InputOu
         unmount(node.instance);
       });
 
-    instanceList.update(nextInstanceList, extraInfo);
+    instanceList.next(
+      action.concat({
+        payload: nextInstanceList,
+        path: 'instanceList'
+      })
+    );
   });
 
   return {

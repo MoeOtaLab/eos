@@ -92,8 +92,11 @@ export class StateOperator
     return [
       ...sources?.map(
         (item) => `
-          ${formatVariableName(item.relatedHandleId)}.subscribe((val, extraInfo) => {
-            ${this.getStateSymbol(options)}.update(val, extraInfo.concat('${item.nodeId}'));
+          ${formatVariableName(item.relatedHandleId)}.subscribe((action) => {
+            ${this.getStateSymbol(options)}.next(action.concat({
+              payload: action.payload,
+              path: '${item.nodeId}'
+            }));
           });`
       )
     ];

@@ -104,12 +104,15 @@ export class MergeOperator
 
     return [
       ...relationList.map(
-        ({ inputId, targetId }) => `${formatVariableName(targetId)}.subscribe((val, extraInfo) => {
-          ${formatVariableName(inputId)}.update(val, extraInfo.concat('${JSON.stringify({
-            currentNodeId: node.id,
-            fromPortId: targetId,
-            toPortId: inputId
-          })}'));
+        ({ inputId, targetId }) => `${formatVariableName(targetId)}.subscribe((action) => {
+          ${formatVariableName(inputId)}.next(action.concat({
+            payload: action.payload,
+            path: '${JSON.stringify({
+              currentNodeId: node.id,
+              fromPortId: targetId,
+              toPortId: inputId
+            })}'
+          }));
         });`
       )
     ];

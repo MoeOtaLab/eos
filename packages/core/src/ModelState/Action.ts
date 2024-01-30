@@ -2,20 +2,12 @@ import { Entity } from '../Entity';
 
 export type IUpdateAction<T> = (source: T) => T;
 
-function isAction<T, ExtraData extends Record<string, any>>(data: any): data is Action<T, ExtraData> {
-  return typeof data === 'object';
-}
-
-function isUpdateAction(data: any): data is IUpdateAction<any> {
-  return !isAction(data);
-}
-
-type IActionObjectParam<T extends Action = Action> = Required<Pick<T, 'action' | 'path'>> &
+type IActionObjectParam<T extends Action = Action> = Required<Pick<T, 'payload' | 'path'>> &
   Partial<Pick<T, 'uid' | 'from' | 'extra'>>;
 
 export class Action<T = any, ExtraData extends Record<string, any> = Record<string, any>> extends Entity {
-  /** UpdateAction */
-  action?: T | IUpdateAction<T>;
+  /** UpdateAction, value or function */
+  payload: T | IUpdateAction<T> | undefined;
   /** value update hint */
   path: string = '';
   /** extra data */

@@ -8,9 +8,14 @@ export function combine<
   const result = new ModelState<any[]>([]);
 
   streamSource.forEach((input) => {
-    input.subscribe((_value, extraInfo) => {
+    input.subscribe((action) => {
       const allValue = [...streamSource, ...appendSource].map((item) => item.current);
-      result.update(allValue, extraInfo.concat('combine'));
+      result.next(
+        action.concat({
+          payload: allValue,
+          path: 'combine'
+        })
+      );
     });
   });
 

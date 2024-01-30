@@ -1,6 +1,8 @@
 import { get, set, clone } from 'lodash';
-import { ModelState, type ExtraInfo } from '../..';
-import { updateValue, type UpdateAction } from '../../ModelState/State';
+import { ModelState } from '../..';
+import { updateValue } from '../../ModelState/State';
+import { Action } from '../../ModelState';
+import { Callback } from '../../ModelState/Observable';
 
 // todo 重载
 export function proxyData<T extends Record<any, any>, Key extends string>(
@@ -15,19 +17,29 @@ export function proxyData<T extends Record<any, any>, Key extends string>(
       return get(originState.current, key);
     }
 
-    update(updateAction: SubDataType | UpdateAction<SubDataType>, extraInfo: ExtraInfo): void {
-      originState.update((data) => {
-        const currentValue = get(data, key);
-        const newData = clone(data);
-        const nextValue = updateValue(currentValue, updateAction);
-        set(newData, key, nextValue);
-        return newData;
-      }, extraInfo);
+    next(action: Action<SubDataType>): void {
+      originState.next(
+        action.concat({
+          payload: (data: T) => {
+            const currentValue = get(data, key);
+            const newData = clone(data);
+            const nextValue = updateValue(currentValue, action.payload);
+            set(newData, key, nextValue);
+            return newData;
+          },
+          path: 'ProxyState'
+        })
+      );
     }
 
-    subscribe(callback: (value: any, extraInfo: ExtraInfo) => any) {
-      return originState.subscribe((value, extraInfo) => {
-        return callback(get(value, key), extraInfo);
+    subscribe(callback: Callback<SubDataType>) {
+      return originState.subscribe((action) => {
+        return callback(
+          action.concat({
+            payload: get(action.payload, key),
+            path: 'ProxyState'
+          })
+        );
       });
     }
   }

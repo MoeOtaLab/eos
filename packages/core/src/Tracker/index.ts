@@ -1,10 +1,10 @@
 import { EventEmitter } from '@eos/shared';
-import { type ExtraInfo } from '../ModelState/ExtraInfo';
+import { Action } from '../ModelState/Action';
 
 export interface TrackRecord {
   /** 上报的主体 */
   target: string;
-  extraInfo: ExtraInfo;
+  action: Action;
 }
 
 class Tracker extends EventEmitter<TrackRecord> {

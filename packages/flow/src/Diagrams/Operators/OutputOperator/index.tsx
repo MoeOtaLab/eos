@@ -100,8 +100,11 @@ export class OutputOperator
         return '';
       }
 
-      return `${formatVariableName(sourceId)}.subscribe((value, extraInfo) => {
-          ${formatVariableName(targetId)}.next(value, extraInfo.concat('${node.id}'))
+      return `${formatVariableName(sourceId)}.subscribe((action) => {
+          ${formatVariableName(targetId)}.next(action.concat({
+            payload: action.payload,
+            path: '${node.id}'
+          }))
         })`;
     });
 

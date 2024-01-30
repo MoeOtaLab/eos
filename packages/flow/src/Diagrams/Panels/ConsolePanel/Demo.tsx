@@ -7,7 +7,7 @@ import { useEffect, useRef, useState } from 'react';
 import { type IInputOperatorData, type IOutputOperatorData } from '../../Operators/types';
 import { type OutputOperator } from '../../Operators/OutputOperator';
 import { type InputOperator } from '../../Operators/InputOperator';
-import { type ModelBlock, ModelState, ExtraInfo } from '@eos/core';
+import { type ModelBlock, ModelState, Action } from '@eos/core';
 
 export const Demo: React.FC = () => {
   const { store, nodes, edges } = useLinkRuntimeContext();
@@ -49,9 +49,9 @@ export const Demo: React.FC = () => {
     const outputPorts = getOperatorFromNode<OutputOperator>(outputNode)?.getEventPorts(outputNode);
 
     outputPorts?.forEach((port) => {
-      instance?.output[port.variableName || '']?.subscribe((value: any, extraInfo: any) => {
-        message.info(`value: ${value}`);
-        console.log('events', port, value, extraInfo);
+      instance?.output[port.variableName || '']?.subscribe((action: any) => {
+        message.info(`value: ${action.payload}`);
+        console.log('events', port, action);
       });
     });
   }, [instance]);
@@ -79,8 +79,8 @@ export const Demo: React.FC = () => {
         return instance?.output?.[port.variableName || ''];
       })
       .forEach((value) => {
-        value?.subscribe((value: any, extraInfo: any) => {
-          console.log(value, extraInfo);
+        value?.subscribe((action: any) => {
+          console.log(action);
           forceUpdate([]);
         });
       });
@@ -108,9 +108,11 @@ export const Demo: React.FC = () => {
                       onChange={(e) => {
                         const value: string = e.target.value;
                         console.log('instance', instance);
-                        inputStateMapRef.current?.[item.variableName || '']?.update(
-                          Number(value),
-                          new ExtraInfo()
+                        inputStateMapRef.current?.[item.variableName || '']?.next(
+                          new Action({
+                            payload: Number(value),
+                            path: item.variableName || ''
+                          })
                         );
                       }}
                     />
@@ -131,7 +133,12 @@ export const Demo: React.FC = () => {
                   <Button
                     key={item.id}
                     onClick={() => {
-                      instance?.output?.[item.variableName || '']?.next(JSON.parse(inputValue));
+                      instance?.output?.[item.variableName || '']?.next(
+                        new Action({
+                          payload: JSON.parse(inputValue),
+                          path: item.variableName || ''
+                        })
+                      );
                     }}
                   >
                     {item.label || item.variableName}

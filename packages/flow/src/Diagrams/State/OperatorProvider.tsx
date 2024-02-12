@@ -1,5 +1,5 @@
 import { createContext, useContext } from 'use-context-selector';
-import { type MetaOperator } from '../Operators/Operator';
+import { type MetaOperator } from '../Operators/MetaOperator';
 import { useState } from 'react';
 import { useMemoizedFn } from 'ahooks';
 import { getAllOperators } from '../Operators';

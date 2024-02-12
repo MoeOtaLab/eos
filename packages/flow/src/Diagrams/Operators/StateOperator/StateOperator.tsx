@@ -1,4 +1,4 @@
-import { MetaOperator } from '../Operator';
+import { MetaOperator } from '../MetaOperator';
 import { NodeTypeEnum } from '../../Nodes/NodeTypeEnum';
 import { Form, Input, Select, message } from 'antd';
 import {

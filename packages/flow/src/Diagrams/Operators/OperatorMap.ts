@@ -1,4 +1,4 @@
-import { type MetaOperator } from './Operator';
+import { type MetaOperator } from './MetaOperator';
 import { type Node } from 'reactflow';
 import { type IMetaOperatorData } from './types';
 

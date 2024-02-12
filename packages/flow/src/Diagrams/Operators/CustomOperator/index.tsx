@@ -2,7 +2,7 @@ import { type Node } from 'reactflow';
 import { type IGenerationOption } from '../../Compiler';
 import { NodeTypeEnum } from '../../Nodes/NodeTypeEnum';
 import { Layer } from '../../State/Layer';
-import { MetaOperator } from '../Operator';
+import { MetaOperator } from '../MetaOperator';
 import { type IHookOption, type ICustomOperatorData, type IAppContainersInfo } from '../types';
 import { v4 as uuid } from 'uuid';
 import { getNodeEndPointFromLayer, getInputPorts, getOutputPorts } from '../GroupOperator/utils';

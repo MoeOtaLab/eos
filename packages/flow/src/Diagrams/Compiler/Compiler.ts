@@ -4,7 +4,7 @@ import { type IAppContainersInfo, type IMetaOperatorData } from '../Operators/ty
 import { EosCoreSymbol } from './runtime';
 import { type Layer, flatLayer } from '../State/Layer';
 import { message } from 'antd';
-import { type MetaOperator } from '../Operators/Operator';
+import { type MetaOperator } from '../Operators/MetaOperator';
 
 export interface IConnection {
   nodeId: string;

@@ -1,7 +1,7 @@
 import { type IGenerationOption } from '../../Compiler';
 import { EosOperatorsSymbol } from '../../Compiler/runtime';
 import { StateOperator } from '.';
-import { type MetaOperator } from '../Operator';
+import { type MetaOperator } from '../MetaOperator';
 import { EndPoint, type IStateOperatorData } from '../types';
 import { type Node } from 'reactflow';
 

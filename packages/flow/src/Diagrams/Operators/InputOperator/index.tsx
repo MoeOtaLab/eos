@@ -1,4 +1,4 @@
-import { MetaOperator } from '../Operator';
+import { MetaOperator } from '../MetaOperator';
 import { NodeTypeEnum } from '../../Nodes/NodeTypeEnum';
 import { type Node } from 'reactflow';
 import { formatVariableName, type IGenerationOption } from '../../Compiler';

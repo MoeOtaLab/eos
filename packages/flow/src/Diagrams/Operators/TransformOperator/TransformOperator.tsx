@@ -1,7 +1,7 @@
 import { type NodeProps, type Node } from 'reactflow';
 import { formatVariableName, type IGenerationOption } from '../../Compiler';
 import { NodeTypeEnum } from '../../Nodes/NodeTypeEnum';
-import { MetaOperator } from '../Operator';
+import { MetaOperator } from '../MetaOperator';
 import { EndPoint, type ITranformOperatorData } from '../types';
 import { CustomLabel } from './components/CustomLabel';
 import { EosOperatorsSymbol } from '../../Compiler/runtime';

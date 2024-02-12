@@ -1,4 +1,4 @@
-import { MetaOperator } from '../Operator';
+import { MetaOperator } from '../MetaOperator';
 import { type Node } from 'reactflow';
 import { NodeTypeEnum } from '../../Nodes/NodeTypeEnum';
 import { type IHookOption, type IAttributeControlOption, type IGroupOperatorData } from '../types';

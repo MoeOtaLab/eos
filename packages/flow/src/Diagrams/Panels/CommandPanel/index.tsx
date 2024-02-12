@@ -6,7 +6,7 @@ import { type GroupOperator } from '../../Operators/GroupOperator';
 import { sleepMs } from '../../utils';
 import { loopDemoData, sumDemoData } from './defaultData';
 import { useOperators } from '../../State/OperatorProvider';
-import { type MetaOperator } from '../../Operators/Operator';
+import { type MetaOperator } from '../../Operators/MetaOperator';
 import { CustomOperator } from '../../Operators/CustomOperator';
 
 const STORAGE_KEY = 'layer_storage';

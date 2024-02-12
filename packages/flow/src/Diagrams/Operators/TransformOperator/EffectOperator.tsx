@@ -1,5 +1,5 @@
 import { type Node } from 'reactflow';
-import { type MetaOperator } from '../Operator';
+import { type MetaOperator } from '../MetaOperator';
 import { EndPoint, type IEffectOperatorData } from '../types';
 import { TransformOperator } from './TransformOperator';
 

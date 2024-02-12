@@ -7,6 +7,7 @@ import { type IHookOption, type ICustomOperatorData, type IAppContainersInfo } f
 import { v4 as uuid } from 'uuid';
 import { getNodeEndPointFromLayer, getInputPorts, getOutputPorts } from '../GroupOperator/utils';
 import { getRandomId } from '../../utils';
+import { EosCoreSymbol } from '../../Compiler/runtime';
 
 export class CustomOperator
   extends MetaOperator<ICustomOperatorData>
@@ -60,9 +61,9 @@ export class CustomOperator
     const { node, nodeGraph, formatVariableName, formatBlockVarName } = options;
 
     return [
-      `const temp_${formatVariableName(
-        node.id
-      )} = context.mount(${formatBlockVarName(this.getOperatorId())}, {
+      `const temp_${formatVariableName(node.id)} = context.mount(${formatBlockVarName(
+        this.getOperatorId()
+      )}, {
         ${getInputPorts(node)
           .map((port) => {
             const sourceId = nodeGraph
@@ -79,9 +80,7 @@ export class CustomOperator
           .join(',\n')}
       })`,
       ...(getOutputPorts(node) || [])?.map((port) => {
-        return `const ${formatVariableName(port.id)} = temp_${formatVariableName(node.id)}.output['${
-          port.variableName
-        }']`;
+        return `const ${formatVariableName(port.id)} = new ${EosCoreSymbol}.ModelStateProxy()`;
       })
     ];
   }
@@ -91,7 +90,18 @@ export class CustomOperator
   }
 
   generateBlockRelation(options: IGenerationOption<ICustomOperatorData<Record<string, any>>>): string[] {
-    return [];
+    const { node, formatVariableName } = options;
+    return [
+      `temp_${formatVariableName(node.id)}.on('postInit', () => {
+        ${[
+          ...(getOutputPorts(node) || [])?.map((port) => {
+            return `${formatVariableName(port.id)}.proxy(temp_${formatVariableName(node.id)}.output['${
+              port.variableName
+            }'])`;
+          })
+        ].join('\n')}
+      })`
+    ];
   }
 
   getExtraAppContainers(): IAppContainersInfo[] {

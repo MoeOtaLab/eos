@@ -6,6 +6,7 @@ import { type IGenerationOption } from '../../Compiler';
 import { Layer, findLayer } from '../../State/Layer';
 import { AttributeControl } from './AttributeControl';
 import { generateEndPointList, getNodeEndPointFromLayer, getInputPorts, getOutputPorts } from './utils';
+import { EosCoreSymbol } from '../../Compiler/runtime';
 
 export class GroupOperator
   extends MetaOperator<IGroupOperatorData>
@@ -83,9 +84,7 @@ export class GroupOperator
           .join(',\n')}
       })`,
       ...(getOutputPorts(node) || [])?.map((port) => {
-        return `const ${formatVariableName(port.id)} = temp_${formatVariableName(node.id)}.output['${
-          port.variableName
-        }']`;
+        return `const ${formatVariableName(port.id)} = new ${EosCoreSymbol}.ModelStateProxy()`;
       })
     ];
   }
@@ -94,8 +93,19 @@ export class GroupOperator
     return [];
   }
 
-  generateBlockRelation(_options: IGenerationOption<IGroupOperatorData>): string[] {
-    return [];
+  generateBlockRelation(options: IGenerationOption<IGroupOperatorData>): string[] {
+    const { node, formatVariableName } = options;
+    return [
+      `temp_${formatVariableName(node.id)}.on('postInit', () => {
+        ${[
+          ...(getOutputPorts(node) || [])?.map((port) => {
+            return `${formatVariableName(port.id)}.proxy(temp_${formatVariableName(node.id)}.output['${
+              port.variableName
+            }'])`;
+          })
+        ].join('\n')}
+      })`
+    ];
   }
 
   getFreshNodeData(options: IHookOption<Node<IGroupOperatorData>>) {

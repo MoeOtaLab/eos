@@ -86,6 +86,8 @@ export class ModelBlock<
   constructor(options: ModelConstructorOption<InputInterface, OutputInterface>) {
     super(options);
     this.relationHelper = new RelationHelper(this);
+
+    this.on = this.on.bind(this);
   }
 
   protected setNext(next: ModelBlock<any, any> | null | undefined) {
@@ -117,6 +119,10 @@ export class ModelBlock<
       mount: this.mountTemplate.bind(this),
       unmount: this.unmountChild.bind(this)
     };
+  }
+
+  on<CallbackType extends () => any>(lifecycleType: AtomLifecycleEventType, callback: CallbackType) {
+    return this.onLifecycle(lifecycleType, callback);
   }
 
   // =============== Utils Start =================== //
@@ -189,8 +195,6 @@ export class ModelBlock<
     } else if (this.status === ModelBlockStatus.Initing) {
       this.pendingChildren.push(block);
     } else if (this.status === ModelBlockStatus.BeforeInited) {
-      // 预先执行
-      block.preInitSelf();
       this.relationHelper.addNextChildren(block);
     }
   }

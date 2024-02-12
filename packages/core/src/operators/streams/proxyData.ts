@@ -5,6 +5,7 @@ import { Action } from '../../ModelState';
 import { Callback } from '../../ModelState/Observable';
 
 // todo 重载
+/** @deprecated */
 export function proxyData<T extends Record<any, any>, Key extends string>(
   originState: ModelState<T>,
   key: Key

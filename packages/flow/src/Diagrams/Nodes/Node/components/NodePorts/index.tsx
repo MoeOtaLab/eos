@@ -15,6 +15,8 @@ export function NodePorts(props: { node: Partial<Node<IMetaOperatorData>> }) {
       return <div key={port.id}>unknown type: {port.type}</div>;
     }
 
+    const isConnectable = port?.isConnectable ?? true;
+
     return (
       <div key={port.id} style={{ position: 'relative' }}>
         <div
@@ -28,7 +30,7 @@ export function NodePorts(props: { node: Partial<Node<IMetaOperatorData>> }) {
           type={port.type}
           position={port.type === 'source' ? Position.Right : Position.Left}
           id={port.id}
-          isConnectable={true}
+          isConnectable={isConnectable}
         />
       </div>
     );

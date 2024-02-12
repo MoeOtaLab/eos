@@ -84,7 +84,7 @@ export class GroupOperator
           .join(',\n')}
       })`,
       ...(getOutputPorts(node) || [])?.map((port) => {
-        return `const ${formatVariableName(port.id)} = new ${EosCoreSymbol}.ModelStateProxy()`;
+        return `const ${formatVariableName(port.id)} = new ${EosCoreSymbol}.ModelProxy()`;
       })
     ];
   }

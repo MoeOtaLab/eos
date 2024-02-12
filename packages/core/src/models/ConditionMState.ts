@@ -27,6 +27,14 @@ export function ConditionMState<
             path: 'ConditionMState mount'
           })
         );
+      } else if (modelState.current) {
+        modelState.next(
+          new Action({
+            // TODO: fix ts
+            payload: undefined as any,
+            path: 'ConditionMState mount'
+          })
+        );
       }
     });
 

@@ -25,7 +25,8 @@ export class Subscription {
 }
 
 export class Observable<ValueType> extends Entity implements Subscribable<ValueType> {
-  protected get current(): ValueType {
+  protected get current(): ValueType | undefined {
+    console.warn('need override', this);
     throw new Error('need override');
   }
 

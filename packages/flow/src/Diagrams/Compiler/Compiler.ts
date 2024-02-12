@@ -138,6 +138,7 @@ export class NodeGraph {
     if (result.length !== this.nodes.length) {
       console.log('====== Circle ======', { result, nodes: this.nodes });
       message.info('存在循环');
+      throw new Error('存在循环');
     }
 
     return result;

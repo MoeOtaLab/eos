@@ -1,6 +1,6 @@
 import { get, set, clone } from 'lodash';
 import { ModelState } from '../..';
-import { updateValue } from '../../ModelState/State';
+import { updateValue } from '../../ModelState/ModelState';
 import { Action } from '../../ModelState';
 import { Callback } from '../../ModelState/Observable';
 

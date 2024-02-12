@@ -5,7 +5,7 @@ export {
   start,
   type InputOutputInterface
 } from './ModelBlock';
-export { ModelState, ModelEvent, Action } from './ModelState';
+export { ModelState, ModelEvent, Action, ModelEventProxy, ModelStateProxy } from './ModelState';
 export { type Observable } from './ModelState/Observable';
 export { tracker, type TrackRecord } from './Tracker';
 // not ready

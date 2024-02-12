@@ -1,4 +1,4 @@
-import { type Atom } from '../../ModelState/State';
+import { type Atom } from '../../ModelState/ModelState';
 import { ModelState } from '../..';
 
 export function combine<

@@ -32,7 +32,7 @@ export class Atom<ValueType> extends Observable<ValueType> {
   }
 }
 
-export class State<ValueType> extends Atom<ValueType> {
+export class ModelState<ValueType> extends Atom<ValueType> {
   next(action: Action<ValueType>): void {
     super.next(action);
   }

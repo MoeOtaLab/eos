@@ -29,6 +29,21 @@ type SelfLifeCycleType =
   | 'beforeUnmountSelf'
   | 'unmountSelf';
 
+const cleanUpLifecycleMap: Record<LifecycleEventType, LifecycleEventType | undefined> = {
+  beforeMount: 'beforeUnmount',
+  mount: 'unmount',
+  preInit: 'preUnmount',
+  postInit: 'postUnmount',
+  preMount: 'preUnmount',
+  postMount: 'postUnmount',
+  postUnmount: undefined,
+  preUnmount: undefined,
+  start: undefined,
+  stop: undefined,
+  beforeUnmount: undefined,
+  unmount: undefined
+};
+
 export type AtomLifecycleEventType = Exclude<LifecycleEventType, 'start' | 'stop' | 'preInit'>;
 
 export interface ModelBlockContextType {
@@ -40,8 +55,8 @@ export interface ModelBlockContextType {
   mount: <I extends InputOutputInterface, O extends InputOutputInterface>(
     template: SetupFn<I, O>,
     input?: I
-  ) => ModelConstructor<I, O>;
-  unmount: (node: ModelConstructor) => void;
+  ) => ModelBlock<I, O>;
+  unmount: (node: ModelBlock) => void;
 }
 
 export enum ModelBlockStatus {
@@ -131,10 +146,24 @@ export class ModelBlock<
     lifecycleType: AtomLifecycleEventType,
     callback: CallbackType
   ) {
-    this.eventEmitter.on(lifecycleType, callback);
+    let cleanupFn: CallbackType | undefined;
+    const cleanupLifecycle = cleanUpLifecycleMap[lifecycleType];
+
+    const callbackWrapper = () => {
+      cleanupFn = callback();
+      if (typeof cleanupFn === 'function' && cleanupLifecycle) {
+        this.eventEmitter.on(cleanupLifecycle, cleanupFn);
+      }
+    };
+
+    this.eventEmitter.on(lifecycleType, callbackWrapper);
+
     return {
       unsubscribe: () => {
-        this.eventEmitter.off(lifecycleType, callback);
+        this.eventEmitter.off(lifecycleType, callbackWrapper);
+        if (cleanupFn && cleanupLifecycle) {
+          this.eventEmitter.off(cleanupLifecycle, cleanupFn);
+        }
       }
     };
   }
@@ -160,7 +189,7 @@ export class ModelBlock<
   protected mountTemplate<I extends InputOutputInterface, O extends InputOutputInterface>(
     template: SetupFn<I, O>,
     input?: I
-  ): ModelConstructor<I, O> {
+  ): ModelBlock<I, O> {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     /** @ts-expect-error */
     if (template === this.template) {
@@ -199,7 +228,7 @@ export class ModelBlock<
     }
   }
 
-  protected unmountChild(block: ModelConstructor) {
+  protected unmountChild(block: ModelBlock) {
     if (block instanceof ModelBlock) {
       this.relationHelper.removeChild(block);
       block.unmount();

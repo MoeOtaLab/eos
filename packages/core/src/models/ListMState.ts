@@ -1,35 +1,55 @@
-import { ModelBlockContextType, SetupFn, InputOutputInterface } from '../ModelBlock';
-import { ModelState } from '../ModelState';
+import { ModelBlockContextType, SetupFn, ModelBlock } from '../ModelBlock';
+import { Action, ModelState } from '../ModelState';
 import { get } from 'lodash';
 
-export function ListMState<Data extends ModelState<any[]>, Output extends InputOutputInterface>(
-  input: {
-    data: Data;
+export function ListMState<
+  T extends {
+    listState: ModelState<Record<any, any>[]>;
+    templateState: ModelState<SetupFn<{ index: ModelState<number>; data: T['listState']; key: string }, any>>;
     key: string;
-    template: ModelState<SetupFn<{ index: ModelState<number>; data: Data; key: string }, Output>>;
-  },
-  context: ModelBlockContextType
-) {
-  const { data, key, template } = input;
-  const { mount, unmount } = context;
+  }
+>(input: T, context: ModelBlockContextType) {
+  const { listState, key, templateState } = input;
+  const { mount, unmount, onLifecycle } = context;
 
-  const instanceList = new ModelState(
-    data.current.map((value, index) => {
-      const indexState = new ModelState(index);
-      const keyValue = get(value, key);
+  const modelList = new ModelState<
+    {
+      key: any;
+      index: ModelState<number>;
+      instance: ModelBlock<
+        {
+          index: ModelState<number>;
+          data: T['listState'];
+          key: string;
+        },
+        any
+      >;
+    }[]
+  >([]);
 
-      return {
-        key: keyValue,
-        index: indexState,
-        instance: mount(template.current, { index: indexState, data, key: keyValue })
-      };
-    }) || []
-  );
+  onLifecycle('postInit', () => {
+    modelList.next(
+      new Action({
+        payload:
+          listState.current.map((value, index) => {
+            const indexState = new ModelState(index);
+            const keyValue = get(value, key);
 
-  data.subscribe((action) => {
+            return {
+              key: keyValue,
+              index: indexState,
+              instance: mount(templateState.current, { index: indexState, data: listState, key: keyValue })
+            };
+          }) || [],
+        path: 'instanceList init'
+      })
+    );
+  });
+
+  listState.subscribe((action) => {
     // console.log('change::', data.current, instanceList);
-    const nextList = data.current.map((item, index) => ({ key: get(item, key), index }));
-    const currentList = instanceList.current;
+    const nextList = listState.current.map((item, index) => ({ key: get(item, key), index }));
+    const currentList = modelList.current;
     // reconciliation
     const nextKeyMap = new Map(nextList.map((item) => [item.key, item]));
     const currentKeyMap = new Map(currentList.map((item) => [item.key, item]));
@@ -55,7 +75,11 @@ export function ListMState<Data extends ModelState<any[]>, Output extends InputO
         const itemWillMount = {
           index: indexState,
           key: currentNextItem.key,
-          instance: mount(template.current, { index: indexState, data, key: currentNextItem.key })
+          instance: mount(templateState.current, {
+            index: indexState,
+            data: listState,
+            key: currentNextItem.key
+          })
         };
         nextInstanceList.push(itemWillMount);
         console.log('mount ==> ', itemWillMount.key);
@@ -70,11 +94,11 @@ export function ListMState<Data extends ModelState<any[]>, Output extends InputO
         unmount(node.instance);
       });
 
-    instanceList.next(action.concat({ payload: nextInstanceList, path: 'ListMState' }));
+    modelList.next(action.concat({ payload: nextInstanceList, path: 'ListMState' }));
   });
 
   return {
-    data,
-    instanceList
+    listState,
+    modelList
   };
 }

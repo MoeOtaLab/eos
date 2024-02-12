@@ -1,6 +1,15 @@
 {
   "name": "@eos/shared",
   "version": "0.0.1",
+  "exports": {
+    ".": {
+      "types": "./output/types/index.d.ts",
+      "import": "./output/esm/eos-shared.js",
+      "node": "./output/cjs/eos-shared.js",
+      "require": "./output/cjs/eos-shared.js",
+      "default": "./output/esm/eos-shared.js"
+    }
+  },
   "main": "./output/esm/eos-shared.js",
   "types": "./output/types/index.d.ts",
   "scripts": {

@@ -6,6 +6,15 @@ import { Action } from './Action';
 export class ModelStateProxy<T = any> extends Observable<T> {
   protected instance?: ModelState<T>;
 
+  isInited?: boolean;
+
+  get current(): T {
+    if (!this.isInited) {
+      throw new Error('ModelStateProxy: should read value after initialization');
+    }
+    return this.instance?.current as T;
+  }
+
   proxy(instance: ModelState<T>) {
     this.instance = instance;
     // init;
@@ -19,6 +28,7 @@ export class ModelStateProxy<T = any> extends Observable<T> {
     this.instance.subscribe((action) => {
       super.trigger(action);
     });
+    this.isInited = true;
   }
 
   next(action: Action<T>) {
@@ -29,11 +39,15 @@ export class ModelStateProxy<T = any> extends Observable<T> {
 export class ModelEventProxy<T = any> extends Observable<T> {
   protected instance?: ModelEvent<T>;
 
+  isInited?: boolean;
+
   proxy(instance: ModelEvent<T>) {
     this.instance = instance;
     this.instance.subscribe((action) => {
       super.trigger(action);
     });
+
+    this.isInited = true;
   }
 
   next(action?: Action<T>) {

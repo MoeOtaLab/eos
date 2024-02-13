@@ -60,9 +60,11 @@ export class SumOperator extends MetaOperator<ISumOperatorData> implements MetaO
     const sourceIds = nodeGraph.findSourceNodes(node.id)?.map((item) => item.relatedHandleId) || [];
 
     return [
-      `const ${formatVariableName(handleId)} = ${EosOperatorsSymbol}.sum(${sourceIds
-        .map((id) => formatVariableName(id))
-        .join(',')})`
+      `const ${formatVariableName(handleId)} = ${EosOperatorsSymbol}.sum({
+        inputs: [
+          ${sourceIds.map((id) => formatVariableName(id)).join(',')}
+        ]
+      }, context)`
     ];
   }
 

@@ -1,8 +1,10 @@
 import { type Atom } from '../../ModelState/ModelState';
-import { ModelState } from '../..';
+import { ModelBlockContextType, ModelState } from '../..';
 import { Action } from '../../ModelState';
 
-export function sum<ObservableSubjectList extends Array<Atom<number>>>(...inputs: ObservableSubjectList) {
+export function sum<T extends { inputs: Array<Atom<number>> }>(input: T, context: ModelBlockContextType) {
+  const { inputs } = input;
+  const { onLifecycle } = context;
   const result = new ModelState<number>(0);
 
   function computed(action: Action<number>, path: string) {
@@ -14,7 +16,9 @@ export function sum<ObservableSubjectList extends Array<Atom<number>>>(...inputs
     );
   }
 
-  computed(new Action<number>({ payload: undefined, path: 'init' }), '[sum]: init');
+  onLifecycle('postInit', () => {
+    computed(new Action<number>({ payload: undefined, path: 'init' }), '[sum]: init');
+  });
 
   inputs.forEach((input) => {
     input.subscribe((action) => {

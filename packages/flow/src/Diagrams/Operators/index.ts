@@ -7,6 +7,7 @@ import { CombineOperator } from './CombineOperator';
 import { TransformOperator, EffectOperator } from './TransformOperator';
 import { MergeOperator } from './MergeOperator';
 import { ConditionModelOperator } from './ConditionModelOperator';
+import { ListModelOperator } from './ListModelOperator';
 
 import { registerOperators } from './OperatorMap';
 
@@ -21,7 +22,8 @@ registerOperators([
   new TransformOperator(),
   new EffectOperator(),
   new MergeOperator(),
-  new ConditionModelOperator()
+  new ConditionModelOperator(),
+  new ListModelOperator()
 ]);
 
 export {

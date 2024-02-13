@@ -144,6 +144,11 @@ export interface IMergeOperatorData<NodeOptions extends Record<string, any> = Re
 
 export interface IConditionModelOperatorData<NodeOptions extends Record<string, any> = Record<string, any>>
   extends IMetaOperatorData<NodeOptions> {
-  // noop
   modelOperatorType: string;
+}
+
+export interface IListModelOperatorData<NodeOptions extends Record<string, any> = Record<string, any>>
+  extends IMetaOperatorData<NodeOptions> {
+  modelOperatorType: string;
+  dataKey: string;
 }

@@ -9,7 +9,7 @@ export function ListMState<
     key: string;
   }
 >(input: T, context: ModelBlockContextType) {
-  const { listState, key, templateState } = input;
+  const { listState, key, templateState, ...others } = input;
   const { mount, unmount, onLifecycle } = context;
 
   const modelList = new ModelState<
@@ -38,7 +38,12 @@ export function ListMState<
             return {
               key: keyValue,
               index: indexState,
-              instance: mount(templateState.current, { index: indexState, data: listState, key: keyValue })
+              instance: mount(templateState.current, {
+                index: indexState,
+                data: listState,
+                key: keyValue,
+                ...others
+              })
             };
           }) || [],
         path: 'instanceList init'
@@ -78,7 +83,8 @@ export function ListMState<
           instance: mount(templateState.current, {
             index: indexState,
             data: listState,
-            key: currentNextItem.key
+            key: currentNextItem.key,
+            ...others
           })
         };
         nextInstanceList.push(itemWillMount);

@@ -74,9 +74,9 @@ export class StateOperator
     const { node } = options;
 
     return [
-      `const ${this.getStateSymbol(
-        options
-      )} = new ${EosCoreSymbol}.ModelState(${JSON.stringify(node.data.value)})`
+      `const ${this.getStateSymbol(options)} = new ${EosCoreSymbol}.ModelState(JSON.parse(${JSON.stringify(
+        node.data.value
+      )}))`
     ];
   }
 

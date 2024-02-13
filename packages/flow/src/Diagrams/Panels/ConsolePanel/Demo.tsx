@@ -110,7 +110,7 @@ export const Demo: React.FC = () => {
                         console.log('instance', instance);
                         inputStateMapRef.current?.[item.variableName || '']?.next(
                           new Action({
-                            payload: Number(value),
+                            payload: value,
                             path: item.variableName || ''
                           })
                         );
